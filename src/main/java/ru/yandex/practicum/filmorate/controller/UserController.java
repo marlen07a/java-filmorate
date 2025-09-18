@@ -19,16 +19,16 @@ public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping
-    public Collection<User> findAll(){
+    public Collection<User> findAll() {
         log.info("Получен запрос на получение всех пользователей. Текущее количество: {}", users.size());
         return users.values();
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user){
+    public User create(@Valid @RequestBody User user) {
         log.info("Получен запрос на создание пользователя: {}", user);
 
-        if(user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()){
+        if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
             log.info("Имя пользователя не указано, используем логин: {}", user.getLogin());
             user.setName(user.getLogin());
         }
@@ -44,7 +44,7 @@ public class UserController {
     public User update(@Valid @RequestBody User newUser){
         log.info("Получен запрос на обновление пользователя: {}", newUser);
 
-        if(users.containsKey(newUser.getId())) {
+        if (users.containsKey(newUser.getId())) {
             User oldUser = users.get(newUser.getId());
 
             oldUser.setEmail(newUser.getEmail());

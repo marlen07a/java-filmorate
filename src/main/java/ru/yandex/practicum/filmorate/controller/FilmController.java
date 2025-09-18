@@ -23,13 +23,13 @@ public class FilmController {
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
 
     @GetMapping
-    public Collection<Film> findAll(){
+    public Collection<Film> findAll() {
         log.info("Получен запрос на получение всех фильмов. Текущее количество: {}", films.size());
         return films.values();
     }
 
     @PostMapping
-    public Film create(@Valid @RequestBody Film film){
+    public Film create(@Valid @RequestBody Film film) {
         log.info("Получен запрос на создание фильма: {}", film);
 
         validateFilmCustom(film);
@@ -42,14 +42,14 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film newFilm){
+    public Film update(@Valid @RequestBody Film newFilm) {
         log.info("Получен запрос на обновление фильма: {}", newFilm);
 
-        if(newFilm.getId() == null){
+        if (newFilm.getId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "id должен быть указан");
         }
 
-        if(films.containsKey(newFilm.getId())) {
+        if (films.containsKey(newFilm.getId())) {
             Film oldFilm = films.get(newFilm.getId());
 
             validateFilmCustom(newFilm);
@@ -67,7 +67,7 @@ public class FilmController {
     }
 
     private void validateFilmCustom(Film film) {
-        if(film.getReleaseDate() != null && film.getReleaseDate().isBefore(RULE_FILM_DATE)){
+        if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(RULE_FILM_DATE)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Дата релиза не может быть раньше " + RULE_FILM_DATE);
         }
