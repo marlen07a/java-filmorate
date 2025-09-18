@@ -41,7 +41,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@Valid @RequestBody User newUser){
+    public User update(@Valid @RequestBody User newUser) {
         log.info("Получен запрос на обновление пользователя: {}", newUser);
 
         if (users.containsKey(newUser.getId())) {
