@@ -26,6 +26,14 @@ public class UserService {
     }
 
     public User update(User user) {
+        // Проверяем существование пользователя через сервис
+        if (user.getId() == null) {
+            throw new NotFoundException("User ID cannot be null for update");
+        }
+
+        userStorage.findById(user.getId())
+                .orElseThrow(() -> new NotFoundException("User with id " + user.getId() + " not found"));
+
         return userStorage.update(user);
     }
 

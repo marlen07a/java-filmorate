@@ -26,10 +26,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        if (user.getId() == null || !users.containsKey(user.getId())) {
-            log.error("User with id {} not found for update", user.getId());
-            throw new ValidationException("Invalid user ID for update");
-        }
         validateUser(user);
         setNameIfEmpty(user);
         users.put(user.getId(), user);
