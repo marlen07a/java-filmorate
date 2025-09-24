@@ -29,7 +29,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film update(Film film) {
         if (film.getId() == null || !films.containsKey(film.getId())) {
             log.error("Film with id {} not found for update", film.getId());
-            throw new ru.yandex.practicum.filmorate.exception.NotFoundException("Film with id " + film.getId() + " not found");
+            throw new NotFoundException("Film with id " + film.getId() + " not found");
         }
         validateFilm(film);
         films.put(film.getId(), film);
