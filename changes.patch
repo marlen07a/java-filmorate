@@ -1,0 +1,1791 @@
+diff --git a/.github/workflows/api-tests.yml b/.github/workflows/api-tests.yml
+new file mode 100644
+index 0000000..842aa8c
+--- /dev/null
++++ b/.github/workflows/api-tests.yml
+@@ -0,0 +1,8 @@
++name: Films API Tests
++
++on:
++  pull_request:
++
++jobs:
++  build:
++    uses: yandex-praktikum/java-filmorate/.github/workflows/api-tests.yml@ci
+\ No newline at end of file
+diff --git a/.gitignore b/.gitignore
+index 5ff6309..d7268a3 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,18 +1,20 @@
++*.class
++*.log
++*.jar
++*.war
++*.nar
++*.ear
++*.zip
++*.tar.gz
++*.rar
++hs_err_pid*
++out/
+ target/
+ !.mvn/wrapper/maven-wrapper.jar
+ !**/src/main/**/target/
+ !**/src/test/**/target/
+ 
+-### IntelliJ IDEA ###
+-.idea/modules.xml
+-.idea/jarRepositories.xml
+-.idea/compiler.xml
+-.idea/libraries/
+-*.iws
+-*.iml
+-*.ipr
+-
+-### Eclipse ###
++### STS ###
+ .apt_generated
+ .classpath
+ .factorypath
+@@ -21,6 +23,12 @@ target/
+ .springBeans
+ .sts4-cache
+ 
++### IntelliJ IDEA ###
++.idea
++*.iws
++*.iml
++*.ipr
++
+ ### NetBeans ###
+ /nbproject/private/
+ /nbbuild/
+@@ -34,5 +42,5 @@ build/
+ ### VS Code ###
+ .vscode/
+ 
+-### Mac OS ###
+-.DS_Store
+\ No newline at end of file
++*.db
++db/*
+\ No newline at end of file
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+deleted file mode 100644
+index 26d3352..0000000
+--- a/.idea/.gitignore
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Default ignored files
+-/shelf/
+-/workspace.xml
+diff --git a/.idea/encodings.xml b/.idea/encodings.xml
+deleted file mode 100644
+index aa00ffa..0000000
+--- a/.idea/encodings.xml
++++ /dev/null
+@@ -1,7 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="Encoding">
+-    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+-    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+-  </component>
+-</project>
+\ No newline at end of file
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+deleted file mode 100644
+index 039a9d1..0000000
+--- a/.idea/misc.xml
++++ /dev/null
+@@ -1,14 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="ExternalStorageConfigurationManager" enabled="true" />
+-  <component name="MavenProjectsManager">
+-    <option name="originalFiles">
+-      <list>
+-        <option value="$PROJECT_DIR$/pom.xml" />
+-      </list>
+-    </option>
+-  </component>
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_22" default="true" project-jdk-name="22" project-jdk-type="JavaSDK">
+-    <output url="file://$PROJECT_DIR$/out" />
+-  </component>
+-</project>
+\ No newline at end of file
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+deleted file mode 100644
+index 94a25f7..0000000
+--- a/.idea/vcs.xml
++++ /dev/null
+@@ -1,6 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="VcsDirectoryMappings">
+-    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+-  </component>
+-</project>
+\ No newline at end of file
+diff --git a/README.md b/README.md
+new file mode 100644
+index 0000000..2cf454a
+--- /dev/null
++++ b/README.md
+@@ -0,0 +1,2 @@
++# java-filmorate
++Template repository for Filmorate project.
+diff --git a/checkstyle.xml b/checkstyle.xml
+index 7023c27..74f37d8 100644
+--- a/checkstyle.xml
++++ b/checkstyle.xml
+@@ -1,258 +1,257 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+-        "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
++<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN" "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+ <module name="Checker">
+-    <property name="severity" value="error"/>
+-    <property name="charset" value="UTF-8"/>
+-    <property name="fileExtensions" value="java, properties, xml"/>
+-    <module name="LineLength">
+-        <property name="severity" value="ignore"/>
+-        <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+-        <property name="max" value="120"/>
+-        <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-    </module>
+-    <module name="TreeWalker">
+-        <module name="IllegalImport">
+-            <property name="regexp" value="true"/>
+-            <property name="illegalPkgs" value=".*\.shaded\..*"/>
+-        </module>
+-        <module name="OuterTypeFilename"/>
+-        <module name="IllegalTokenText">
+-            <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
+-            <property name="format" value="\\u00(09|0(a|A)|0(c|C)|0(d|D)|22|27|5(C|c))|\\(0(10|11|12|14|15|42|47)|134)"/>
+-            <property name="message" value="Consider using special escape sequence instead of actual value or Unicode escaped value."/>
+-        </module>
+-        <!--        <module name="AvoidStarImport"/>-->
+-        <module name="OneTopLevelClass"/>
+-        <module name="NoLineWrap"/>
+-        <module name="EmptyBlock">
+-            <property name="option" value="TEXT"/>
+-            <property name="tokens" value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH"/>
+-        </module>
+-        <module name="RegexpSinglelineJava">
+-            <property name="format" value="^[ \t]*[{]"/>
+-            <property name="ignoreComments" value="true"/>
+-            <property name="message" value="Leading braces"/>
+-        </module>
++	<property name="severity" value="error"/>
++	<property name="charset" value="UTF-8"/>
++	<property name="fileExtensions" value="java, properties, xml"/>
++	<module name="LineLength">
++		<property name="severity" value="ignore"/>
++		<property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
++		<property name="max" value="120"/>
++		<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++	</module>
++	<module name="TreeWalker">
++		<module name="IllegalImport">
++			<property name="regexp" value="true"/>
++			<property name="illegalPkgs" value=".*\.shaded\..*"/>
++		</module>
++		<module name="OuterTypeFilename"/>
++		<module name="IllegalTokenText">
++			<property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
++			<property name="format" value="\\u00(09|0(a|A)|0(c|C)|0(d|D)|22|27|5(C|c))|\\(0(10|11|12|14|15|42|47)|134)"/>
++			<property name="message" value="Consider using special escape sequence instead of octal value or Unicode escaped value."/>
++		</module>
++		<!--		<module name="AvoidStarImport"/>-->
++		<module name="OneTopLevelClass"/>
++		<module name="NoLineWrap"/>
++		<module name="EmptyBlock">
++			<property name="option" value="TEXT"/>
++			<property name="tokens" value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH"/>
++		</module>
++		<module name="RegexpSinglelineJava">
++			<property name="format" value="^[ \t]*[{]"/>
++			<property name="ignoreComments" value="true"/>
++			<property name="message" value="Leading braces"/>
++		</module>
+ 
+-        <module name="LeftCurly"/>
+-        <module name="RightCurly">
+-            <property name="id" value="RightCurlySame"/>
+-            <property name="tokens" value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_DO"/>
+-        </module>
+-        <module name="RightCurly">
+-            <property name="id" value="RightCurlyAlone"/>
+-            <property name="option" value="alone"/>
+-            <property name="tokens" value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT, INSTANCE_INIT"/>
+-        </module>
+-        <module name="WhitespaceAround">
+-            <property name="allowEmptyConstructors" value="true"/>
+-            <property name="allowEmptyMethods" value="true"/>
+-            <property name="allowEmptyTypes" value="true"/>
+-            <property name="allowEmptyLoops" value="true"/>
+-            <message key="ws.notPreceded" value="WhitespaceAround: ''{0}'' is not preceded with whitespace."/>
+-            <message key="ws.notFollowed"
+-                     value="WhitespaceAround: ''{0}'' is not followed by whitespace. Empty blocks may only be represented as '{}' when not part of a multi-block statement (4.1.3)"/>
+-        </module>
+-        <module name="ArrayTypeStyle"/>
+-        <module name="MissingSwitchDefault">
+-            <property name="severity" value="ignore"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="UpperEll"/>
+-        <module name="ModifierOrder"/>
+-        <module name="EmptyLineSeparator">
+-            <property name="tokens"
+-                      value="IMPORT,CLASS_DEF,ENUM_DEF,INTERFACE_DEF,CTOR_DEF,METHOD_DEF,STATIC_INIT,INSTANCE_INIT,VARIABLE_DEF"/>
+-            <property name="allowNoEmptyLineBetweenFields" value="true"/>
+-        </module>
+-        <module name="SeparatorWrap">
+-            <property name="id" value="SeparatorWrapDot"/>
+-            <property name="option" value="nl"/>
+-            <property name="tokens" value="DOT"/>
+-        </module>
+-        <module name="SeparatorWrap">
+-            <property name="id" value="SeparatorWrapComma"/>
+-            <property name="option" value="EOL"/>
+-            <property name="tokens" value="COMMA"/>
+-        </module>
+-        <module name="SeparatorWrap">
+-            <property name="id" value="SeparatorWrapEllipsis"/>
+-            <property name="option" value="EOL"/>
+-            <property name="tokens" value="ELLIPSIS"/>
+-        </module>
+-        <module name="SeparatorWrap">
+-            <property name="id" value="SeparatorWrapArrayDeclarator"/>
+-            <property name="option" value="EOL"/>
+-            <property name="tokens" value="ARRAY_DECLARATOR"/>
+-        </module>
+-        <module name="SeparatorWrap">
+-            <property name="id" value="SeparatorWrapMethodRef"/>
+-            <property name="option" value="nl"/>
+-            <property name="tokens" value="METHOD_REF"/>
+-        </module>
+-        <module name="PackageName">
+-            <!--<property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>-->
+-            <message key="name.invalidPattern" value="Package name ''{0}'' must match pattern ''{1}''."/>
+-        </module>
+-        <module name="TypeName">
+-            <message key="name.invalidPattern" value="Type name ''{0}'' must match pattern ''{1}''."/>
+-        </module>
+-        <module name="MemberName">
+-            <message key="name.invalidPattern" value="Member name ''{0}'' must match pattern ''{1}''."/>
+-        </module>
+-        <module name="ParameterName">
+-            <property name="format" value="^[a-z]([a-zA-Z0-9]*)?$"/>
+-            <property name="accessModifiers" value="public"/>
+-            <message key="name.invalidPattern" value="Parameter name ''{0}'' must match pattern ''{1}''."/>
+-        </module>
+-        <module name="CatchParameterName">
+-            <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+-            <message key="name.invalidPattern" value="Catch parameter name ''{0}'' must match pattern ''{1}''."/>
+-        </module>
+-        <module name="LocalVariableName">
+-            <property name="format" value="^[a-z]([a-zA-Z0-9]*)?$"/>
+-            <property name="tokens" value="VARIABLE_DEF"/>
+-            <message key="name.invalidPattern" value="Local variable name ''{0}'' must match pattern ''{1}''."/>
+-        </module>
+-        <module name="ClassTypeParameterName">
+-            <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+-            <message key="name.invalidPattern" value="Class type name ''{0}'' must match pattern ''{1}''."/>
+-        </module>
+-        <module name="MethodTypeParameterName">
+-            <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+-            <message key="name.invalidPattern" value="Method type name ''{0}'' must match pattern ''{1}''."/>
+-        </module>
+-        <module name="InterfaceTypeParameterName">
+-            <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$|[ID]$)"/>
+-            <message key="name.invalidPattern" value="Interface type name ''{0}'' must match pattern ''{1}''."/>
+-        </module>
+-        <module name="NoFinalizer">
+-            <property name="severity" value="ignore"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="GenericWhitespace">
+-            <message key="ws.notPreceded" value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
+-            <message key="ws.followed" value="GenericWhitespace ''{0}'' is followed by whitespace."/>
+-            <message key="ws.preceded" value="GenericWhitespace ''{0}'' is preceded with whitespace."/>
+-            <message key="ws.illegalFollow" value="GenericWhitespace ''{0}'' should followed by whitespace."/>
+-        </module>
+-        <!-- No trailing whitespace -->
+-        <module name="Regexp">
+-            <property name="format" value="[ \t]+$"/>
+-            <property name="illegalPattern" value="true"/>
+-            <property name="message" value="Trailing whitespace"/>
+-        </module>
+-        <module name="Indentation">
+-            <property name="severity" value="ignore"/>
+-            <property name="caseIndent" value="2"/>
+-            <property name="arrayInitIndent" value="2"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="AbbreviationAsWordInName">
+-            <property name="severity" value="ignore"/>
+-            <property name="allowedAbbreviationLength" value="1"/>
+-            <property name="ignoreFinal" value="false"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="VariableDeclarationUsageDistance">
+-            <property name="severity" value="ignore"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <!--        <module name="CustomImportOrder">-->
+-        <!--            <property name="customImportOrderRules" value="STATIC###STANDARD_JAVA_PACKAGE###SPECIAL_IMPORTS###THIRD_PARTY_PACKAGE"/>-->
+-        <!--            <property name="standardPackageRegExp" value="^java\."/>-->
+-        <!--            <property name="specialImportsRegExp" value="^javax\."/>-->
+-        <!--            <property name="thirdPartyPackageRegExp" value="^org\."/>-->
+-        <!--            <property name="sortImportsInGroupAlphabetically" value="true"/>-->
+-        <!--            <property name="separateLineBetweenGroups" value="true"/>-->
+-        <!--        </module>-->
+-        <module name="UnusedImports"/>
+-        <module name="MethodParamPad"/>
+-        <module name="NoWhitespaceBefore">
+-            <property name="allowLineBreaks" value="true"/>
+-            <property name="tokens" value="COMMA, SEMI, POST_INC, POST_DEC, DOT, ELLIPSIS, METHOD_REF"/>
+-        </module>
+-        <module name="ParenPad"/>
+-        <module name="OperatorWrap">
+-            <property name="severity" value="ignore"/>
+-            <property name="option" value="NL"/>
+-            <property name="tokens"
+-                      value="BAND, BOR, BSR, BXOR, DIV, EQUAL, GE, GT, LAND, LE, LITERAL_INSTANCEOF, LOR, LT, MINUS, MOD, NOT_EQUAL, PLUS, QUESTION, SL, SR, STAR, METHOD_REF "/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="AnnotationLocation">
+-            <property name="id" value="AnnotationLocationMostCases"/>
+-            <property name="tokens" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF"/>
+-        </module>
+-        <module name="AnnotationLocation">
+-            <property name="id" value="AnnotationLocationVariables"/>
+-            <property name="tokens" value="VARIABLE_DEF"/>
+-            <property name="allowSamelineMultipleAnnotations" value="true"/>
+-        </module>
+-        <module name="NonEmptyAtclauseDescription">
+-            <property name="severity" value="ignore"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="JavadocTagContinuationIndentation">
+-            <property name="severity" value="ignore"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="SummaryJavadoc">
+-            <property name="severity" value="ignore"/>
+-            <property name="forbiddenSummaryFragments" value="^@return the *|^This method returns |^A [{]@code [a-zA-Z0-9]+[}]( is a )"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="JavadocParagraph">
+-            <property name="severity" value="ignore"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="AtclauseOrder">
+-            <property name="severity" value="ignore"/>
+-            <property name="target" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
+-            <property name="tagOrder" value="@param, @return, @throws, @deprecated"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="JavadocMethod">
+-            <property name="severity" value="ignore"/>
+-            <property name="allowedAnnotations" value="Override, Test"/>
+-            <property name="allowMissingParamTags" value="true"/>
+-            <property name="allowMissingReturnTag" value="true"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="MethodName">
+-            <property name="format" value="^[a-z][a-zA-Z0-9_]*|NVL$"/>
+-            <message key="name.invalidPattern" value="Method name ''{0}'' must match pattern ''{1}''."/>
+-        </module>
+-        <module name="SingleLineJavadoc">
+-            <property name="severity" value="ignore"/>
+-            <property name="ignoreInlineTags" value="false"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="EmptyCatchBlock">
+-            <property name="exceptionVariableName" value="expected|ignore"/>
+-        </module>
+-        <module name="JavadocStyle">
+-            <property name="severity" value="ignore"/>
+-            <property name="checkFirstSentence" value="false"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="JavadocStyle">
+-            <property name="severity" value="ignore"/>
+-            <property name="checkHtml" value="false"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="SummaryJavadoc">
+-            <property name="severity" value="ignore"/>
+-            <metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
+-        </module>
+-        <module name="SuppressWarningsHolder"/>
+-        <module name="SuppressionCommentFilter"/>
+-    </module>
+-    <!--    <module name="NewlineAtEndOfFile"/>-->
+-    <module name="SuppressWarningsFilter"/>
+-    <module name="SuppressionFilter">
+-        <property name="file" value="suppressions.xml"/>
+-        <property name="optional" value="false"/>
+-    </module>
+-</module>
+\ No newline at end of file
++		<module name="LeftCurly"/>
++		<module name="RightCurly">
++			<property name="id" value="RightCurlySame"/>
++			<property name="tokens" value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_DO"/>
++		</module>
++		<module name="RightCurly">
++			<property name="id" value="RightCurlyAlone"/>
++			<property name="option" value="alone"/>
++			<property name="tokens" value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT, INSTANCE_INIT"/>
++		</module>
++		<module name="WhitespaceAround">
++			<property name="allowEmptyConstructors" value="true"/>
++			<property name="allowEmptyMethods" value="true"/>
++			<property name="allowEmptyTypes" value="true"/>
++			<property name="allowEmptyLoops" value="true"/>
++			<message key="ws.notPreceded" value="WhitespaceAround: ''{0}'' is not preceded with whitespace."/>
++			<message key="ws.notFollowed"
++					 value="WhitespaceAround: ''{0}'' is not followed by whitespace. Empty blocks may only be represented as '{}' when not part of a multi-block statement (4.1.3)"/>
++		</module>
++		<module name="ArrayTypeStyle"/>
++		<module name="MissingSwitchDefault">
++			<property name="severity" value="ignore"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="UpperEll"/>
++		<module name="ModifierOrder"/>
++		<module name="EmptyLineSeparator">
++			<property name="tokens"
++					  value="IMPORT,CLASS_DEF,ENUM_DEF,INTERFACE_DEF,CTOR_DEF,METHOD_DEF,STATIC_INIT,INSTANCE_INIT,VARIABLE_DEF"/>
++			<property name="allowNoEmptyLineBetweenFields" value="true"/>
++		</module>
++		<module name="SeparatorWrap">
++			<property name="id" value="SeparatorWrapDot"/>
++			<property name="option" value="nl"/>
++			<property name="tokens" value="DOT"/>
++		</module>
++		<module name="SeparatorWrap">
++			<property name="id" value="SeparatorWrapComma"/>
++			<property name="option" value="EOL"/>
++			<property name="tokens" value="COMMA"/>
++		</module>
++		<module name="SeparatorWrap">
++			<property name="id" value="SeparatorWrapEllipsis"/>
++			<property name="option" value="EOL"/>
++			<property name="tokens" value="ELLIPSIS"/>
++		</module>
++		<module name="SeparatorWrap">
++			<property name="id" value="SeparatorWrapArrayDeclarator"/>
++			<property name="option" value="EOL"/>
++			<property name="tokens" value="ARRAY_DECLARATOR"/>
++		</module>
++		<module name="SeparatorWrap">
++			<property name="id" value="SeparatorWrapMethodRef"/>
++			<property name="option" value="nl"/>
++			<property name="tokens" value="METHOD_REF"/>
++		</module>
++		<module name="PackageName">
++			<!--<property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>-->
++			<message key="name.invalidPattern" value="Package name ''{0}'' must match pattern ''{1}''."/>
++		</module>
++		<module name="TypeName">
++			<message key="name.invalidPattern" value="Type name ''{0}'' must match pattern ''{1}''."/>
++		</module>
++		<module name="MemberName">
++			<message key="name.invalidPattern" value="Member name ''{0}'' must match pattern ''{1}''."/>
++		</module>
++		<module name="ParameterName">
++			<property name="format" value="^[a-z]([a-zA-Z0-9]*)?$"/>
++			<property name="accessModifiers" value="public"/>
++			<message key="name.invalidPattern" value="Parameter name ''{0}'' must match pattern ''{1}''."/>
++		</module>
++		<module name="CatchParameterName">
++			<property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
++			<message key="name.invalidPattern" value="Catch parameter name ''{0}'' must match pattern ''{1}''."/>
++		</module>
++		<module name="LocalVariableName">
++			<property name="format" value="^[a-z]([a-zA-Z0-9]*)?$"/>
++			<property name="tokens" value="VARIABLE_DEF"/>
++			<message key="name.invalidPattern" value="Local variable name ''{0}'' must match pattern ''{1}''."/>
++		</module>
++		<module name="ClassTypeParameterName">
++			<property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
++			<message key="name.invalidPattern" value="Class type name ''{0}'' must match pattern ''{1}''."/>
++		</module>
++		<module name="MethodTypeParameterName">
++			<property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
++			<message key="name.invalidPattern" value="Method type name ''{0}'' must match pattern ''{1}''."/>
++		</module>
++		<module name="InterfaceTypeParameterName">
++			<property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$|[ID]$)"/>
++			<message key="name.invalidPattern" value="Interface type name ''{0}'' must match pattern ''{1}''."/>
++		</module>
++		<module name="NoFinalizer">
++			<property name="severity" value="ignore"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="GenericWhitespace">
++			<message key="ws.notPreceded" value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
++			<message key="ws.followed" value="GenericWhitespace ''{0}'' is followed by whitespace."/>
++			<message key="ws.preceded" value="GenericWhitespace ''{0}'' is preceded with whitespace."/>
++			<message key="ws.illegalFollow" value="GenericWhitespace ''{0}'' should followed by whitespace."/>
++		</module>
++		<!-- No trailing whitespace -->
++		<module name="Regexp">
++			<property name="format" value="[ \t]+$"/>
++			<property name="illegalPattern" value="true"/>
++			<property name="message" value="Trailing whitespace"/>
++		</module>
++		<module name="Indentation">
++			<property name="severity" value="ignore"/>
++			<property name="caseIndent" value="2"/>
++			<property name="arrayInitIndent" value="2"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="AbbreviationAsWordInName">
++			<property name="severity" value="ignore"/>
++			<property name="allowedAbbreviationLength" value="1"/>
++			<property name="ignoreFinal" value="false"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="VariableDeclarationUsageDistance">
++			<property name="severity" value="ignore"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++<!--		<module name="CustomImportOrder">-->
++<!--			<property name="customImportOrderRules" value="STATIC###STANDARD_JAVA_PACKAGE###SPECIAL_IMPORTS###THIRD_PARTY_PACKAGE"/>-->
++<!--			<property name="standardPackageRegExp" value="^java\."/>-->
++<!--			<property name="specialImportsRegExp" value="^javax\."/>-->
++<!--			<property name="thirdPartyPackageRegExp" value="^org\."/>-->
++<!--			<property name="sortImportsInGroupAlphabetically" value="true"/>-->
++<!--			<property name="separateLineBetweenGroups" value="true"/>-->
++<!--		</module>-->
++		<module name="UnusedImports"/>
++		<module name="MethodParamPad"/>
++		<module name="NoWhitespaceBefore">
++			<property name="allowLineBreaks" value="true"/>
++			<property name="tokens" value="COMMA, SEMI, POST_INC, POST_DEC, DOT, ELLIPSIS, METHOD_REF"/>
++		</module>
++		<module name="ParenPad"/>
++		<module name="OperatorWrap">
++			<property name="severity" value="ignore"/>
++			<property name="option" value="NL"/>
++			<property name="tokens"
++					  value="BAND, BOR, BSR, BXOR, DIV, EQUAL, GE, GT, LAND, LE, LITERAL_INSTANCEOF, LOR, LT, MINUS, MOD, NOT_EQUAL, PLUS, QUESTION, SL, SR, STAR, METHOD_REF "/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="AnnotationLocation">
++			<property name="id" value="AnnotationLocationMostCases"/>
++			<property name="tokens" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF"/>
++		</module>
++		<module name="AnnotationLocation">
++			<property name="id" value="AnnotationLocationVariables"/>
++			<property name="tokens" value="VARIABLE_DEF"/>
++			<property name="allowSamelineMultipleAnnotations" value="true"/>
++		</module>
++		<module name="NonEmptyAtclauseDescription">
++			<property name="severity" value="ignore"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="JavadocTagContinuationIndentation">
++			<property name="severity" value="ignore"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="SummaryJavadoc">
++			<property name="severity" value="ignore"/>
++			<property name="forbiddenSummaryFragments" value="^@return the *|^This method returns |^A [{]@code [a-zA-Z0-9]+[}]( is a )"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="JavadocParagraph">
++			<property name="severity" value="ignore"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="AtclauseOrder">
++			<property name="severity" value="ignore"/>
++			<property name="target" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
++			<property name="tagOrder" value="@param, @return, @throws, @deprecated"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="JavadocMethod">
++			<property name="severity" value="ignore"/>
++			<property name="allowedAnnotations" value="Override, Test"/>
++			<property name="allowMissingParamTags" value="true"/>
++			<property name="allowMissingReturnTag" value="true"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="MethodName">
++			<property name="format" value="^[a-z][a-zA-Z0-9_]*|NVL$"/>
++			<message key="name.invalidPattern" value="Method name ''{0}'' must match pattern ''{1}''."/>
++		</module>
++		<module name="SingleLineJavadoc">
++			<property name="severity" value="ignore"/>
++			<property name="ignoreInlineTags" value="false"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="EmptyCatchBlock">
++			<property name="exceptionVariableName" value="expected|ignore"/>
++		</module>
++		<module name="JavadocStyle">
++			<property name="severity" value="ignore"/>
++			<property name="checkFirstSentence" value="false"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="JavadocStyle">
++			<property name="severity" value="ignore"/>
++			<property name="checkHtml" value="false"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="SummaryJavadoc">
++			<property name="severity" value="ignore"/>
++			<metadata name="net.sf.eclipsecs.core.lastEnabledSeverity" value="inherit"/>
++		</module>
++		<module name="SuppressWarningsHolder"/>
++		<module name="SuppressionCommentFilter"/>
++	</module>
++	<!--	<module name="NewlineAtEndOfFile"/>-->
++	<module name="SuppressWarningsFilter"/>
++	<module name="SuppressionFilter">
++		<property name="file" value="suppressions.xml"/>
++		<property name="optional" value="false"/>
++	</module>
++</module>
+diff --git a/lombok.config b/lombok.config
+new file mode 100644
+index 0000000..b0056c1
+--- /dev/null
++++ b/lombok.config
+@@ -0,0 +1,4 @@
++config.stopBubbling = true
++lombok.anyconstructor.addconstructorproperties = false
++lombok.addLombokGeneratedAnnotation = true
++lombok.addSuppressWarnings = false
+\ No newline at end of file
+diff --git a/pom.xml b/pom.xml
+index bb57edb..0cad031 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -1,93 +1,46 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<project xmlns="http://maven.apache.org/POM/4.0.0"
+-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+-    <modelVersion>4.0.0</modelVersion>
+-
+-    <groupId>ru.yandex.practicum</groupId>
+-    <artifactId>Filmorate</artifactId>
+-    <version>1.0-SNAPSHOT</version>
+-
+-    <parent>
+-        <groupId>org.springframework.boot</groupId>
+-        <artifactId>spring-boot-starter-parent</artifactId>
+-        <version>3.2.2</version>
+-        <relativePath/>
+-    </parent>
+-
+-    <properties>
+-        <maven.compiler.source>22</maven.compiler.source>
+-        <maven.compiler.target>22</maven.compiler.target>
+-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+-    </properties>
+-
+-    <dependencies>
+-        <dependency>
+-            <groupId>org.springframework.boot</groupId>
+-            <artifactId>spring-boot-starter-web</artifactId>
+-        </dependency>
+-        <dependency>
+-            <groupId>org.springframework.boot</groupId>
+-            <artifactId>spring-boot-starter-validation</artifactId>
+-        </dependency>
+-        <dependency>
+-            <groupId>org.projectlombok</groupId>
+-            <artifactId>lombok</artifactId>
+-            <optional>true</optional>
+-        </dependency>
+-        <dependency>
+-            <groupId>org.springframework.boot</groupId>
+-            <artifactId>spring-boot-starter-test</artifactId>
+-            <scope>test</scope>
+-        </dependency>
+-        <dependency>
+-            <groupId>org.zalando</groupId>
+-            <artifactId>logbook-spring-boot-starter</artifactId>
+-            <version>3.7.2</version>
+-        </dependency>
+-    </dependencies>
+-
+-    <build>
+-        <plugins>
+-            <plugin>
+-                <groupId>org.apache.maven.plugins</groupId>
+-                <artifactId>maven-compiler-plugin</artifactId>
+-                <version>3.11.0</version>
+-            </plugin>
+-
+-            <plugin>
+-                <groupId>org.apache.maven.plugins</groupId>
+-                <artifactId>maven-checkstyle-plugin</artifactId>
+-                <version>3.3.1</version>
+-                <configuration>
+-                    <configLocation>checkstyle.xml</configLocation>
+-                    <failOnViolation>true</failOnViolation>
+-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+-                    <logViolationsToConsole>true</logViolationsToConsole>
+-                </configuration>
+-                <executions>
+-                    <execution>
+-                        <goals>
+-                            <goal>check</goal>
+-                        </goals>
+-                        <phase>compile</phase>
+-                    </execution>
+-                </executions>
+-            </plugin>
+-
+-            <plugin>
+-                <groupId>org.springframework.boot</groupId>
+-                <artifactId>spring-boot-maven-plugin</artifactId>
+-                <configuration>
+-                    <excludes>
+-                        <exclude>
+-                            <groupId>org.projectlombok</groupId>
+-                            <artifactId>lombok</artifactId>
+-                        </exclude>
+-                    </excludes>
+-                </configuration>
+-            </plugin>
+-        </plugins>
+-    </build>
+-
+-</project>
+\ No newline at end of file
++<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
++	<modelVersion>4.0.0</modelVersion>
++	<parent>
++		<groupId>org.springframework.boot</groupId>
++		<artifactId>spring-boot-starter-parent</artifactId>
++		<version>3.2.4</version>
++		<relativePath/> <!-- lookup parent from repository -->
++	</parent>
++	<groupId>ru.yandex.practicum</groupId>
++	<artifactId>filmorate</artifactId>
++	<version>0.0.1-SNAPSHOT</version>
++	<name>filmorate</name>
++	<description>filmorate</description>
++	<properties>
++		<java.version>21</java.version>
++	</properties>
++	<dependencies>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-web</artifactId>
++		</dependency>
++
++		<dependency>
++			<groupId>org.projectlombok</groupId>
++			<artifactId>lombok</artifactId>
++			<scope>provided</scope>
++		</dependency>
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-test</artifactId>
++			<scope>test</scope>
++		</dependency>
++	</dependencies>
++
++	<build>
++		<plugins>
++			<plugin>
++				<groupId>org.springframework.boot</groupId>
++				<artifactId>spring-boot-maven-plugin</artifactId>
++			</plugin>
++		</plugins>
++	</build>
++
++</project>
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/FilmorateApplication.java b/src/main/java/ru/yandex/practicum/filmorate/FilmorateApplication.java
+index 3f2baca..dca451b 100644
+--- a/src/main/java/ru/yandex/practicum/filmorate/FilmorateApplication.java
++++ b/src/main/java/ru/yandex/practicum/filmorate/FilmorateApplication.java
+@@ -5,7 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
+ 
+ @SpringBootApplication
+ public class FilmorateApplication {
+-    public static void main(String[] args) {
+-        SpringApplication.run(FilmorateApplication.class, args);
+-    }
++	public static void main(String[] args) {
++		SpringApplication.run(FilmorateApplication.class, args);
++	}
++
+ }
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/controller/FilmController.java b/src/main/java/ru/yandex/practicum/filmorate/controller/FilmController.java
+index f9e0a7d..08cf0a1 100644
+--- a/src/main/java/ru/yandex/practicum/filmorate/controller/FilmController.java
++++ b/src/main/java/ru/yandex/practicum/filmorate/controller/FilmController.java
+@@ -1,64 +1,7 @@
+ package ru.yandex.practicum.filmorate.controller;
+ 
+-import jakarta.validation.Valid;
+-import lombok.extern.slf4j.Slf4j;
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.web.bind.annotation.*;
+-import ru.yandex.practicum.filmorate.model.Film;
+-import ru.yandex.practicum.filmorate.service.FilmService;
+-
+-import java.util.List;
++import org.springframework.web.bind.annotation.RestController;
+ 
+ @RestController
+-@RequestMapping("/films")
+-@Slf4j
+ public class FilmController {
+-    private final FilmService filmService;
+-
+-    @Autowired
+-    public FilmController(FilmService filmService) {
+-        this.filmService = filmService;
+-    }
+-
+-    @PostMapping
+-    public Film create(@Valid @RequestBody Film film) {
+-        log.info("Creating film: {}", film);
+-        return filmService.create(film);
+-    }
+-
+-    @PutMapping
+-    public Film update(@Valid @RequestBody Film film) {
+-        log.info("Updating film: {}", film);
+-        return filmService.update(film);
+-    }
+-
+-    @GetMapping
+-    public List<Film> getAll() {
+-        log.info("Getting all films");
+-        return filmService.findAll();
+-    }
+-
+-    @GetMapping("/{id}")
+-    public Film getById(@PathVariable Long id) {
+-        log.info("Getting film by id: {}", id);
+-        return filmService.findById(id);
+-    }
+-
+-    @PutMapping("/{id}/like/{userId}")
+-    public void addLike(@PathVariable Long id, @PathVariable Long userId) {
+-        log.info("Adding like from user {} to film {}", userId, id);
+-        filmService.addLike(id, userId);
+-    }
+-
+-    @DeleteMapping("/{id}/like/{userId}")
+-    public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
+-        log.info("Removing like from user {} to film {}", userId, id);
+-        filmService.removeLike(id, userId);
+-    }
+-
+-    @GetMapping("/popular")
+-    public List<Film> getPopularFilms(@RequestParam(required = false) Integer count) {
+-        log.info("Getting popular films with count: {}", count);
+-        return filmService.getPopularFilms(count);
+-    }
+ }
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/controller/UserController.java b/src/main/java/ru/yandex/practicum/filmorate/controller/UserController.java
+deleted file mode 100644
+index 853ecb5..0000000
+--- a/src/main/java/ru/yandex/practicum/filmorate/controller/UserController.java
++++ /dev/null
+@@ -1,70 +0,0 @@
+-package ru.yandex.practicum.filmorate.controller;
+-
+-import jakarta.validation.Valid;
+-import lombok.extern.slf4j.Slf4j;
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.web.bind.annotation.*;
+-import ru.yandex.practicum.filmorate.model.User;
+-import ru.yandex.practicum.filmorate.service.UserService;
+-
+-import java.util.List;
+-
+-@RestController
+-@RequestMapping("/users")
+-@Slf4j
+-public class UserController {
+-    private final UserService userService;
+-
+-    @Autowired
+-    public UserController(UserService userService) {
+-        this.userService = userService;
+-    }
+-
+-    @PostMapping
+-    public User create(@Valid @RequestBody User user) {
+-        log.info("Creating user: {}", user);
+-        return userService.create(user);
+-    }
+-
+-    @PutMapping
+-    public User update(@Valid @RequestBody User user) {
+-        log.info("Updating user: {}", user);
+-        return userService.update(user);
+-    }
+-
+-    @GetMapping
+-    public List<User> getAll() {
+-        log.info("Getting all users");
+-        return userService.findAll();
+-    }
+-
+-    @GetMapping("/{id}")
+-    public User getById(@PathVariable Long id) {
+-        log.info("Getting user by id: {}", id);
+-        return userService.findById(id);
+-    }
+-
+-    @PutMapping("/{id}/friends/{friendId}")
+-    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+-        log.info("Adding friend {} to user {}", friendId, id);
+-        userService.addFriend(id, friendId);
+-    }
+-
+-    @DeleteMapping("/{id}/friends/{friendId}")
+-    public void removeFriend(@PathVariable Long id, @PathVariable Long friendId) {
+-        log.info("Removing friend {} from user {}", friendId, id);
+-        userService.removeFriend(id, friendId);
+-    }
+-
+-    @GetMapping("/{id}/friends")
+-    public List<User> getFriends(@PathVariable Long id) {
+-        log.info("Getting friends of user {}", id);
+-        return userService.getFriends(id);
+-    }
+-
+-    @GetMapping("/{id}/friends/common/{otherId}")
+-    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+-        log.info("Getting common friends between users {} and {}", id, otherId);
+-        return userService.getCommonFriends(id, otherId);
+-    }
+-}
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/exception/ErrorHandler.java b/src/main/java/ru/yandex/practicum/filmorate/exception/ErrorHandler.java
+deleted file mode 100644
+index 3080eec..0000000
+--- a/src/main/java/ru/yandex/practicum/filmorate/exception/ErrorHandler.java
++++ /dev/null
+@@ -1,42 +0,0 @@
+-package ru.yandex.practicum.filmorate.exception;
+-
+-import lombok.extern.slf4j.Slf4j;
+-import org.springframework.http.HttpStatus;
+-import org.springframework.web.bind.MethodArgumentNotValidException;
+-import org.springframework.web.bind.annotation.ExceptionHandler;
+-import org.springframework.web.bind.annotation.ResponseStatus;
+-import org.springframework.web.bind.annotation.RestControllerAdvice;
+-import ru.yandex.practicum.filmorate.model.ErrorResponse;
+-
+-@RestControllerAdvice
+-@Slf4j
+-public class ErrorHandler {
+-
+-    @ExceptionHandler
+-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+-    public ErrorResponse handleValidationException(final ValidationException e) {
+-        log.error("Validation error: {}", e.getMessage());
+-        return new ErrorResponse("Validation error", e.getMessage());
+-    }
+-
+-    @ExceptionHandler
+-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+-    public ErrorResponse handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
+-        log.error("Validation error: {}", e.getMessage());
+-        return new ErrorResponse("Validation error", e.getMessage());
+-    }
+-
+-    @ExceptionHandler
+-    @ResponseStatus(HttpStatus.NOT_FOUND)
+-    public ErrorResponse handleNotFoundException(final NotFoundException e) {
+-        log.error("Not found error: {}", e.getMessage());
+-        return new ErrorResponse("Not found", e.getMessage());
+-    }
+-
+-    @ExceptionHandler
+-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+-    public ErrorResponse handleThrowable(final Throwable e) {
+-        log.error("Internal server error: {}", e.getMessage(), e);
+-        return new ErrorResponse("Internal server error", "An unexpected error occurred");
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/exception/NotFoundException.java b/src/main/java/ru/yandex/practicum/filmorate/exception/NotFoundException.java
+deleted file mode 100644
+index dd8d262..0000000
+--- a/src/main/java/ru/yandex/practicum/filmorate/exception/NotFoundException.java
++++ /dev/null
+@@ -1,7 +0,0 @@
+-package ru.yandex.practicum.filmorate.exception;
+-
+-public class NotFoundException extends RuntimeException {
+-    public NotFoundException(String message) {
+-        super(message);
+-    }
+-}
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/exception/ValidationException.java b/src/main/java/ru/yandex/practicum/filmorate/exception/ValidationException.java
+deleted file mode 100644
+index 52dc49c..0000000
+--- a/src/main/java/ru/yandex/practicum/filmorate/exception/ValidationException.java
++++ /dev/null
+@@ -1,7 +0,0 @@
+-package ru.yandex.practicum.filmorate.exception;
+-
+-public class ValidationException extends RuntimeException {
+-    public ValidationException(String message) {
+-        super(message);
+-    }
+-}
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/model/ErrorResponse.java b/src/main/java/ru/yandex/practicum/filmorate/model/ErrorResponse.java
+deleted file mode 100644
+index 444f95b..0000000
+--- a/src/main/java/ru/yandex/practicum/filmorate/model/ErrorResponse.java
++++ /dev/null
+@@ -1,11 +0,0 @@
+-package ru.yandex.practicum.filmorate.model;
+-
+-import lombok.AllArgsConstructor;
+-import lombok.Data;
+-
+-@Data
+-@AllArgsConstructor
+-public class ErrorResponse {
+-    private String error;
+-    private String description;
+-}
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/model/Film.java b/src/main/java/ru/yandex/practicum/filmorate/model/Film.java
+index 246c1b8..3614a44 100644
+--- a/src/main/java/ru/yandex/practicum/filmorate/model/Film.java
++++ b/src/main/java/ru/yandex/practicum/filmorate/model/Film.java
+@@ -1,23 +1,12 @@
+ package ru.yandex.practicum.filmorate.model;
+ 
+-import jakarta.validation.constraints.NotBlank;
+-import jakarta.validation.constraints.Positive;
+-import jakarta.validation.constraints.Size;
+-import lombok.Data;
++import lombok.Getter;
++import lombok.Setter;
+ 
+-import java.time.LocalDate;
+-import java.util.HashSet;
+-import java.util.Set;
+-
+-@Data
++/**
++ * Film.
++ */
++@Getter
++@Setter
+ public class Film {
+-    private Long id;
+-    @NotBlank(message = "Name cannot be empty")
+-    private String name;
+-    @Size(max = 200, message = "Description cannot exceed 200 characters")
+-    private String description;
+-    private LocalDate releaseDate;
+-    @Positive(message = "Duration must be positive")
+-    private int duration;
+-    private Set<Long> likes = new HashSet<>();
+ }
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/model/User.java b/src/main/java/ru/yandex/practicum/filmorate/model/User.java
+deleted file mode 100644
+index fc1796e..0000000
+--- a/src/main/java/ru/yandex/practicum/filmorate/model/User.java
++++ /dev/null
+@@ -1,24 +0,0 @@
+-package ru.yandex.practicum.filmorate.model;
+-
+-import jakarta.validation.constraints.Email;
+-import jakarta.validation.constraints.NotBlank;
+-import jakarta.validation.constraints.Past;
+-import lombok.Data;
+-
+-import java.time.LocalDate;
+-import java.util.HashSet;
+-import java.util.Set;
+-
+-@Data
+-public class User {
+-    private Long id;
+-    @NotBlank(message = "Email cannot be empty")
+-    @Email(message = "Invalid email format")
+-    private String email;
+-    @NotBlank(message = "Login cannot be empty")
+-    private String login;
+-    private String name;
+-    @Past(message = "Birthday cannot be in the future")
+-    private LocalDate birthday;
+-    private Set<Long> friends = new HashSet<>();
+-}
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/service/FilmService.java b/src/main/java/ru/yandex/practicum/filmorate/service/FilmService.java
+deleted file mode 100644
+index 0e2dbe8..0000000
+--- a/src/main/java/ru/yandex/practicum/filmorate/service/FilmService.java
++++ /dev/null
+@@ -1,66 +0,0 @@
+-package ru.yandex.practicum.filmorate.service;
+-
+-import lombok.extern.slf4j.Slf4j;
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.stereotype.Service;
+-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+-import ru.yandex.practicum.filmorate.model.Film;
+-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+-
+-import java.util.List;
+-
+-@Service
+-@Slf4j
+-public class FilmService {
+-    private final FilmStorage filmStorage;
+-    private final UserStorage userStorage;
+-
+-    @Autowired
+-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+-        this.filmStorage = filmStorage;
+-        this.userStorage = userStorage;
+-    }
+-
+-    public Film create(Film film) {
+-        return filmStorage.create(film);
+-    }
+-
+-    public Film update(Film film) {
+-        return filmStorage.update(film);
+-    }
+-
+-    public Film findById(Long id) {
+-        return filmStorage.findById(id)
+-                .orElseThrow(() -> new NotFoundException("Film with id " + id + " not found"));
+-    }
+-
+-    public List<Film> findAll() {
+-        return filmStorage.findAll();
+-    }
+-
+-    public void addLike(Long filmId, Long userId) {
+-        filmStorage.findById(filmId)
+-                .orElseThrow(() -> new NotFoundException("Film with id " + filmId + " not found"));
+-        userStorage.findById(userId)
+-                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+-
+-        filmStorage.addLike(filmId, userId);
+-        log.info("User {} liked film {}", userId, filmId);
+-    }
+-
+-    public void removeLike(Long filmId, Long userId) {
+-        filmStorage.findById(filmId)
+-                .orElseThrow(() -> new NotFoundException("Film with id " + filmId + " not found"));
+-        userStorage.findById(userId)
+-                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+-
+-        filmStorage.removeLike(filmId, userId);
+-        log.info("User {} removed like from film {}", userId, filmId);
+-    }
+-
+-    public List<Film> getPopularFilms(Integer count) {
+-        int limit = count != null ? count : 10;
+-        return filmStorage.getPopularFilms(limit);
+-    }
+-}
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/service/UserService.java b/src/main/java/ru/yandex/practicum/filmorate/service/UserService.java
+deleted file mode 100644
+index d52b4f4..0000000
+--- a/src/main/java/ru/yandex/practicum/filmorate/service/UserService.java
++++ /dev/null
+@@ -1,80 +0,0 @@
+-package ru.yandex.practicum.filmorate.service;
+-
+-import lombok.extern.slf4j.Slf4j;
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.stereotype.Service;
+-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+-import ru.yandex.practicum.filmorate.model.User;
+-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+-
+-import java.util.List;
+-import java.util.Set;
+-import java.util.stream.Collectors;
+-
+-@Service
+-@Slf4j
+-public class UserService {
+-    private final UserStorage userStorage;
+-
+-    @Autowired
+-    public UserService(UserStorage userStorage) {
+-        this.userStorage = userStorage;
+-    }
+-
+-    public User create(User user) {
+-        return userStorage.create(user);
+-    }
+-
+-    public User update(User user) {
+-        return userStorage.update(user);
+-    }
+-
+-    public User findById(Long id) {
+-        return userStorage.findById(id)
+-                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
+-    }
+-
+-    public List<User> findAll() {
+-        return userStorage.findAll();
+-    }
+-
+-    public void addFriend(Long userId, Long friendId) {
+-        userStorage.findById(userId)
+-                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+-        userStorage.findById(friendId)
+-                .orElseThrow(() -> new NotFoundException("User with id " + friendId + " not found"));
+-
+-        userStorage.addFriend(userId, friendId);
+-        log.info("User {} added friend {}", userId, friendId);
+-    }
+-
+-    public void removeFriend(Long userId, Long friendId) {
+-        userStorage.findById(userId)
+-                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+-        userStorage.findById(friendId)
+-                .orElseThrow(() -> new NotFoundException("User with id " + friendId + " not found"));
+-
+-        userStorage.removeFriend(userId, friendId);
+-        log.info("User {} removed friend {}", userId, friendId);
+-    }
+-
+-    public List<User> getFriends(Long userId) {
+-        userStorage.findById(userId)
+-                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+-
+-        Set<Long> friendIds = userStorage.getFriends(userId);
+-        return friendIds.stream()
+-                .map(id -> userStorage.findById(id).orElse(null))
+-                .filter(user -> user != null)
+-                .collect(Collectors.toList());
+-    }
+-
+-    public List<User> getCommonFriends(Long userId, Long otherUserId) {
+-        userStorage.findById(userId)
+-                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+-        userStorage.findById(otherUserId)
+-                .orElseThrow(() -> new NotFoundException("User with id " + otherUserId + " not found"));
+-
+-        return userStorage.getCommonFriends(userId, otherUserId);
+-    }
+-}
+\ No newline at end of file
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/storage/film/FilmStorage.java b/src/main/java/ru/yandex/practicum/filmorate/storage/film/FilmStorage.java
+deleted file mode 100644
+index 008aa78..0000000
+--- a/src/main/java/ru/yandex/practicum/filmorate/storage/film/FilmStorage.java
++++ /dev/null
+@@ -1,16 +0,0 @@
+-package ru.yandex.practicum.filmorate.storage.film;
+-
+-import ru.yandex.practicum.filmorate.model.Film;
+-
+-import java.util.List;
+-import java.util.Optional;
+-
+-public interface FilmStorage {
+-    Film create(Film film);
+-    Film update(Film film);
+-    Optional<Film> findById(Long id);
+-    List<Film> findAll();
+-    void addLike(Long filmId, Long userId);
+-    void removeLike(Long filmId, Long userId);
+-    List<Film> getPopularFilms(int count);
+-}
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/storage/film/InMemoryFilmStorage.java b/src/main/java/ru/yandex/practicum/filmorate/storage/film/InMemoryFilmStorage.java
+deleted file mode 100644
+index 72a96c0..0000000
+--- a/src/main/java/ru/yandex/practicum/filmorate/storage/film/InMemoryFilmStorage.java
++++ /dev/null
+@@ -1,81 +0,0 @@
+-package ru.yandex.practicum.filmorate.storage.film;
+-
+-import lombok.extern.slf4j.Slf4j;
+-import org.springframework.stereotype.Component;
+-import ru.yandex.practicum.filmorate.exception.ValidationException;
+-import ru.yandex.practicum.filmorate.model.Film;
+-
+-import java.time.LocalDate;
+-import java.util.*;
+-import java.util.stream.Collectors;
+-
+-@Component
+-@Slf4j
+-public class InMemoryFilmStorage implements FilmStorage {
+-    private final Map<Long, Film> films = new HashMap<>();
+-    private long idCounter = 1;
+-
+-    @Override
+-    public Film create(Film film) {
+-        validateFilm(film);
+-        film.setId(idCounter++);
+-        films.put(film.getId(), film);
+-        log.info("Film created: {}", film);
+-        return film;
+-    }
+-
+-    @Override
+-    public Film update(Film film) {
+-        if (film.getId() == null || !films.containsKey(film.getId())) {
+-            log.error("Film with id {} not found for update", film.getId());
+-            throw new ValidationException("Invalid film ID for update");
+-        }
+-        validateFilm(film);
+-        films.put(film.getId(), film);
+-        log.info("Film updated: {}", film);
+-        return film;
+-    }
+-
+-    @Override
+-    public Optional<Film> findById(Long id) {
+-        return Optional.ofNullable(films.get(id));
+-    }
+-
+-    @Override
+-    public List<Film> findAll() {
+-        return new ArrayList<>(films.values());
+-    }
+-
+-    @Override
+-    public void addLike(Long filmId, Long userId) {
+-        Film film = films.get(filmId);
+-        if (film != null) {
+-            film.getLikes().add(userId);
+-            log.info("User {} liked film {}", userId, filmId);
+-        }
+-    }
+-
+-    @Override
+-    public void removeLike(Long filmId, Long userId) {
+-        Film film = films.get(filmId);
+-        if (film != null) {
+-            film.getLikes().remove(userId);
+-            log.info("User {} removed like from film {}", userId, filmId);
+-        }
+-    }
+-
+-    @Override
+-    public List<Film> getPopularFilms(int count) {
+-        return films.values().stream()
+-                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+-                .limit(count)
+-                .collect(Collectors.toList());
+-    }
+-
+-    private void validateFilm(Film film) {
+-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+-            log.error("Invalid release date: {}", film.getReleaseDate());
+-            throw new ValidationException("Release date cannot be before December 28, 1895");
+-        }
+-    }
+-}
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/storage/user/InMemoryUserStorage.java b/src/main/java/ru/yandex/practicum/filmorate/storage/user/InMemoryUserStorage.java
+deleted file mode 100644
+index a99acaf..0000000
+--- a/src/main/java/ru/yandex/practicum/filmorate/storage/user/InMemoryUserStorage.java
++++ /dev/null
+@@ -1,108 +0,0 @@
+-package ru.yandex.practicum.filmorate.storage.user;
+-
+-import lombok.extern.slf4j.Slf4j;
+-import org.springframework.stereotype.Component;
+-import ru.yandex.practicum.filmorate.exception.ValidationException;
+-import ru.yandex.practicum.filmorate.model.User;
+-
+-import java.util.*;
+-import java.util.stream.Collectors;
+-
+-@Component
+-@Slf4j
+-public class InMemoryUserStorage implements UserStorage {
+-    private final Map<Long, User> users = new HashMap<>();
+-    private long idCounter = 1;
+-
+-    @Override
+-    public User create(User user) {
+-        validateUser(user);
+-        setNameIfEmpty(user);
+-        user.setId(idCounter++);
+-        users.put(user.getId(), user);
+-        log.info("User created: {}", user);
+-        return user;
+-    }
+-
+-    @Override
+-    public User update(User user) {
+-        if (user.getId() == null || !users.containsKey(user.getId())) {
+-            log.error("User with id {} not found for update", user.getId());
+-            throw new ValidationException("Invalid user ID for update");
+-        }
+-        validateUser(user);
+-        setNameIfEmpty(user);
+-        users.put(user.getId(), user);
+-        log.info("User updated: {}", user);
+-        return user;
+-    }
+-
+-    @Override
+-    public Optional<User> findById(Long id) {
+-        return Optional.ofNullable(users.get(id));
+-    }
+-
+-    @Override
+-    public List<User> findAll() {
+-        return new ArrayList<>(users.values());
+-    }
+-
+-    @Override
+-    public void addFriend(Long userId, Long friendId) {
+-        User user = users.get(userId);
+-        User friend = users.get(friendId);
+-        if (user != null && friend != null) {
+-            user.getFriends().add(friendId);
+-            friend.getFriends().add(userId);
+-            log.info("Users {} and {} are now friends", userId, friendId);
+-        }
+-    }
+-
+-    @Override
+-    public void removeFriend(Long userId, Long friendId) {
+-        User user = users.get(userId);
+-        User friend = users.get(friendId);
+-        if (user != null && friend != null) {
+-            user.getFriends().remove(friendId);
+-            friend.getFriends().remove(userId);
+-            log.info("Users {} and {} are no longer friends", userId, friendId);
+-        }
+-    }
+-
+-    @Override
+-    public Set<Long> getFriends(Long userId) {
+-        User user = users.get(userId);
+-        return user != null ? new HashSet<>(user.getFriends()) : new HashSet<>();
+-    }
+-
+-    @Override
+-    public List<User> getCommonFriends(Long userId, Long otherUserId) {
+-        User user = users.get(userId);
+-        User otherUser = users.get(otherUserId);
+-
+-        if (user == null || otherUser == null) {
+-            return new ArrayList<>();
+-        }
+-
+-        Set<Long> commonFriendIds = new HashSet<>(user.getFriends());
+-        commonFriendIds.retainAll(otherUser.getFriends());
+-
+-        return commonFriendIds.stream()
+-                .map(users::get)
+-                .filter(Objects::nonNull)
+-                .collect(Collectors.toList());
+-    }
+-
+-    private void validateUser(User user) {
+-        if (user.getLogin() != null && user.getLogin().contains(" ")) {
+-            log.error("Invalid login: {} contains spaces", user.getLogin());
+-            throw new ValidationException("Login cannot contain spaces");
+-        }
+-    }
+-
+-    private void setNameIfEmpty(User user) {
+-        if (user.getName() == null || user.getName().isBlank()) {
+-            user.setName(user.getLogin());
+-        }
+-    }
+-}
+diff --git a/src/main/java/ru/yandex/practicum/filmorate/storage/user/UserStorage.java b/src/main/java/ru/yandex/practicum/filmorate/storage/user/UserStorage.java
+deleted file mode 100644
+index 999ce5e..0000000
+--- a/src/main/java/ru/yandex/practicum/filmorate/storage/user/UserStorage.java
++++ /dev/null
+@@ -1,18 +0,0 @@
+-package ru.yandex.practicum.filmorate.storage.user;
+-
+-import ru.yandex.practicum.filmorate.model.User;
+-
+-import java.util.List;
+-import java.util.Optional;
+-import java.util.Set;
+-
+-public interface UserStorage {
+-    User create(User user);
+-    User update(User user);
+-    Optional<User> findById(Long id);
+-    List<User> findAll();
+-    void addFriend(Long userId, Long friendId);
+-    void removeFriend(Long userId, Long friendId);
+-    Set<Long> getFriends(Long userId);
+-    List<User> getCommonFriends(Long userId, Long otherUserId);
+-}
+diff --git a/src/main/resources/application.properties b/src/main/resources/application.properties
+index 4490d78..8b13789 100644
+--- a/src/main/resources/application.properties
++++ b/src/main/resources/application.properties
+@@ -1,6 +1 @@
+-logging.level.org.zalando.logbook=TRACE
+ 
+-logging.level.ru.yandex.practicum.filmorate=DEBUG
+-logging.pattern.console=%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+-
+-server.port=8080
+\ No newline at end of file
+diff --git a/src/test/java/ru/yandex/practicum/filmorate/FilmorateApplicationTests.java b/src/test/java/ru/yandex/practicum/filmorate/FilmorateApplicationTests.java
+index ef54433..660412e 100644
+--- a/src/test/java/ru/yandex/practicum/filmorate/FilmorateApplicationTests.java
++++ b/src/test/java/ru/yandex/practicum/filmorate/FilmorateApplicationTests.java
+@@ -5,7 +5,9 @@ import org.springframework.boot.test.context.SpringBootTest;
+ 
+ @SpringBootTest
+ class FilmorateApplicationTests {
+-    @Test
+-    void contextLoads() {
+-    }
++
++	@Test
++	void contextLoads() {
++	}
++
+ }
+diff --git a/src/test/java/ru/yandex/practicum/filmorate/controller/FilmControllerTest.java b/src/test/java/ru/yandex/practicum/filmorate/controller/FilmControllerTest.java
+deleted file mode 100644
+index 167aadd..0000000
+--- a/src/test/java/ru/yandex/practicum/filmorate/controller/FilmControllerTest.java
++++ /dev/null
+@@ -1,94 +0,0 @@
+-package ru.yandex.practicum.filmorate.controller;
+-
+-import jakarta.validation.ConstraintViolation;
+-import jakarta.validation.Validation;
+-import jakarta.validation.Validator;
+-import jakarta.validation.ValidatorFactory;
+-import org.junit.jupiter.api.BeforeEach;
+-import org.junit.jupiter.api.Test;
+-import ru.yandex.practicum.filmorate.exception.ValidationException;
+-import ru.yandex.practicum.filmorate.model.Film;
+-import ru.yandex.practicum.filmorate.service.FilmService;
+-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+-
+-import java.time.LocalDate;
+-import java.util.Set;
+-
+-import static org.junit.jupiter.api.Assertions.*;
+-
+-class FilmControllerTest {
+-    private FilmController controller;
+-    private Validator validator;
+-
+-    @BeforeEach
+-    void setUp() {
+-        InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
+-        InMemoryUserStorage userStorage = new InMemoryUserStorage();
+-        FilmService filmService = new FilmService(filmStorage, userStorage);
+-        controller = new FilmController(filmService);
+-
+-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+-        validator = factory.getValidator();
+-    }
+-
+-    @Test
+-    void createFilm_validFilm_success() {
+-        Film film = new Film();
+-        film.setName("Test Film");
+-        film.setDescription("Description");
+-        film.setReleaseDate(LocalDate.of(2000, 1, 1));
+-        film.setDuration(120);
+-
+-        Film created = controller.create(film);
+-        assertNotNull(created.getId());
+-        assertEquals("Test Film", created.getName());
+-    }
+-
+-    @Test
+-    void createFilm_invalidName_throwsException() {
+-        Film film = new Film();
+-        film.setName("");
+-        film.setDescription("Description");
+-        film.setReleaseDate(LocalDate.of(2000, 1, 1));
+-        film.setDuration(120);
+-
+-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+-        assertFalse(violations.isEmpty());
+-    }
+-
+-    @Test
+-    void createFilm_invalidReleaseDate_throwsException() {
+-        Film film = new Film();
+-        film.setName("Test Film");
+-        film.setDescription("Description");
+-        film.setReleaseDate(LocalDate.of(1890, 1, 1));
+-        film.setDuration(120);
+-
+-        assertThrows(ValidationException.class, () -> controller.create(film));
+-    }
+-
+-    @Test
+-    void createFilm_negativeDuration_throwsException() {
+-        Film film = new Film();
+-        film.setName("Test Film");
+-        film.setDescription("Description");
+-        film.setReleaseDate(LocalDate.of(2000, 1, 1));
+-        film.setDuration(-10);
+-
+-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+-        assertFalse(violations.isEmpty());
+-    }
+-
+-    @Test
+-    void createFilm_longDescription_throwsException() {
+-        Film film = new Film();
+-        film.setName("Test Film");
+-        film.setDescription("a".repeat(201));
+-        film.setReleaseDate(LocalDate.of(2000, 1, 1));
+-        film.setDuration(120);
+-
+-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+-        assertFalse(violations.isEmpty());
+-    }
+-}
+diff --git a/src/test/java/ru/yandex/practicum/filmorate/controller/UserControllerTest.java b/src/test/java/ru/yandex/practicum/filmorate/controller/UserControllerTest.java
+deleted file mode 100644
+index a52b64a..0000000
+--- a/src/test/java/ru/yandex/practicum/filmorate/controller/UserControllerTest.java
++++ /dev/null
+@@ -1,104 +0,0 @@
+-package ru.yandex.practicum.filmorate.controller;
+-
+-import jakarta.validation.ConstraintViolation;
+-import jakarta.validation.Validation;
+-import jakarta.validation.Validator;
+-import jakarta.validation.ValidatorFactory;
+-import org.junit.jupiter.api.BeforeEach;
+-import org.junit.jupiter.api.Test;
+-import ru.yandex.practicum.filmorate.exception.ValidationException;
+-import ru.yandex.practicum.filmorate.model.User;
+-import ru.yandex.practicum.filmorate.service.UserService;
+-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+-
+-import java.time.LocalDate;
+-import java.util.Set;
+-
+-import static org.junit.jupiter.api.Assertions.*;
+-
+-class UserControllerTest {
+-    private UserController controller;
+-    private Validator validator;
+-
+-    @BeforeEach
+-    void setUp() {
+-        InMemoryUserStorage userStorage = new InMemoryUserStorage();
+-        UserService userService = new UserService(userStorage);
+-        controller = new UserController(userService);
+-
+-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+-        validator = factory.getValidator();
+-    }
+-
+-    @Test
+-    void createUser_validUser_success() {
+-        User user = new User();
+-        user.setEmail("test@example.com");
+-        user.setLogin("testlogin");
+-        user.setName("Test Name");
+-        user.setBirthday(LocalDate.of(1990, 1, 1));
+-
+-        User created = controller.create(user);
+-        assertNotNull(created.getId());
+-        assertEquals("test@example.com", created.getEmail());
+-    }
+-
+-    @Test
+-    void createUser_blankName_setsToLogin() {
+-        User user = new User();
+-        user.setEmail("test@example.com");
+-        user.setLogin("testlogin");
+-        user.setName("");
+-        user.setBirthday(LocalDate.of(1990, 1, 1));
+-
+-        User created = controller.create(user);
+-        assertEquals("testlogin", created.getName());
+-    }
+-
+-    @Test
+-    void createUser_invalidEmail_throwsException() {
+-        User user = new User();
+-        user.setEmail("invalid");
+-        user.setLogin("testlogin");
+-        user.setName("Test Name");
+-        user.setBirthday(LocalDate.of(1990, 1, 1));
+-
+-        Set<ConstraintViolation<User>> violations = validator.validate(user);
+-        assertFalse(violations.isEmpty());
+-    }
+-
+-    @Test
+-    void createUser_loginWithSpace_throwsException() {
+-        User user = new User();
+-        user.setEmail("test@example.com");
+-        user.setLogin("test login");
+-        user.setName("Test Name");
+-        user.setBirthday(LocalDate.of(1990, 1, 1));
+-
+-        assertThrows(ValidationException.class, () -> controller.create(user));
+-    }
+-
+-    @Test
+-    void createUser_futureBirthday_throwsException() {
+-        User user = new User();
+-        user.setEmail("test@example.com");
+-        user.setLogin("testlogin");
+-        user.setName("Test Name");
+-        user.setBirthday(LocalDate.now().plusDays(1));
+-
+-        Set<ConstraintViolation<User>> violations = validator.validate(user);
+-        assertFalse(violations.isEmpty());
+-    }
+-
+-    @Test
+-    void createUser_emptyLogin_throwsException() {
+-        User user = new User();
+-        user.setEmail("test@example.com");
+-        user.setLogin("");
+-        user.setName("Test Name");
+-        user.setBirthday(LocalDate.of(1990, 1, 1));
+-
+-        Set<ConstraintViolation<User>> violations = validator.validate(user);
+-        assertFalse(violations.isEmpty());
+-    }
+-}
+diff --git a/suppressions.xml b/suppressions.xml
+index 7370ea8..b2c6822 100644
+--- a/suppressions.xml
++++ b/suppressions.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE suppressions PUBLIC
+-        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+-        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
++		"-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
++		"https://checkstyle.org/dtds/suppressions_1_2.dtd">
+ <suppressions>
+-    <suppress checks=".*" files="target[\\/]generated-sources[\\/]"/>
++	<suppress checks=".*" files="target[\\/]generated-sources[\\/]"/>
+ </suppressions>
+\ No newline at end of file
