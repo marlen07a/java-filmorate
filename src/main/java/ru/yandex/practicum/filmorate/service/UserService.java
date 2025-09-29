@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+
 import java.util.*;
 
 @Service
@@ -43,6 +44,9 @@ public class UserService {
     }
 
     public void removeFriend(Long userId, Long friendId) {
+        findById(userId); // Проверяем существование пользователя
+        findById(friendId); // Проверяем существование друга
+
         if (friends.containsKey(userId)) {
             friends.get(userId).remove(friendId);
         }
