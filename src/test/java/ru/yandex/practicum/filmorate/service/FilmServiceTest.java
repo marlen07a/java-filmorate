@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.exception.FilmValidationException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -99,7 +100,7 @@ class FilmServiceTest {
         invalidFilm.setDuration(120);
 
         // When & Then
-        assertThrows(ResponseStatusException.class, () -> filmService.create(invalidFilm));
+        assertThrows(FilmValidationException.class, () -> filmService.create(invalidFilm));
         verify(filmStorage, never()).create(any(Film.class));
     }
 
