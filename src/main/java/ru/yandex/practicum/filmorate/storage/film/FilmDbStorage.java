@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
