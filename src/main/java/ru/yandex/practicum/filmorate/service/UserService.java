@@ -58,6 +58,10 @@ public class UserService {
     public void removeFriend(Long userId, Long friendId) {
         User user = findById(userId);
 
+        if (!user.getFriends().containsKey(friendId)) {
+            throw new NotFoundException("Друг с id = " + friendId + " не найден у пользователя " + userId);
+        }
+
         user.getFriends().remove(friendId);
         userStorage.update(user);
     }
