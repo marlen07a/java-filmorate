@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.FriendshipStatus;
@@ -16,7 +15,7 @@ public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -37,22 +36,18 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
     }
 
-    // Односторонняя дружба - только user добавляет friend в свой список
     public void addFriend(Long userId, Long friendId) {
         User user = findById(userId);
         User friend = findById(friendId);
 
-        // Только пользователь добавляет друга в свой список
         user.getFriends().put(friendId, FriendshipStatus.PENDING);
 
-        // Обновляем пользователя в БД
         userStorage.update(user);
     }
 
     public void confirmFriend(Long userId, Long friendId) {
         User user = findById(userId);
 
-        // Подтверждаем дружбу только для пользователя
         if (user.getFriends().containsKey(friendId)) {
             user.getFriends().put(friendId, FriendshipStatus.CONFIRMED);
             userStorage.update(user);
@@ -62,7 +57,10 @@ public class UserService {
     public void removeFriend(Long userId, Long friendId) {
         User user = findById(userId);
 
-        // Удаляем только из списка пользователя
+        if (!user.getFriends().containsKey(friendId)) {
+            throw new NotFoundException("Друг с id = " + friendId + " не найден у пользователя " + userId);
+        }
+
         user.getFriends().remove(friendId);
         userStorage.update(user);
     }

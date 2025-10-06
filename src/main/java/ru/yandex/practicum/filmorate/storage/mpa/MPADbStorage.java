@@ -29,7 +29,7 @@ public class MPADbStorage {
     private MPA mapRowToMPA(ResultSet rs, int rowNum) throws SQLException {
         MPA mpa = new MPA();
         mpa.setId(rs.getLong("id"));
-        mpa.setName(rs.getString("code")); // или rs.getString("name") в зависимости от структуры
+        mpa.setName(rs.getString("name"));
         mpa.setDescription(rs.getString("description"));
         return mpa;
     }
