@@ -39,11 +39,9 @@ public class UserService {
         User user = findById(userId);
         User friend = findById(friendId);
 
-        user.getFriends().put(friendId, FriendshipStatus.PENDING);
-        friend.getFriends().put(userId, FriendshipStatus.PENDING);
+        user.getFriends().put(friendId, FriendshipStatus.CONFIRMED);
 
         userStorage.update(user);
-        userStorage.update(friend);
     }
 
     public void confirmFriend(Long userId, Long friendId) {
@@ -59,14 +57,11 @@ public class UserService {
 
     public void removeFriend(Long userId, Long friendId) {
         User user = findById(userId);
-        User friend = findById(friendId);
 
         user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
-
         userStorage.update(user);
-        userStorage.update(friend);
     }
+
 
     public List<User> getFriends(Long userId) {
         User user = findById(userId);
@@ -96,15 +91,8 @@ public class UserService {
         User user = findById(userId);
         User otherUser = findById(otherId);
 
-        Set<Long> userFriendIds = user.getFriends().entrySet().stream()
-                .filter(entry -> entry.getValue() == FriendshipStatus.CONFIRMED)
-                .map(Map.Entry::getKey)
-                .collect(HashSet::new, HashSet::add, HashSet::addAll);
-
-        Set<Long> otherFriendIds = otherUser.getFriends().entrySet().stream()
-                .filter(entry -> entry.getValue() == FriendshipStatus.CONFIRMED)
-                .map(Map.Entry::getKey)
-                .collect(HashSet::new, HashSet::add, HashSet::addAll);
+        Set<Long> userFriendIds = user.getFriends().keySet();
+        Set<Long> otherFriendIds = otherUser.getFriends().keySet();
 
         userFriendIds.retainAll(otherFriendIds);
 
