@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -23,7 +24,10 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> findAll() {
         String sql = "SELECT * FROM users";
-        return jdbcTemplate.query(sql, this::mapRowToUser);
+        List<User> users = jdbcTemplate.query(sql, this::mapRowToUser);
+        // Загружаем друзей для каждого пользователя
+        users.forEach(this::loadFriends);
+        return users;
     }
 
     @Override
@@ -60,6 +64,9 @@ public class UserDbStorage implements UserStorage {
             throw new NotFoundException("Пользователь с id = " + user.getId() + " не найден");
         }
 
+        // Обновляем друзей в БД
+        updateFriends(user);
+
         return user;
     }
 
@@ -67,7 +74,12 @@ public class UserDbStorage implements UserStorage {
     public Optional<User> findById(Long id) {
         String sql = "SELECT * FROM users WHERE id = ?";
         List<User> users = jdbcTemplate.query(sql, this::mapRowToUser, id);
-        return users.stream().findFirst();
+        if (users.isEmpty()) {
+            return Optional.empty();
+        }
+        User user = users.get(0);
+        loadFriends(user);
+        return Optional.of(user);
     }
 
     @Override
@@ -93,7 +105,6 @@ public class UserDbStorage implements UserStorage {
         user.setCreatedAt(rs.getTimestamp("created_at") != null ?
                 rs.getTimestamp("created_at").toLocalDateTime() : null);
 
-        loadFriends(user);
         return user;
     }
 
@@ -105,5 +116,19 @@ public class UserDbStorage implements UserStorage {
             user.getFriends().put(friendId, status);
             return null;
         }, user.getId());
+    }
+
+    private void updateFriends(User user) {
+        // Удаляем старые друзья
+        String deleteSql = "DELETE FROM friendships WHERE user_id = ?";
+        jdbcTemplate.update(deleteSql, user.getId());
+
+        // Сохраняем новых друзей
+        if (user.getFriends() != null && !user.getFriends().isEmpty()) {
+            String insertSql = "INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, ?)";
+            for (Map.Entry<Long, FriendshipStatus> entry : user.getFriends().entrySet()) {
+                jdbcTemplate.update(insertSql, user.getId(), entry.getKey(), entry.getValue().toString());
+            }
+        }
     }
 }
