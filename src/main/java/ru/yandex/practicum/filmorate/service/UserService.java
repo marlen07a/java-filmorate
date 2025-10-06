@@ -41,43 +41,56 @@ public class UserService {
         User friend = findById(friendId);
 
         user.getFriends().put(friendId, FriendshipStatus.PENDING);
+        friend.getFriends().put(userId, FriendshipStatus.PENDING);
 
         userStorage.update(user);
+        userStorage.update(friend);
     }
 
     public void confirmFriend(Long userId, Long friendId) {
         User user = findById(userId);
+        User friend = findById(friendId);
 
-        if (user.getFriends().containsKey(friendId)) {
-            user.getFriends().put(friendId, FriendshipStatus.CONFIRMED);
-            userStorage.update(user);
-        }
+        user.getFriends().put(friendId, FriendshipStatus.CONFIRMED);
+        friend.getFriends().put(userId, FriendshipStatus.CONFIRMED);
+
+        userStorage.update(user);
+        userStorage.update(friend);
     }
 
     public void removeFriend(Long userId, Long friendId) {
         User user = findById(userId);
-
-        if (!user.getFriends().containsKey(friendId)) {
-            throw new NotFoundException("Друг с id = " + friendId + " не найден у пользователя " + userId);
-        }
+        User friend = findById(friendId);
 
         user.getFriends().remove(friendId);
+        friend.getFriends().remove(userId);
+
         userStorage.update(user);
+        userStorage.update(friend);
     }
 
     public List<User> getFriends(Long userId) {
         User user = findById(userId);
-        return user.getFriends().keySet().stream()
-                .map(this::findById)
-                .collect(Collectors.toList());
+        List<User> friendList = new ArrayList<>();
+
+        for (Long friendId : user.getFriends().keySet()) {
+            userStorage.findById(friendId).ifPresent(friendList::add);
+        }
+
+        return friendList;
     }
 
     public List<User> getConfirmedFriends(Long userId) {
         User user = findById(userId);
-        return user.getFriends().entrySet().stream()
-                .filter(entry -> entry.getValue() == FriendshipStatus.CONFIRMED)
-                .map(entry -> findById(entry.getKey()))
-                .collect(Collectors.toList());
+        List<User> confirmedFriends = new ArrayList<>();
+
+        for (Map.Entry<Long, FriendshipStatus> entry : user.getFriends().entrySet()) {
+            if (entry.getValue() == FriendshipStatus.CONFIRMED) {
+                userStorage.findById(entry.getKey()).ifPresent(confirmedFriends::add);
+            }
+        }
+
+        return confirmedFriends;
     }
 
     public List<User> getCommonFriends(Long userId, Long otherId) {
@@ -87,18 +100,21 @@ public class UserService {
         Set<Long> userFriendIds = user.getFriends().entrySet().stream()
                 .filter(entry -> entry.getValue() == FriendshipStatus.CONFIRMED)
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
+                .collect(HashSet::new, HashSet::add, HashSet::addAll);
 
         Set<Long> otherFriendIds = otherUser.getFriends().entrySet().stream()
                 .filter(entry -> entry.getValue() == FriendshipStatus.CONFIRMED)
                 .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
+                .collect(HashSet::new, HashSet::add, HashSet::addAll);
 
         userFriendIds.retainAll(otherFriendIds);
 
-        return userFriendIds.stream()
-                .map(this::findById)
-                .collect(Collectors.toList());
+        List<User> commonFriends = new ArrayList<>();
+        for (Long friendId : userFriendIds) {
+            userStorage.findById(friendId).ifPresent(commonFriends::add);
+        }
+
+        return commonFriends;
     }
 
     public FriendshipStatus getFriendshipStatus(Long userId, Long friendId) {

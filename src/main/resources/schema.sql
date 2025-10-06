@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS film_likes (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Friendships with status
+-- Friendships with status (ДВУСТОРОННЯЯ дружба)
 CREATE TABLE IF NOT EXISTS friendships (
     user_id BIGINT NOT NULL,
     friend_id BIGINT NOT NULL,
