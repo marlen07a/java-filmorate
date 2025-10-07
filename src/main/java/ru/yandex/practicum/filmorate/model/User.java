@@ -7,8 +7,8 @@ import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
@@ -29,5 +29,5 @@ public class User {
 
     private LocalDateTime createdAt;
 
-    private Map<Long, FriendshipStatus> friends = new HashMap<>();
+    private Set<Long> friends = new HashSet<>();
 }

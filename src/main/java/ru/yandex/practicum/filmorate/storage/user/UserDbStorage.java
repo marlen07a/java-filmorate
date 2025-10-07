@@ -7,12 +7,10 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -109,26 +107,39 @@ public class UserDbStorage implements UserStorage {
     }
 
     private void loadFriends(User user) {
-        String sql = "SELECT friend_id, status FROM friendships WHERE user_id = ?";
+        String sql = "SELECT friend_id FROM friendships WHERE user_id = ?";
         jdbcTemplate.query(sql, (rs, rowNum) -> {
             Long friendId = rs.getLong("friend_id");
-            FriendshipStatus status = FriendshipStatus.valueOf(rs.getString("status"));
-            user.getFriends().put(friendId, status);
+            user.getFriends().add(friendId);
             return null;
         }, user.getId());
     }
+
+    @Override
+    public void addFriend(Long userId, Long friendId) {
+        String sql = "MERGE INTO friendships (user_id, friend_id) VALUES (?, ?)";
+        jdbcTemplate.update(sql, userId, friendId);
+    }
+
+    @Override
+    public void removeFriend(Long userId, Long friendId) {
+        String sql = "DELETE FROM friendships WHERE user_id = ? AND friend_id = ?";
+        jdbcTemplate.update(sql, userId, friendId);
+    }
+
 
     private void updateFriends(User user) {
         // Удаляем старые друзья
         String deleteSql = "DELETE FROM friendships WHERE user_id = ?";
         jdbcTemplate.update(deleteSql, user.getId());
 
-        // Сохраняем новых друзей
+        // Сохраняем новых друзей (без статуса)
         if (user.getFriends() != null && !user.getFriends().isEmpty()) {
-            String insertSql = "INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, ?)";
-            for (Map.Entry<Long, FriendshipStatus> entry : user.getFriends().entrySet()) {
-                jdbcTemplate.update(insertSql, user.getId(), entry.getKey(), entry.getValue().toString());
+            String insertSql = "INSERT INTO friendships (user_id, friend_id) VALUES (?, ?)";
+            for (Long friendId : user.getFriends()) {
+                jdbcTemplate.update(insertSql, user.getId(), friendId);
             }
         }
     }
+
 }
