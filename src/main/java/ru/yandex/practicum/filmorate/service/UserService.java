@@ -35,12 +35,22 @@ public class UserService {
     }
 
     public void addFriend(Long userId, Long friendId) {
-        User user = findById(userId);
+        if (!userStorage.existsById(userId)) {
+            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
+        }
+        if (!userStorage.existsById(friendId)) {
+            throw new NotFoundException("Пользователь с id = " + friendId + " не найден");
+        }
         userStorage.addFriend(userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        User user = findById(userId);
+        if (!userStorage.existsById(userId)) {
+            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
+        }
+        if (!userStorage.existsById(friendId)) {
+            throw new NotFoundException("Пользователь с id = " + friendId + " не найден");
+        }
         userStorage.removeFriend(userId, friendId);
     }
 
