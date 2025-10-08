@@ -2,11 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
 
@@ -15,18 +17,38 @@ import java.util.List;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    @Autowired
+    private MpaService mpaService;
+    @Autowired
+    private GenreService genreService;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
+                       @Qualifier("userDbStorage") UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
 
     public Film create(Film film) {
+        if (film.getMpa() != null) {
+            mpaService.findById(film.getMpa().getId());
+        }
+
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            for (Genre genre : film.getGenres()) {
+                genreService.findById(genre.getId());
+            }
+        }
+
         return filmStorage.create(film);
     }
 
     public Film update(Film film) {
+        if (film.getId() == null) {
+            throw new NotFoundException("Film ID cannot be null for update");
+        }
+        filmStorage.findById(film.getId())
+                .orElseThrow(() -> new NotFoundException("Film with id " + film.getId() + " not found"));
         return filmStorage.update(film);
     }
 
