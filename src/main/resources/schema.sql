@@ -70,4 +70,3 @@ CREATE INDEX IF NOT EXISTS idx_films_mpa_id ON films(mpa_id);
 CREATE INDEX IF NOT EXISTS idx_film_genres_genre_id ON film_genres(genre_id);
 CREATE INDEX IF NOT EXISTS idx_film_likes_user_id ON film_likes(user_id);
 CREATE INDEX IF NOT EXISTS idx_friendships_friend_id ON friendships(friend_id);
-CREATE INDEX IF NOT EXISTS idx_friendships_status ON friendships(status);
