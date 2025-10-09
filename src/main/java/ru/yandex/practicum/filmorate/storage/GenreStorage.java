@@ -11,10 +11,10 @@ import java.util.Optional;
 
 @Repository
 @Slf4j
-public class GenreDao {
+public class GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    public GenreDao(JdbcTemplate jdbcTemplate) {
+    public GenreStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

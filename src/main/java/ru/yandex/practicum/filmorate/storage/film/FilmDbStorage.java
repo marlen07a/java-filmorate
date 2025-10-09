@@ -16,6 +16,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @Qualifier("filmDbStorage")
@@ -83,8 +84,7 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         Film film = films.get(0);
-        film.setGenres(loadFilmGenres(id));
-        film.setLikes(loadFilmLikes(id));
+        loadGenresAndLikesForFilms(List.of(film));
         return Optional.of(film);
     }
 
@@ -94,11 +94,7 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
 
         List<Film> films = jdbcTemplate.query(sql, filmRowMapper());
-
-        for (Film film : films) {
-            film.setGenres(loadFilmGenres(film.getId()));
-            film.setLikes(loadFilmLikes(film.getId()));
-        }
+        loadGenresAndLikesForFilms(films);
 
         return films;
     }
@@ -123,16 +119,12 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM films f " +
                 "LEFT JOIN mpa_ratings m ON f.mpa_id = m.id " +
                 "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
-                "GROUP BY f.id " +
+                "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa_id, m.name " +
                 "ORDER BY likes_count DESC " +
                 "LIMIT ?";
 
         List<Film> films = jdbcTemplate.query(sql, filmRowMapper(), count);
-
-        for (Film film : films) {
-            film.setGenres(loadFilmGenres(film.getId()));
-            film.setLikes(loadFilmLikes(film.getId()));
-        }
+        loadGenresAndLikesForFilms(films);
 
         return films;
     }
@@ -173,25 +165,57 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.update(sql, filmId);
     }
 
-    private Set<Genre> loadFilmGenres(Long filmId) {
-        String sql = "SELECT g.id, g.name FROM genres g " +
-                "JOIN film_genres fg ON g.id = fg.genre_id " +
-                "WHERE fg.film_id = ? ORDER BY g.id";
+    private void loadGenresAndLikesForFilms(List<Film> films) {
+        if (films.isEmpty()) {
+            return;
+        }
 
-        List<Genre> genres = jdbcTemplate.query(sql, (rs, rowNum) -> {
-            Genre genre = new Genre();
-            genre.setId(rs.getInt("id"));
-            genre.setName(rs.getString("name"));
-            return genre;
-        }, filmId);
-
-        return new LinkedHashSet<>(genres);
+        loadGenresForFilms(films);
+        loadLikesForFilms(films);
     }
 
-    private Set<Long> loadFilmLikes(Long filmId) {
-        String sql = "SELECT user_id FROM film_likes WHERE film_id = ?";
-        List<Long> likes = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("user_id"), filmId);
-        return new HashSet<>(likes);
+    private void loadGenresForFilms(List<Film> films) {
+        Map<Long, Film> filmMap = films.stream()
+                .collect(Collectors.toMap(Film::getId, film -> film));
+
+        String inSql = String.join(",", Collections.nCopies(films.size(), "?"));
+        String sql = "SELECT fg.film_id, g.id, g.name " +
+                "FROM film_genres fg " +
+                "JOIN genres g ON fg.genre_id = g.id " +
+                "WHERE fg.film_id IN (" + inSql + ") " +
+                "ORDER BY fg.film_id, g.id";
+
+        List<Long> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
+
+        jdbcTemplate.query(sql, rs -> {
+            Long filmId = rs.getLong("film_id");
+            Film film = filmMap.get(filmId);
+            if (film != null) {
+                Genre genre = new Genre();
+                genre.setId(rs.getInt("id"));
+                genre.setName(rs.getString("name"));
+                film.getGenres().add(genre);
+            }
+        }, filmIds.toArray());
+    }
+
+    private void loadLikesForFilms(List<Film> films) {
+        Map<Long, Film> filmMap = films.stream()
+                .collect(Collectors.toMap(Film::getId, film -> film));
+
+        String inSql = String.join(",", Collections.nCopies(films.size(), "?"));
+        String sql = "SELECT film_id, user_id FROM film_likes WHERE film_id IN (" + inSql + ")";
+
+        List<Long> filmIds = films.stream().map(Film::getId).collect(Collectors.toList());
+
+        jdbcTemplate.query(sql, rs -> {
+            Long filmId = rs.getLong("film_id");
+            Long userId = rs.getLong("user_id");
+            Film film = filmMap.get(filmId);
+            if (film != null) {
+                film.getLikes().add(userId);
+            }
+        }, filmIds.toArray());
     }
 
     private void validateFilm(Film film) {

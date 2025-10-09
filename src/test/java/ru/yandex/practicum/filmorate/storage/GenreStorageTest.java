@@ -16,13 +16,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({GenreDao.class})
-class GenreDaoTest {
-    private final GenreDao genreDao;
+@Import({GenreStorage.class})
+class GenreStorageTest {
+    private final GenreStorage genreStorage;
 
     @Test
     public void testFindAllGenres() {
-        List<Genre> genres = genreDao.findAll();
+        List<Genre> genres = genreStorage.findAll();
 
         assertThat(genres).isNotEmpty();
         assertThat(genres).hasSizeGreaterThanOrEqualTo(1);
@@ -30,7 +30,7 @@ class GenreDaoTest {
 
     @Test
     public void testFindGenreById() {
-        Optional<Genre> genre = genreDao.findById(1);
+        Optional<Genre> genre = genreStorage.findById(1);
 
         assertThat(genre).isPresent();
         assertThat(genre.get().getId()).isEqualTo(1);
@@ -39,14 +39,14 @@ class GenreDaoTest {
 
     @Test
     public void testFindGenreByIdNotFound() {
-        Optional<Genre> genre = genreDao.findById(999);
+        Optional<Genre> genre = genreStorage.findById(999);
 
         assertThat(genre).isEmpty();
     }
 
     @Test
     public void testGenresAreOrderedById() {
-        List<Genre> genres = genreDao.findAll();
+        List<Genre> genres = genreStorage.findAll();
 
         for (int i = 0; i < genres.size() - 1; i++) {
             assertThat(genres.get(i).getId()).isLessThan(genres.get(i + 1).getId());

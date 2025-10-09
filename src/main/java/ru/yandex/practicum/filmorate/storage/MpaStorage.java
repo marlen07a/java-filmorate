@@ -11,10 +11,10 @@ import java.util.Optional;
 
 @Repository
 @Slf4j
-public class MpaDao {
+public class MpaStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    public MpaDao(JdbcTemplate jdbcTemplate) {
+    public MpaStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

@@ -5,26 +5,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.GenreDao;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
 
 import java.util.List;
 
 @Service
 @Slf4j
 public class GenreService {
-    private final GenreDao genreDao;
+    private final GenreStorage genreStorage;
 
     @Autowired
-    public GenreService(GenreDao genreDao) {
-        this.genreDao = genreDao;
+    public GenreService(GenreStorage genreStorage) {
+        this.genreStorage = genreStorage;
     }
 
     public List<Genre> findAll() {
-        return genreDao.findAll();
+        return genreStorage.findAll();
     }
 
     public Genre findById(Integer id) {
-        return genreDao.findById(id)
+        return genreStorage.findById(id)
                 .orElseThrow(() -> new NotFoundException("Genre with id " + id + " not found"));
     }
 }
