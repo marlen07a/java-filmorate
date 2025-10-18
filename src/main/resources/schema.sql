@@ -69,6 +69,14 @@ CREATE TABLE IF NOT EXISTS friendships (
     FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Add director_id column to the films table
+ALTER TABLE films
+ADD COLUMN IF NOT EXISTS director_id BIGINT,
+ADD CONSTRAINT fk_films_director
+    FOREIGN KEY (director_id)
+    REFERENCES directors(id)
+    ON DELETE SET NULL;
+
 -- Индексы для оптимизации
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_login ON users(login);
@@ -76,4 +84,6 @@ CREATE INDEX IF NOT EXISTS idx_films_release_date ON films(release_date);
 CREATE INDEX IF NOT EXISTS idx_films_mpa_id ON films(mpa_id);
 CREATE INDEX IF NOT EXISTS idx_film_genres_genre_id ON film_genres(genre_id);
 CREATE INDEX IF NOT EXISTS idx_film_likes_user_id ON film_likes(user_id);
+CREATE INDEX IF NOT EXISTS idx_films_director_id ON films(director_id);
+CREATE INDEX IF NOT EXISTS idx_films_name ON films(name);
 CREATE INDEX IF NOT EXISTS idx_friendships_friend_id ON friendships(friend_id);

@@ -62,4 +62,26 @@ public class FilmController {
         log.info("Получен запрос на получение {} популярных фильмов", count);
         return filmService.getPopularFilms(count);
     }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirector(
+            @PathVariable Long directorId,
+            @RequestParam(defaultValue = "year") String sortBy) {
+        log.info("Получен запрос на получение фильмов режиссёра с id: {}, сортировка: {}", directorId, sortBy);
+        return filmService.getFilmsByDirector(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<Film> searchFilms(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "title,director") String by) {
+        log.info("Получен запрос на поиск фильмов: query='{}', by='{}'", query, by);
+        return filmService.searchFilms(query, by);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteFilm(@PathVariable Long id) {
+        log.info("Получен запрос на удаление фильма с id: {}", id);
+        filmService.deleteFilm(id);
+    }
 }
