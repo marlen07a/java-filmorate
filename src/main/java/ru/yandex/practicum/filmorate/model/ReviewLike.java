@@ -12,6 +12,6 @@ public class ReviewLike {
 
     private Long userId;
 
-    private boolean isLike; //true = лайк, false = дизлайк
+     //true = лайк, false = дизлайк
 
 }

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.review;
+/*package ru.yandex.practicum.filmorate.storage.review;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -95,3 +95,4 @@ public class ReviewLikeDbStorage implements ReviewLikeStorage {
         );
     }
 }
+*/

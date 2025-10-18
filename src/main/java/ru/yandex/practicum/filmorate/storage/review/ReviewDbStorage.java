@@ -5,7 +5,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.ReviewLike;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -71,6 +73,50 @@ public class ReviewDbStorage implements ReviewStorage {
         return jdbcTemplate.query(sql, this::mapRowToReview, count);
     }
 
+    @Override
+    public Review addLike(long reviewId, long userId) {
+        String sql = "UPDATE reviews SET useful = useful + 1 WHERE id = ?";
+        int updated = jdbcTemplate.update(sql, reviewId);
+        if (updated == 0) {
+            throw new NotFoundException("Отзыв с id=" + reviewId + " не найден");
+        }
+        return findById(reviewId).orElseThrow(() ->
+                new NotFoundException("Ошибка при обновлении useful у отзыва " + reviewId));
+    }
+
+    @Override
+    public Review addDislike(long reviewId, long userId) {
+        String sql = "UPDATE reviews SET useful = useful - 1 WHERE id = ?";
+        int updated = jdbcTemplate.update(sql, reviewId);
+        if (updated == 0) {
+            throw new NotFoundException("Отзыв с id=" + reviewId + " не найден");
+        }
+        return findById(reviewId).orElseThrow(() ->
+                new NotFoundException("Ошибка при обновлении useful у отзыва " + reviewId));
+    }
+
+    @Override
+    public void removeLike(long reviewId, long userId) {
+        String sql = "UPDATE reviews SET useful = useful - 1 WHERE id = ?";
+        jdbcTemplate.update(sql, reviewId);
+    }
+
+    @Override
+    public void removeDislike(long reviewId, long userId) {
+        String sql = "UPDATE reviews SET useful = useful + 1 WHERE id = ?";
+        jdbcTemplate.update(sql, reviewId);
+    }
+
+    @Override
+    public int getUseful(long reviewId) {
+        String sql = "SELECT useful FROM reviews WHERE id = ?";
+        Integer useful = jdbcTemplate.queryForObject(sql, Integer.class, reviewId);
+        if (useful == null) {
+            throw new NotFoundException("Отзыв с id=" + reviewId + " не найден");
+        }
+        return useful;
+    }
+
     private Review mapRowToReview(ResultSet rs, int rowNum) throws SQLException {
         return new Review(
                 rs.getLong("id"),
@@ -81,4 +127,5 @@ public class ReviewDbStorage implements ReviewStorage {
                 rs.getInt("useful")
         );
     }
+
 }

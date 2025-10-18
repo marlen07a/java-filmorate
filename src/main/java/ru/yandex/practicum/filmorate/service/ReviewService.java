@@ -1,25 +1,22 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.model.ReviewLike;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.review.ReviewLikeDbStorage;
-import ru.yandex.practicum.filmorate.storage.review.ReviewLikeStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
-
-    private final ReviewLikeStorage reviewLikeStorage;
-    private final ReviewLikeDbStorage reviewStorage;
     private final UserStorage userStorage;
     private final ReviewStorage reviewDbStorage;
 
@@ -45,7 +42,7 @@ public class ReviewService {
     }
 
     public Review findById(Long reviewId) {
-        return reviewDbStorage.findById(reviewId).orElseThrow(() -> new RuntimeException("Отзывс ID" + reviewId + "не найден"));
+        return reviewDbStorage.findById(reviewId).orElseThrow(() -> new NotFoundException("Отзывс ID" + reviewId + "не найден"));
     }
 
     public void delete(Long reviewId) {
@@ -60,37 +57,41 @@ public class ReviewService {
         return reviewDbStorage.findAll(count);
     }
 
-    public ReviewLike addLike(Long reviewId, Long userId) {
+    public Review addLike(Long reviewId, Long userId) {
         Review review = getReviewOrThrow(reviewId);
-        Optional<User> user = Optional.ofNullable(getUserOrThrow(userId));
-
-        return reviewLikeStorage.addLike(review.getReviewId(), user.get().getId());
+        getUserOrThrow(userId);
+        review.setUseful(review.getUseful() + 1);
+        reviewDbStorage.update(review);
+        return review;
     }
 
-    public ReviewLike addDislike(Long reviewId, Long userId) {
+    public Review addDislike(Long reviewId, Long userId) {
         Review review = getReviewOrThrow(reviewId);
-        Optional<User> user = Optional.ofNullable(getUserOrThrow(userId));
-
-        return reviewLikeStorage.addDislike(review.getReviewId(), user.get().getId());
-    }
-
-    public void removeLike(Long reviewId, Long userId) {
-        getReviewOrThrow(reviewId);
         getUserOrThrow(userId);
-
-        reviewLikeStorage.removeLike(reviewId, userId);
+        review.setUseful(review.getUseful() - 1);
+        reviewDbStorage.update(review);
+        return review;
     }
 
-    public void removeDislike(Long reviewId, Long userId) {
-        getReviewOrThrow(reviewId);
+    public Review removeLike(Long reviewId, Long userId) {
+        Review review = getReviewOrThrow(reviewId);
         getUserOrThrow(userId);
-
-        reviewLikeStorage.removeDislike(reviewId, userId);
+        review.setUseful(review.getUseful() - 1);
+        reviewDbStorage.update(review);
+        return review;
     }
 
-    public ReviewLike getRating(Long reviewId) {
-        getReviewOrThrow(reviewId);
-        return reviewLikeStorage.getRating(reviewId);
+    public Review removeDislike(Long reviewId, Long userId) {
+        Review review = getReviewOrThrow(reviewId);
+        getUserOrThrow(userId);
+        review.setUseful(review.getUseful() + 1);
+        reviewDbStorage.update(review);
+        return review;
+    }
+
+    public int getUseful(Long reviewId) {
+        Review review = getReviewOrThrow(reviewId);
+        return review.getUseful();
     }
 
     private Review getReviewOrThrow(Long reviewId) {
@@ -98,6 +99,6 @@ public class ReviewService {
     }
 
     private User getUserOrThrow(Long userId) {
-        return userStorage.findById(userId).orElseThrow(() -> new NoSuchElementException("Пользователь с ID " + userId + " не найден"));
+        return userStorage.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с ID " + userId + " не найден"));
     }
 }
