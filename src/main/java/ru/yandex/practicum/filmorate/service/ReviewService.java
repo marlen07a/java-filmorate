@@ -21,23 +21,14 @@ public class ReviewService {
     private final ReviewStorage reviewDbStorage;
 
     public Review create(Review review) {
-        if (review.getContent() == null || review.getContent().isBlank()) {
-            throw new IllegalArgumentException("Контент отзыва не может быть пустым");
-        }
         if (review.getUseful() == null) {
             review.setUseful(0);
         }
-
         return reviewDbStorage.create(review);
     }
 
     public Review update(Review review) {
         findById(review.getReviewId());
-
-        if (review.getContent() == null || review.getContent().isBlank()) {
-            throw new IllegalArgumentException("Контент отзыва не может быть пустым");
-        }
-
         return reviewDbStorage.update(review);
     }
 
