@@ -31,6 +31,7 @@ public class Film {
     private Set<Long> likes = new HashSet<>();
     private MPA mpa;
     private Set<Genre> genres = new HashSet<>();
+    private Director director;
 
     public static final LocalDate RULE_FILM_DATE = LocalDate.of(1895, 12, 28);
 }

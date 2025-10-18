@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
@@ -23,14 +24,14 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> findAll() {
-        String sql = "SELECT f.*, m.id as mpa_id, m.code as mpa_code, m.name as mpa_name, m.description as mpa_description " +
-                "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
+        String sql = "SELECT f.*, m.id as mpa_id, m.code as mpa_code, m.name as mpa_name, m.description as mpa_description, d.id as director_id, d.name as director_name " +
+                "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id LEFT JOIN directors d ON f.director_id = d.id";
         return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
     @Override
     public Film create(Film film) {
-        String sql = "INSERT INTO films (name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO films (name, description, release_date, duration, mpa_id, director_id) VALUES (?, ?, ?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -41,6 +42,7 @@ public class FilmDbStorage implements FilmStorage {
             stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
             stmt.setInt(4, film.getDuration());
             stmt.setLong(5, film.getMpa().getId());
+            stmt.setLong(6, film.getDirector().getId());
             return stmt;
         }, keyHolder);
 
@@ -54,13 +56,14 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
+        String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ?, director_id = ? WHERE id = ?";
         int updated = jdbcTemplate.update(sql,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
                 film.getMpa().getId(),
+                film.getDirector().getId(),
                 film.getId()
         );
 
@@ -76,8 +79,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> findById(Long id) {
-        String sql = "SELECT f.*, m.id as mpa_id, m.code as mpa_code, m.name as mpa_name, m.description as mpa_description " +
-                "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id WHERE f.id = ?";
+        String sql = "SELECT f.*, m.id as mpa_id, m.code as mpa_code, m.name as mpa_name, m.description as mpa_description, d.id as director_id, d.name as director_name " +
+                "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id LEFT JOIN directors d ON f.director_id = d.id WHERE f.id = ?";
         List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, id);
         return films.stream().findFirst();
     }
@@ -110,6 +113,11 @@ public class FilmDbStorage implements FilmStorage {
         mpa.setName(rs.getString("mpa_name"));
         mpa.setDescription(rs.getString("mpa_description"));
         film.setMpa(mpa);
+
+        Director director = new Director();
+        director.setId(rs.getLong("director_id"));
+        director.setName(rs.getString("director_name"));
+        film.setDirector(director);
 
         loadGenres(film);
         loadLikes(film);
