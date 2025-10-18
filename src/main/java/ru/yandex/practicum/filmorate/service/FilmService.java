@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +26,7 @@ public class FilmService {
 
     @Autowired
     public FilmService(FilmStorage filmStorage, UserStorage userStorage,
-                       MPAService mpaService, GenreService genreService
+                       MPAService mpaService, GenreService genreService,
                        DirectorDbStorage directorStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
