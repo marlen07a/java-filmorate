@@ -1,26 +1,38 @@
 package ru.yandex.practicum.filmorate.service;
 
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
     private final UserStorage userStorage;
+    private final FilmStorage filmStorage; // Нужно добавить зависимость
     private final ReviewStorage reviewDbStorage;
 
     public Review create(Review review) {
+        if (review.getUserId() == null) {
+            throw new ValidationException("User ID не может быть null");
+        }
+        if (review.getFilmId() == null) {
+            throw new ValidationException("Film ID не может быть null");
+        }
+
+        // Проверяем существование пользователя и фильма
+        getUserOrThrow(review.getUserId());
+        getFilmOrThrow(review.getFilmId());
+
+        // Гарантируем, что useful не null
         if (review.getUseful() == null) {
             review.setUseful(0);
         }
@@ -28,12 +40,19 @@ public class ReviewService {
     }
 
     public Review update(Review review) {
-        findById(review.getReviewId());
+        Review existingReview = findById(review.getReviewId());
+
+        // Сохраняем текущее значение useful, если в обновлении оно null
+        if (review.getUseful() == null) {
+            review.setUseful(existingReview.getUseful());
+        }
+
         return reviewDbStorage.update(review);
     }
 
     public Review findById(Long reviewId) {
-        return reviewDbStorage.findById(reviewId).orElseThrow(() -> new NotFoundException("Отзывс ID" + reviewId + "не найден"));
+        return reviewDbStorage.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException("Отзыв с ID " + reviewId + " не найден"));
     }
 
     public void delete(Long reviewId) {
@@ -49,47 +68,42 @@ public class ReviewService {
     }
 
     public Review addLike(Long reviewId, Long userId) {
-        Review review = getReviewOrThrow(reviewId);
         getUserOrThrow(userId);
-        review.setUseful(review.getUseful() + 1);
-        reviewDbStorage.update(review);
-        return review;
+        return reviewDbStorage.addLike(reviewId, userId);
     }
 
     public Review addDislike(Long reviewId, Long userId) {
-        Review review = getReviewOrThrow(reviewId);
         getUserOrThrow(userId);
-        review.setUseful(review.getUseful() - 1);
-        reviewDbStorage.update(review);
-        return review;
+        return reviewDbStorage.addDislike(reviewId, userId);
     }
 
-    public Review removeLike(Long reviewId, Long userId) {
-        Review review = getReviewOrThrow(reviewId);
+    public void removeLike(Long reviewId, Long userId) {
         getUserOrThrow(userId);
-        review.setUseful(review.getUseful() - 1);
-        reviewDbStorage.update(review);
-        return review;
+        reviewDbStorage.removeLike(reviewId, userId);
     }
 
-    public Review removeDislike(Long reviewId, Long userId) {
-        Review review = getReviewOrThrow(reviewId);
+    public void removeDislike(Long reviewId, Long userId) {
         getUserOrThrow(userId);
-        review.setUseful(review.getUseful() + 1);
-        reviewDbStorage.update(review);
-        return review;
+        reviewDbStorage.removeDislike(reviewId, userId);
     }
 
     public int getUseful(Long reviewId) {
-        Review review = getReviewOrThrow(reviewId);
-        return review.getUseful();
-    }
-
-    private Review getReviewOrThrow(Long reviewId) {
-        return findById(reviewId);
+        return reviewDbStorage.getUseful(reviewId);
     }
 
     private User getUserOrThrow(Long userId) {
-        return userStorage.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с ID " + userId + " не найден"));
+        if (userId == null) {
+            throw new ValidationException("User ID не может быть null");
+        }
+        return userStorage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с ID " + userId + " не найден"));
+    }
+
+    private Film getFilmOrThrow(Long filmId) {
+        if (filmId == null) {
+            throw new ValidationException("Film ID не может быть null");
+        }
+        return filmStorage.findById(filmId)
+                .orElseThrow(() -> new NotFoundException("Фильм с ID " + filmId + " не найден"));
     }
 }
