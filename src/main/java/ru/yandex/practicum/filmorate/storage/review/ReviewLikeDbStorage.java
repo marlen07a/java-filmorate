@@ -34,8 +34,6 @@ public class ReviewLikeDbStorage implements ReviewLikeStorage {
             jdbcTemplate.update("UPDATE reviews SET rating = rating + 1 WHERE id = ?", reviewId);
         }
 
-
-
         return new ReviewLike(reviewId, userId, true);
     }
 
@@ -54,7 +52,6 @@ public class ReviewLikeDbStorage implements ReviewLikeStorage {
             jdbcTemplate.update("UPDATE reviews SET rating = rating - 1 WHERE id = ?", reviewId);
         }
 
-
         return new ReviewLike((long) reviewId, (long) userId, false);
     }
 
@@ -63,7 +60,6 @@ public class ReviewLikeDbStorage implements ReviewLikeStorage {
         String sql = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND is_like = TRUE";
         jdbcTemplate.update(sql, reviewId, userId);
         jdbcTemplate.update("UPDATE reviews SET rating = rating - 1 WHERE id = ?", reviewId);
-
     }
 
     @Override
@@ -99,5 +95,4 @@ public class ReviewLikeDbStorage implements ReviewLikeStorage {
                 rs.getBoolean("is_like")
         );
     }
-
 }

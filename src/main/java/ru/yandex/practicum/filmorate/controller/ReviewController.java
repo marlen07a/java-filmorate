@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.service.ReviewService;
 @RestController
 @RequestMapping("/reviews")
 public class ReviewController {
-    
     private static final Logger log = LoggerFactory.getLogger(ReviewController.class);
     private final ReviewService reviewService;
 
