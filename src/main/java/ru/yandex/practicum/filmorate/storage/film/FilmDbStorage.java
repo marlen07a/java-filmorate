@@ -48,6 +48,7 @@ public class FilmDbStorage implements FilmStorage {
 
         film.setId(keyHolder.getKey().longValue());
 
+        saveDirector(film);
         saveGenres(film);
         saveLikes(film);
 
@@ -71,6 +72,7 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("Фильм с id = " + film.getId() + " не найден");
         }
 
+        updateDirector(film);
         updateGenres(film);
         updateLikes(film);
 
@@ -146,6 +148,14 @@ public class FilmDbStorage implements FilmStorage {
         }, film.getId());
     }
 
+    private void saveDirector(Film film) {
+        if (film.getDirector() != null) {
+            String sql = "INSERT INTO directors (id, name) VALUES (?, ?)";
+
+            jdbcTemplate.update(sql, film.getDirector().getId(), film.getDirector().getName());
+        }
+    }
+
     private void saveGenres(Film film) {
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             String sql = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
@@ -162,6 +172,12 @@ public class FilmDbStorage implements FilmStorage {
                 jdbcTemplate.update(sql, film.getId(), userId);
             }
         }
+    }
+
+    private void updateDirector(Film film) {
+        String deleteSql = "DELETE FROM directors WHERE id = ?";
+        jdbcTemplate.update(deleteSql, film.getDirector().getId());
+        saveDirector(film);
     }
 
     private void updateGenres(Film film) {

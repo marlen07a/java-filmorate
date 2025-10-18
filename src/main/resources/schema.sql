@@ -12,6 +12,12 @@ CREATE TABLE IF NOT EXISTS genres (
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
+-- Directors reference table
+CREATE TABLE IF NOT EXISTS directors (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -32,7 +38,6 @@ CREATE TABLE IF NOT EXISTS films (
     mpa_id BIGINT NOT NULL,
     director_id BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (director_id) REFERENCES directors(id) ON DELETE RESTRICT,
     FOREIGN KEY (mpa_id) REFERENCES mpa_ratings(id) ON DELETE RESTRICT
 );
 
@@ -63,12 +68,6 @@ CREATE TABLE IF NOT EXISTS friendships (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE
 );
-
--- Directors reference table
-CREATE TABLE IF NOT EXISTS directors {
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE
-}
 
 -- Индексы для оптимизации
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
