@@ -23,41 +23,40 @@ public class ReviewService {
     private final UserStorage userStorage;
     private final ReviewStorage reviewDbStorage;
 
-    public Review create(Review review){
-        if (review.getContent() == null || review.getContent().isBlank()){
+    public Review create(Review review) {
+        if (review.getContent() == null || review.getContent().isBlank()) {
             throw new IllegalArgumentException("Контент отзыва не может быть пустым");
         }
-        if (review.getUseful() == null){
+        if (review.getUseful() == null) {
             review.setUseful(0);
         }
 
         return reviewDbStorage.create(review);
     }
 
-    public Review update(Review review){
+    public Review update(Review review) {
         findById(review.getReviewId());
 
-        if (review.getContent() == null || review.getContent().isBlank()){
+        if (review.getContent() == null || review.getContent().isBlank()) {
             throw new IllegalArgumentException("Контент отзыва не может быть пустым");
         }
 
         return reviewDbStorage.update(review);
     }
 
-    public Review findById (Long reviewId){
-        return reviewDbStorage.findById(reviewId)
-                .orElseThrow(() -> new RuntimeException("Отзывс ID" + reviewId + "не найден"));
+    public Review findById(Long reviewId) {
+        return reviewDbStorage.findById(reviewId).orElseThrow(() -> new RuntimeException("Отзывс ID" + reviewId + "не найден"));
     }
 
-    public void delete (Long reviewId){
+    public void delete(Long reviewId) {
         reviewDbStorage.delete(reviewId);
     }
 
-    public List<Review> findByFilmId(Long filmId, int count){
+    public List<Review> findByFilmId(Long filmId, int count) {
         return reviewDbStorage.findByFilmId(filmId, count);
     }
 
-    public List<Review> findAll (int count){
+    public List<Review> findAll(int count) {
         return reviewDbStorage.findAll(count);
     }
 
@@ -99,7 +98,6 @@ public class ReviewService {
     }
 
     private User getUserOrThrow(Long userId) {
-        return userStorage.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("Пользователь с ID " + userId + " не найден"));
+        return userStorage.findById(userId).orElseThrow(() -> new NoSuchElementException("Пользователь с ID " + userId + " не найден"));
     }
 }
