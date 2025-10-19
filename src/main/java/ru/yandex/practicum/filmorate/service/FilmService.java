@@ -132,21 +132,17 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    public List<Film> getFilmsByDirector(String directorId, String sortBy) {
+    public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
         List<Film> directorFilms;
 
-        if (!directorId.equals("null")) {
-            directorStorage.getById(Long.getLong(directorId))
+        directorStorage.getById(directorId)
                     .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + directorId + " не найден"));
 
-            directorFilms = filmStorage
-                    .findAll()
-                    .stream()
-                    .filter(f -> f.getDirector().stream().anyMatch(d -> d.getId().equals(Long.getLong(directorId))))
-                    .toList();
-        } else {
-            directorFilms = filmStorage.findAll().stream().filter(f -> f.getDirector().isEmpty()).toList();
-        }
+        directorFilms = filmStorage
+                .findAll()
+                .stream()
+                .filter(f -> f.getDirector().stream().anyMatch(d -> d.getId().equals(directorId)))
+                .toList();
 
 //        List<Film> directorFilms = filmStorage.findAll().stream()
 //                .filter(film -> film.getDirector() != null &&
