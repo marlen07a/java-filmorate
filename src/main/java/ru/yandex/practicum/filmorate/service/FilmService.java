@@ -145,7 +145,7 @@ public class FilmService {
                     .filter(f -> f.getDirector().stream().anyMatch(d -> d.getId().equals(Long.getLong(directorId))))
                     .toList();
         } else {
-            directorFilms = filmStorage.findAll().stream().filter(f -> !f.getDirector().isEmpty()).toList();
+            directorFilms = filmStorage.findAll().stream().filter(f -> f.getDirector().isEmpty()).toList();
         }
 
 //        List<Film> directorFilms = filmStorage.findAll().stream()

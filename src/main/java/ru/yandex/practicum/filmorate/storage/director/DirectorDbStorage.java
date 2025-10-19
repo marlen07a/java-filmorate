@@ -19,6 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DirectorDbStorage {
     private final JdbcTemplate jdbcTemplate;
+    private Long id = 0L;
 
     public List<Director> getAll() {
         String sql = "SELECT * FROM directors ORDER BY id";
@@ -34,14 +35,18 @@ public class DirectorDbStorage {
 
     public Director create(Director director) {
         String sql = "INSERT INTO directors (name) VALUES (?)";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+        id++;
+        //KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"id"});
-            stmt.setString(1, director.getName());
+//        jdbcTemplate.update(connection -> {
+//            PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"id"});
+//            stmt.setString(1, director.getName());
+//
+//            return stmt;
+//        }, keyHolder);
 
-            return stmt;
-        }, keyHolder);
+        jdbcTemplate.update(sql, director.getName());
+        director.setId(id);
 
         return director;
     }
