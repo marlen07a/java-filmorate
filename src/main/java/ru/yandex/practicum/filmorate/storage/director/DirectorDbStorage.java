@@ -34,7 +34,7 @@ public class DirectorDbStorage {
     }
 
     public Director create(Director director) {
-        String sql = "INSERT INTO directors (name) VALUES (?)";
+        String sql = "INSERT INTO directors (id, name) VALUES (?, ?)";
         id++;
         //KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -45,8 +45,8 @@ public class DirectorDbStorage {
 //            return stmt;
 //        }, keyHolder);
 
-        jdbcTemplate.update(sql, director.getName());
         director.setId(id);
+        jdbcTemplate.update(sql, director.getId(), director.getName());
 
         return director;
     }

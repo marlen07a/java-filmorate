@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS genres (
 
 -- Directors reference table
 CREATE TABLE IF NOT EXISTS directors (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE
 );
 
