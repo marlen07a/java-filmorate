@@ -59,8 +59,8 @@ public class FilmService {
 //                            film.getDirector().getId() + " не найден"));
 //        }
 
-        if (film.getDirector() != null) {
-            for (Director director : film.getDirector()) {
+        if (film.getDirectors() != null) {
+            for (Director director : film.getDirectors()) {
                 if (directorStorage.getById(director.getId()).isEmpty()) {
                     directorStorage.create(director);
                 }
@@ -89,8 +89,8 @@ public class FilmService {
 //                            film.getDirector().getId() + " не найден"));
 //        }
 
-        if (film.getDirector() != null) {
-            for (Director director : film.getDirector()) {
+        if (film.getDirectors() != null) {
+            for (Director director : film.getDirectors()) {
                 if (directorStorage.getById(director.getId()).isEmpty()) {
                     directorStorage.create(director);
                 }
@@ -141,7 +141,7 @@ public class FilmService {
         directorFilms = filmStorage
                 .findAll()
                 .stream()
-                .filter(f -> f.getDirector().stream().anyMatch(d -> d.getId().equals(directorId)))
+                .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
                 .toList();
 
 //        List<Film> directorFilms = filmStorage.findAll().stream()
@@ -186,7 +186,7 @@ public class FilmService {
             return allFilms.stream()
                     .filter(film -> {
                         boolean isEqualsName = film.getName().toLowerCase().contains(lowerQuery);
-                        boolean isEqualsDir = film.getDirector().stream().anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery));
+                        boolean isEqualsDir = film.getDirectors().stream().anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery));
 
                         return isEqualsName || isEqualsDir;
                     })
@@ -203,7 +203,7 @@ public class FilmService {
                     .collect(Collectors.toList());
         } else if (by.contains("director")) {
             return allFilms.stream()
-                    .filter(film -> film.getDirector().stream().anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery)))
+                    .filter(film -> film.getDirectors().stream().anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery)))
                     .sorted((f1, f2) -> Integer.compare(
                             f2.getLikes().size(),
                             f1.getLikes().size()))

@@ -128,7 +128,7 @@ public class FilmDbStorage implements FilmStorage {
 
         jdbcTemplate.query(sql, (rs, rowNum) -> {
             Director director = new Director(rs.getLong("id"), rs.getString("name"));
-            film.getDirector().add(director);
+            film.getDirectors().add(director);
 
             return null;
         }, film.getId());
@@ -156,11 +156,11 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void saveDirector(Film film) {
-        if (film.getDirector() != null && !film.getDirector().isEmpty()) {
+        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
             String fdSql = "INSERT INTO films_directors (film_id, director_id) VALUES (?, ?)";
             String dSql = "INSERT INTO directors (name) VALUES (?)";
 
-            for (Director director : film.getDirector()) {
+            for (Director director : film.getDirectors()) {
                 jdbcTemplate.update(dSql, director.getName());
                 jdbcTemplate.update(fdSql, film.getId(), getDirectorId(director.getName()));
             }
