@@ -132,7 +132,7 @@ public class FilmService {
                     .collect(Collectors.toList());
         } else if ("likes".equalsIgnoreCase(sortBy)) {
             return directorFilms.stream()
-                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                    .sorted((f1, f2) -> Integer.compare(f1.getLikes().size(), f2.getLikes().size()))
                     .collect(Collectors.toList());
         } else {
             throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy);
