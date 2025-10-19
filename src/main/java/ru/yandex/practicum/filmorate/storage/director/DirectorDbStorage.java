@@ -45,7 +45,10 @@ public class DirectorDbStorage {
 //            return stmt;
 //        }, keyHolder);
 
-        director.setId(id);
+        if (director.getId() == null) {
+            director.setId(id);
+        }
+
         jdbcTemplate.update(sql, director.getId(), director.getName());
 
         return director;
