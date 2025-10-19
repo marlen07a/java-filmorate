@@ -120,14 +120,11 @@ public class FilmService {
 
         directorService.getDirectorById(directorId);
 
-//        directorFilms = filmStorage
-//                .findAll()
-//                .stream()
-//                .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
-//                .toList();
-
         directorFilms = filmStorage
-               .findAll();
+                .findAll()
+                .stream()
+                .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
+                .toList();
 
         if ("year".equalsIgnoreCase(sortBy)) {
             return directorFilms.stream()
