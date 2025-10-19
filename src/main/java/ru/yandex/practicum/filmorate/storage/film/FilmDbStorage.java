@@ -158,7 +158,7 @@ public class FilmDbStorage implements FilmStorage {
     private void saveDirector(Film film) {
         if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
             String fdSql = "INSERT INTO films_directors (film_id, director_id) VALUES (?, ?)";
-            String dSql = "INSERT INTO directors (name) VALUES (?)";
+            String dSql = "INSERT INTO directors (id, name) VALUES (?, ?)";
 
             for (Director director : film.getDirectors()) {
                 jdbcTemplate.update(dSql, director.getName());
