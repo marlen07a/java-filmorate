@@ -120,11 +120,14 @@ public class FilmService {
 
         directorService.getDirectorById(directorId);
 
+//        directorFilms = filmStorage
+//                .findAll()
+//                .stream()
+//                .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
+//                .toList();
+
         directorFilms = filmStorage
-                .findAll()
-                .stream()
-                .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
-                .toList();
+               .findAll();
 
         if ("year".equalsIgnoreCase(sortBy)) {
             return directorFilms.stream()
@@ -132,9 +135,7 @@ public class FilmService {
                     .collect(Collectors.toList());
         } else if ("likes".equalsIgnoreCase(sortBy)) {
             return directorFilms.stream()
-                    .sorted((f1, f2) -> Integer.compare(
-                            f2.getLikes().size(),
-                            f1.getLikes().size()))
+                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                     .collect(Collectors.toList());
         } else {
             throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy);
