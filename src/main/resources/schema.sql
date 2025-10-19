@@ -70,12 +70,12 @@ CREATE TABLE IF NOT EXISTS friendships (
 );
 
 -- Add director_id column to the films table
-ALTER TABLE films
-ADD COLUMN IF NOT EXISTS director_id BIGINT,
-ADD CONSTRAINT fk_films_director
-    FOREIGN KEY (director_id)
-    REFERENCES directors(id)
-    ON DELETE SET NULL;
+--ALTER TABLE films
+--ADD COLUMN IF NOT EXISTS director_id BIGINT,
+--ADD CONSTRAINT fk_films_director
+--    FOREIGN KEY (director_id)
+--    REFERENCES directors(id)
+--    ON DELETE SET NULL;
 
 -- Индексы для оптимизации
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
