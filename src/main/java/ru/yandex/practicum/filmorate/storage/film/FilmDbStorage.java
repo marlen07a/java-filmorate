@@ -124,7 +124,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void loadDirectors(Film film) {
-        String sql = "SELECT d.id, d.name FROM films_directors fd JOIN directors d ON fd.director_id = d.id WHERE fd.film_id = ?";
+        String sql = "SELECT d.id, d.name " +
+                "FROM films_directors fd " +
+                "JOIN directors d ON fd.director_id = d.id " +
+                "WHERE fd.film_id = ?";
 
         jdbcTemplate.query(sql, (rs, rowNum) -> {
             Director director = new Director(rs.getLong("id"), rs.getString("name"));
@@ -156,14 +159,13 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void saveDirector(Film film) {
-        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+        if (!film.getDirectors().isEmpty()) {
             String fdSql = "INSERT INTO films_directors (film_id, director_id) VALUES (?, ?)";
             String dSql = "INSERT INTO directors (id, name) VALUES (?, ?)";
 
             for (Director director : film.getDirectors()) {
-                jdbcTemplate.update(dSql, getDirectorId(director.getName()), director.getName());
-                jdbcTemplate.update(fdSql, film.getId(), getDirectorId(director.getName()));
-                //jdbcTemplate.update(fdSql, film.getId(), director.getName());
+                jdbcTemplate.update(dSql, director.getId(), getDirectorById(director.getId()));
+                jdbcTemplate.update(fdSql, film.getId(), director.getId());
             }
         }
     }
@@ -204,11 +206,9 @@ public class FilmDbStorage implements FilmStorage {
         saveLikes(film);
     }
 
-    private Long getDirectorId(String name) {
-        String sql = "SELECT id FROM directors WHERE name = ?";
+    private String getDirectorById(Long id) {
+        String sql = "SELECT name FROM directors WHERE id = ?";
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            return rs.getLong("id");
-        }, name).getFirst();
+        return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getString("name"), id).getFirst();
     }
 }
