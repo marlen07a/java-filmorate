@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmValidationException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
@@ -52,10 +53,18 @@ public class FilmService {
             }
         }
 
-        if (film.getDirector() != null && film.getDirector().getId() != null) {
-            directorStorage.getById(film.getDirector().getId())
-                    .orElseThrow(() -> new NotFoundException("Режиссёр с id = " +
-                            film.getDirector().getId() + " не найден"));
+//        if (film.getDirector() != null && film.getDirector().getId() != null) {
+//            directorStorage.getById(film.getDirector().getId())
+//                    .orElseThrow(() -> new NotFoundException("Режиссёр с id = " +
+//                            film.getDirector().getId() + " не найден"));
+//        }
+
+        if (film.getDirector() != null) {
+            for (Director director : film.getDirector()) {
+                if (directorStorage.getById(director.getId()).isEmpty()) {
+                    directorStorage.create(director);
+                }
+            }
         }
 
         return filmStorage.create(film);
@@ -74,10 +83,18 @@ public class FilmService {
             }
         }
 
-        if (film.getDirector() != null && film.getDirector().getId() != null) {
-            directorStorage.getById(film.getDirector().getId())
-                    .orElseThrow(() -> new NotFoundException("Режиссёр с id = " +
-                            film.getDirector().getId() + " не найден"));
+//        if (film.getDirector() != null && film.getDirector().getId() != null) {
+//            directorStorage.getById(film.getDirector().getId())
+//                    .orElseThrow(() -> new NotFoundException("Режиссёр с id = " +
+//                            film.getDirector().getId() + " не найден"));
+//        }
+
+        if (film.getDirector() != null) {
+            for (Director director : film.getDirector()) {
+                if (directorStorage.getById(director.getId()).isEmpty()) {
+                    directorStorage.create(director);
+                }
+            }
         }
 
         Film existingFilm = filmStorage.findById(film.getId())
@@ -119,10 +136,16 @@ public class FilmService {
         directorStorage.getById(directorId)
                 .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + directorId + " не найден"));
 
-        List<Film> directorFilms = filmStorage.findAll().stream()
-                .filter(film -> film.getDirector() != null &&
-                        film.getDirector().getId().equals(directorId))
-                .collect(Collectors.toList());
+//        List<Film> directorFilms = filmStorage.findAll().stream()
+//                .filter(film -> film.getDirector() != null &&
+//                        film.getDirector().getId().equals(directorId))
+//                .collect(Collectors.toList());
+
+        List<Film> directorFilms = filmStorage
+                .findAll()
+                .stream()
+                .filter(f -> f.getDirector().stream().anyMatch(d -> d.getId().equals(directorId)))
+                .toList();
 
         if ("year".equalsIgnoreCase(sortBy)) {
             return directorFilms.stream()
@@ -148,11 +171,23 @@ public class FilmService {
         List<Film> allFilms = filmStorage.findAll();
 
         if (by.contains("title") && by.contains("director")) {
+//            return allFilms.stream()
+//                    .filter(film ->
+//                            film.getName().toLowerCase().contains(lowerQuery) ||
+//                                    (film.getDirector() != null &&
+//                                            film.getDirector().getName().toLowerCase().contains(lowerQuery)))
+//                    .sorted((f1, f2) -> Integer.compare(
+//                            f2.getLikes().size(),
+//                            f1.getLikes().size()))
+//                    .collect(Collectors.toList());
+
             return allFilms.stream()
-                    .filter(film ->
-                            film.getName().toLowerCase().contains(lowerQuery) ||
-                                    (film.getDirector() != null &&
-                                            film.getDirector().getName().toLowerCase().contains(lowerQuery)))
+                    .filter(film -> {
+                        boolean isEqualsName = film.getName().toLowerCase().contains(lowerQuery);
+                        boolean isEqualsDir = film.getDirector().stream().anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery));
+
+                        return isEqualsName || isEqualsDir;
+                    })
                     .sorted((f1, f2) -> Integer.compare(
                             f2.getLikes().size(),
                             f1.getLikes().size()))
@@ -166,8 +201,7 @@ public class FilmService {
                     .collect(Collectors.toList());
         } else if (by.contains("director")) {
             return allFilms.stream()
-                    .filter(film -> film.getDirector() != null &&
-                            film.getDirector().getName().toLowerCase().contains(lowerQuery))
+                    .filter(film -> film.getDirector().stream().anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery)))
                     .sorted((f1, f2) -> Integer.compare(
                             f2.getLikes().size(),
                             f1.getLikes().size()))

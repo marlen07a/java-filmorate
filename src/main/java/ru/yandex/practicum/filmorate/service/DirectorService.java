@@ -54,9 +54,8 @@ public class DirectorService {
                 .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + directorId + " не найден"));
 
         List<Film> directorFilms = filmStorage.findAll().stream()
-                .filter(film -> film.getDirector() != null &&
-                        film.getDirector().getId().equals(directorId))
-                .collect(Collectors.toList());
+                .filter(film -> film.getDirector().stream().anyMatch(d -> d.getId().equals(directorId)))
+                .toList();
 
         if ("year".equalsIgnoreCase(sortBy)) {
             return directorFilms.stream()

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -16,6 +17,7 @@ import java.sql.*;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Repository
 @Primary
 @RequiredArgsConstructor
@@ -24,14 +26,14 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> findAll() {
-        String sql = "SELECT f.*, m.id as mpa_id, m.code as mpa_code, m.name as mpa_name, m.description as mpa_description, d.id as director_id, d.name as director_name " +
-                "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id LEFT JOIN directors d ON f.director_id = d.id";
+        String sql = "SELECT f.*, m.id as mpa_id, m.code as mpa_code, m.name as mpa_name, m.description as mpa_description " +
+                "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
         return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
     @Override
     public Film create(Film film) {
-        String sql = "INSERT INTO films (name, description, release_date, duration, mpa_id, director_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO films (name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -42,7 +44,6 @@ public class FilmDbStorage implements FilmStorage {
             stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
             stmt.setInt(4, film.getDuration());
             stmt.setLong(5, film.getMpa().getId());
-            stmt.setLong(6, film.getDirector() == null ? null : film.getDirector().getId());
             return stmt;
         }, keyHolder);
 
@@ -57,14 +58,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ?, director_id = ? WHERE id = ?";
+        String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
         int updated = jdbcTemplate.update(sql,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
                 film.getMpa().getId(),
-                film.getDirector().getId(),
                 film.getId()
         );
 
@@ -81,8 +81,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> findById(Long id) {
-        String sql = "SELECT f.*, m.id as mpa_id, m.code as mpa_code, m.name as mpa_name, m.description as mpa_description, d.id as director_id, d.name as director_name " +
-                "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id LEFT JOIN directors d ON f.director_id = d.id WHERE f.id = ?";
+        String sql = "SELECT f.*, m.id as mpa_id, m.code as mpa_code, m.name as mpa_name, m.description as mpa_description " +
+                "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id WHERE f.id = ?";
         List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, id);
         return films.stream().findFirst();
     }
@@ -116,15 +116,22 @@ public class FilmDbStorage implements FilmStorage {
         mpa.setDescription(rs.getString("mpa_description"));
         film.setMpa(mpa);
 
-        Director director = new Director();
-        director.setId(rs.getLong("director_id"));
-        director.setName(rs.getString("director_name"));
-        film.setDirector(director);
-
+        loadDirectors(film);
         loadGenres(film);
         loadLikes(film);
 
         return film;
+    }
+
+    private void loadDirectors(Film film) {
+        String sql = "SELECT d.id, d.name FROM films_directors fd JOIN directors d ON fd.director_id = d.id WHERE fd.film_id = ?";
+
+        jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Director director = new Director(rs.getLong("id"), rs.getString("name"));
+            film.getDirector().add(director);
+
+            return null;
+        }, film.getId());
     }
 
     private void loadGenres(Film film) {
@@ -149,10 +156,14 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void saveDirector(Film film) {
-        if (film.getDirector() != null) {
-            String sql = "INSERT INTO directors (id, name) VALUES (?, ?)";
+        if (film.getDirector() != null && !film.getDirector().isEmpty()) {
+            String fdSql = "INSERT INTO films_directors (film_id, director_id) VALUES (?, ?)";
+            String dSql = "INSERT INTO directors (name) VALUES (?)";
 
-            jdbcTemplate.update(sql, film.getDirector().getId(), film.getDirector().getName());
+            for (Director director : film.getDirector()) {
+                jdbcTemplate.update(dSql, director.getName());
+                jdbcTemplate.update(fdSql, film.getId(), getDirectorId(director.getName()));
+            }
         }
     }
 
@@ -175,8 +186,8 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void updateDirector(Film film) {
-        String deleteSql = "DELETE FROM directors WHERE id = ?";
-        jdbcTemplate.update(deleteSql, film.getDirector().getId());
+        String deleteSql = "DELETE FROM films_directors WHERE film_id = ?";
+        jdbcTemplate.update(deleteSql, film.getId());
         saveDirector(film);
     }
 
@@ -190,5 +201,13 @@ public class FilmDbStorage implements FilmStorage {
         String deleteSql = "DELETE FROM film_likes WHERE film_id = ?";
         jdbcTemplate.update(deleteSql, film.getId());
         saveLikes(film);
+    }
+
+    private Long getDirectorId(String name) {
+        String sql = "SELECT id FROM directors WHERE name = ?";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            return rs.getLong("id");
+        }, name).getFirst();
     }
 }

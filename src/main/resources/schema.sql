@@ -15,7 +15,13 @@ CREATE TABLE IF NOT EXISTS genres (
 -- Directors reference table
 CREATE TABLE IF NOT EXISTS directors (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255)
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+-- Film-director reference table
+CREATE TABLE IF NOT EXISTS films_directors (
+    film_id BIGINT NOT NULL,
+    director_id VARCHAR(255) NOT NULL
 );
 
 -- Users table
@@ -36,7 +42,6 @@ CREATE TABLE IF NOT EXISTS films (
     release_date DATE NOT NULL,
     duration INTEGER NOT NULL,
     mpa_id BIGINT NOT NULL,
-    director_id BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (mpa_id) REFERENCES mpa_ratings(id) ON DELETE RESTRICT
 );
@@ -84,6 +89,5 @@ CREATE INDEX IF NOT EXISTS idx_films_release_date ON films(release_date);
 CREATE INDEX IF NOT EXISTS idx_films_mpa_id ON films(mpa_id);
 CREATE INDEX IF NOT EXISTS idx_film_genres_genre_id ON film_genres(genre_id);
 CREATE INDEX IF NOT EXISTS idx_film_likes_user_id ON film_likes(user_id);
-CREATE INDEX IF NOT EXISTS idx_films_director_id ON films(director_id);
 CREATE INDEX IF NOT EXISTS idx_films_name ON films(name);
 CREATE INDEX IF NOT EXISTS idx_friendships_friend_id ON friendships(friend_id);

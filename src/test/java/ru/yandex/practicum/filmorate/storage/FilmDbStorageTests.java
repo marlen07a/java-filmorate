@@ -11,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
@@ -40,7 +39,6 @@ public class FilmDbStorageTests {
         film1.setCreatedAt(LocalDateTime.now());
         film1.setMpa(new MPA(1L, "G", "Нет возрастных ограничений"));
         film1.setGenres(new HashSet<Genre>(List.of(new Genre(1L, "Комедия"), new Genre(2L, "Драма"))));
-        film1.setDirector(new Director(1L, "Петров"));
 
         Film film2 = new Film();
 
@@ -51,7 +49,6 @@ public class FilmDbStorageTests {
         film2.setCreatedAt(LocalDateTime.of(2025, 11, 1, 12, 34, 23));
         film2.setMpa(new MPA(2L, "PG", "Детям рекомендуется смотреть фильм с родителями"));
         film2.setGenres(new HashSet<Genre>(List.of(new Genre(1L, "Комедия"), new Genre(2L, "Драма"))));
-        film2.setDirector(new Director(2L, "Васильев"));
 
         Film film3 = new Film();
 
@@ -62,7 +59,6 @@ public class FilmDbStorageTests {
         film3.setCreatedAt(LocalDateTime.of(2025, 11, 1, 12, 34, 23));
         film3.setMpa(new MPA(2L, "PG", "Детям рекомендуется смотреть фильм с родителями"));
         film3.setGenres(new HashSet<Genre>(List.of(new Genre(1L, "Комедия"), new Genre(2L, "Драма"))));
-        film3.setDirector(new Director(3L, "Сидоров"));
 
         storage.create(film1);
         storage.create(film2);
@@ -83,9 +79,6 @@ public class FilmDbStorageTests {
 
         Assertions.assertThat(films.get(0).getGenres()).hasSize(2);
 
-        Assertions.assertThat(films.get(0).getDirector())
-                .hasFieldOrPropertyWithValue("name", film1.getDirector().getName());
-
         Assertions.assertThat(films.get(1))
                 .hasFieldOrPropertyWithValue("name", film2.getName())
                 .hasFieldOrPropertyWithValue("description", film2.getDescription())
@@ -97,9 +90,6 @@ public class FilmDbStorageTests {
 
         Assertions.assertThat(films.get(1).getGenres()).hasSize(2);
 
-        Assertions.assertThat(films.get(1).getDirector())
-                .hasFieldOrPropertyWithValue("name", film2.getDirector().getName());
-
         Assertions.assertThat(films.get(2))
                 .hasFieldOrPropertyWithValue("name", film3.getName())
                 .hasFieldOrPropertyWithValue("description", film3.getDescription())
@@ -110,9 +100,6 @@ public class FilmDbStorageTests {
                 .hasFieldOrPropertyWithValue("description", film3.getMpa().getDescription());
 
         Assertions.assertThat(films.get(2).getGenres()).hasSize(2);
-
-        Assertions.assertThat(films.get(2).getDirector())
-                .hasFieldOrPropertyWithValue("name", film3.getDirector().getName());
     }
 
     @Test
@@ -126,7 +113,6 @@ public class FilmDbStorageTests {
         film1.setCreatedAt(LocalDateTime.now());
         film1.setMpa(new MPA(1L, "G", "Нет возрастных ограничений"));
         film1.setGenres(new HashSet<Genre>(List.of(new Genre(1L, "Комедия"), new Genre(2L, "Драма"))));
-        film1.setDirector(new Director(1L, "Петров"));
 
         storage.create(film1);
 
@@ -142,9 +128,6 @@ public class FilmDbStorageTests {
                 .hasFieldOrPropertyWithValue("description", film1.getMpa().getDescription());
 
         Assertions.assertThat(another.getGenres()).hasSize(2);
-
-        Assertions.assertThat(another.getDirector())
-                .hasFieldOrPropertyWithValue("name", film1.getDirector().getName());
 
         film1.setName("another name");
         film1.setReleaseDate(LocalDate.of(2012, 12, 11));
@@ -163,9 +146,6 @@ public class FilmDbStorageTests {
                 .hasFieldOrPropertyWithValue("description", film1.getMpa().getDescription());
 
         Assertions.assertThat(another.getGenres()).hasSize(2);
-
-        Assertions.assertThat(another.getDirector())
-                .hasFieldOrPropertyWithValue("name", film1.getDirector().getName());
     }
 
     @Test
@@ -179,7 +159,6 @@ public class FilmDbStorageTests {
         film1.setCreatedAt(LocalDateTime.now());
         film1.setMpa(new MPA(1L, "G", "Нет возрастных ограничений"));
         film1.setGenres(new HashSet<Genre>(List.of(new Genre(1L, "Комедия"), new Genre(2L, "Драма"))));
-        film1.setDirector(new Director(1L, "Петров"));
 
         storage.create(film1);
 
@@ -195,9 +174,6 @@ public class FilmDbStorageTests {
                 .hasFieldOrPropertyWithValue("description", film1.getMpa().getDescription());
 
         Assertions.assertThat(another.getGenres()).hasSize(2);
-
-        Assertions.assertThat(another.getDirector())
-                .hasFieldOrPropertyWithValue("name", film1.getDirector().getName());
 
         storage.delete(film1.getId());
 
