@@ -162,16 +162,12 @@ public class FilmService {
         } else if (by.contains("title")) {
             return allFilms.stream()
                     .filter(film -> film.getName().toLowerCase().contains(lowerQuery))
-                    .sorted((f1, f2) -> Integer.compare(
-                            f2.getLikes().size(),
-                            f1.getLikes().size()))
+                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                     .collect(Collectors.toList());
         } else if (by.contains("director")) {
             return allFilms.stream()
                     .filter(film -> film.getDirectors().stream().anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery)))
-                    .sorted((f1, f2) -> Integer.compare(
-                            f2.getLikes().size(),
-                            f1.getLikes().size()))
+                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                     .collect(Collectors.toList());
         } else {
             throw new IllegalArgumentException("Некорректный параметр поиска: " + by);
