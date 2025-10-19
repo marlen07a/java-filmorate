@@ -132,11 +132,11 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
+    public List<Film> getFilmsByDirector(String directorId, String sortBy) {
         List<Film> directorFilms;
 
-        if (directorId != null) {
-            directorStorage.getById(directorId)
+        if (!directorId.equals("null")) {
+            directorStorage.getById(Long.getLong(directorId))
                     .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + directorId + " не найден"));
 
             directorFilms = filmStorage
