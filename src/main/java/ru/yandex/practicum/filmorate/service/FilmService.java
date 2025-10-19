@@ -142,7 +142,7 @@ public class FilmService {
             directorFilms = filmStorage
                     .findAll()
                     .stream()
-                    .filter(f -> f.getDirector().stream().anyMatch(d -> d.getId().equals(directorId)))
+                    .filter(f -> f.getDirector().stream().anyMatch(d -> d.getId().equals(Long.getLong(directorId))))
                     .toList();
         } else {
             directorFilms = filmStorage.findAll();
@@ -160,8 +160,8 @@ public class FilmService {
         } else if ("likes".equalsIgnoreCase(sortBy)) {
             return directorFilms.stream()
                     .sorted((f1, f2) -> Integer.compare(
-                            f2.getLikes().size(),
-                            f1.getLikes().size()))
+                            f1.getLikes().size(),
+                            f2.getLikes().size()))
                     .collect(Collectors.toList());
         } else {
             throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy);
