@@ -8,9 +8,6 @@ import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -100,7 +97,7 @@ public class FilmService {
 
         film.getLikes().add(userId);
         filmStorage.update(film);
-        feedService.create(new Feed(0L, userId, filmId, EventTypes.LIKE, Operations.ADD, Timestamp.valueOf(LocalDateTime.now())));
+        feedService.create(userId, filmId, EventTypes.LIKE, Operations.ADD);
     }
 
     public void removeLike(Long filmId, Long userId) {
@@ -110,7 +107,7 @@ public class FilmService {
 
         film.getLikes().remove(userId);
         filmStorage.update(film);
-        feedService.create(new Feed(0L, userId, filmId, EventTypes.LIKE, Operations.REMOVE, Timestamp.valueOf(LocalDateTime.now())));
+        feedService.create(userId, filmId, EventTypes.LIKE, Operations.REMOVE);
     }
 
     public List<Film> getPopularFilms(int count) {

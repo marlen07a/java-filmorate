@@ -9,8 +9,6 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -37,8 +35,7 @@ public class ReviewService {
         if (review.getUseful() == null) {
             review.setUseful(0);
         }
-        feedService.create(new Feed(0L,
-                review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.ADD, Timestamp.valueOf(LocalDateTime.now())));
+        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.ADD);
         return reviewDbStorage.create(review);
     }
 
@@ -49,8 +46,7 @@ public class ReviewService {
         if (review.getUseful() == null) {
             review.setUseful(existingReview.getUseful());
         }
-        feedService.create(new Feed(0L,
-                review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.UPDATE, Timestamp.valueOf(LocalDateTime.now())));
+        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.UPDATE);
 
         return reviewDbStorage.update(review);
     }
@@ -63,8 +59,7 @@ public class ReviewService {
     public void delete(Long reviewId) {
         Review review = findById(reviewId);
 
-        feedService.create(new Feed(0L,
-                review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.REMOVE, Timestamp.valueOf(LocalDateTime.now())));
+        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.REMOVE);
         reviewDbStorage.delete(reviewId);
     }
 

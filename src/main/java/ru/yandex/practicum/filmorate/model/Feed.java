@@ -2,15 +2,11 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.NotNull;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class Feed {
     private Long eventId;
 
@@ -22,5 +18,5 @@ public class Feed {
 
     private EventTypes eventType;
     private Operations operation;
-    private Timestamp timestamp;
+    private LocalDateTime timestamp;
 }
