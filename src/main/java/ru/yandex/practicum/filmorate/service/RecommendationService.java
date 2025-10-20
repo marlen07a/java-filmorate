@@ -28,7 +28,7 @@ public class RecommendationService {
         Long mostSimilarUserId = null;
         int maxCommon = 0;
 
-        for (Map.Entry<Long, Set<Long>> entry : userLikes.entrySet()){
+        for (Map.Entry<Long, Set<Long>> entry : userLikes.entrySet()) {
             Long otherUserId = entry.getKey();
             if (otherUserId.equals(userId)) continue;
 
