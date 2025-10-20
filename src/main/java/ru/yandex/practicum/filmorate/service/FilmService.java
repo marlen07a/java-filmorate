@@ -4,11 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmValidationException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,14 +22,17 @@ public class FilmService {
     private final UserStorage userStorage;
     private final MPAService mpaService;
     private final GenreService genreService;
+    private final DirectorService directorService;
 
     @Autowired
     public FilmService(FilmStorage filmStorage, UserStorage userStorage,
-                       MPAService mpaService, GenreService genreService) {
+                       MPAService mpaService, GenreService genreService,
+                       DirectorService directorService) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.mpaService = mpaService;
         this.genreService = genreService;
+        this.directorService = directorService;
     }
 
     public List<Film> findAll() {
@@ -47,6 +52,12 @@ public class FilmService {
             }
         }
 
+        if (film.getDirectors() != null) {
+            for (Director director : film.getDirectors()) {
+                directorService.getDirectorById(director.getId());
+            }
+        }
+
         return filmStorage.create(film);
     }
 
@@ -60,6 +71,12 @@ public class FilmService {
         if (film.getGenres() != null) {
             for (Genre genre : film.getGenres()) {
                 genreService.getGenreById(genre.getId());
+            }
+        }
+
+        if (film.getDirectors() != null) {
+            for (Director director : film.getDirectors()) {
+                directorService.getDirectorById(director.getId());
             }
         }
 
@@ -96,6 +113,71 @@ public class FilmService {
                 .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
+        List<Film> directorFilms;
+
+        directorService.getDirectorById(directorId);
+
+        directorFilms = filmStorage
+                .findAll()
+                .stream()
+                .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
+                .toList();
+
+        if ("year".equalsIgnoreCase(sortBy)) {
+            return directorFilms.stream()
+                    .sorted(Comparator.comparing(Film::getReleaseDate))
+                    .collect(Collectors.toList());
+        } else if ("likes".equalsIgnoreCase(sortBy)) {
+            return directorFilms.stream()
+                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                    .collect(Collectors.toList());
+        } else {
+            throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy);
+        }
+    }
+
+    public List<Film> searchFilms(String query, String by) {
+        if (query == null || query.trim().isEmpty()) {
+            throw new IllegalArgumentException("Поисковый запрос не может быть пустым");
+        }
+
+        String lowerQuery = query.toLowerCase();
+        List<Film> allFilms = filmStorage.findAll();
+
+        if (by.contains("title") && by.contains("director")) {
+            return allFilms.stream()
+                    .filter(film -> {
+                        boolean isEqualsName = film.getName().toLowerCase().contains(lowerQuery);
+                        boolean isEqualsDir = film.getDirectors().stream().anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery));
+
+                        return isEqualsName || isEqualsDir;
+                    })
+                    .sorted((f1, f2) -> Integer.compare(
+                            f2.getLikes().size(),
+                            f1.getLikes().size()))
+                    .collect(Collectors.toList());
+        } else if (by.contains("title")) {
+            return allFilms.stream()
+                    .filter(film -> film.getName().toLowerCase().contains(lowerQuery))
+                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                    .collect(Collectors.toList());
+        } else if (by.contains("director")) {
+            return allFilms.stream()
+                    .filter(film -> film.getDirectors().stream().anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery)))
+                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                    .collect(Collectors.toList());
+        } else {
+            throw new IllegalArgumentException("Некорректный параметр поиска: " + by);
+        }
+    }
+
+    public void deleteFilm(Long id) {
+        filmStorage.findById(id)
+                .orElseThrow(() -> new NotFoundException("Фильм с id = " + id + " не найден"));
+        filmStorage.delete(id);
     }
 
     public int getLikesCount(Long filmId) {
