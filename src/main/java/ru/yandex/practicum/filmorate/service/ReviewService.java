@@ -49,9 +49,10 @@ public class ReviewService {
         if (review.getUseful() == null) {
             review.setUseful(existingReview.getUseful());
         }
-        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.UPDATE);
+        Review newReview = reviewDbStorage.update(review);
+        feedService.create(review.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.UPDATE);
 
-        return reviewDbStorage.update(review);
+        return newReview;
     }
 
     public Review findById(Long reviewId) {
@@ -62,7 +63,7 @@ public class ReviewService {
     public void delete(Long reviewId) {
         Review review = findById(reviewId);
 
-        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.REMOVE);
+        feedService.create(review.getUserId(), review.getReviewId(), EventTypes.REVIEW, Operations.REMOVE);
         reviewDbStorage.delete(reviewId);
     }
 
