@@ -85,6 +85,16 @@ CREATE TABLE IF NOT EXISTS review_likes (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Review feed table
+CREATE TABLE IF NOT EXISTS feeds (
+    event_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    entity_id BIGINT NOT NULL,
+    event_type VARCHAR(10) NOT NULL,
+    operation VARCHAR(10) NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Индексы для оптимизации
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_login ON users(login);
