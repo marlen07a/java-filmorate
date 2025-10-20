@@ -4,8 +4,6 @@ import jakarta.validation.constraints.NotNull;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 public class Feed {
     private Long eventId;
@@ -18,5 +16,5 @@ public class Feed {
 
     private EventTypes eventType;
     private Operations operation;
-    private LocalDateTime timestamp;
+    private Long timestamp;
 }
