@@ -35,7 +35,7 @@ public class ReviewService {
         if (review.getUseful() == null) {
             review.setUseful(0);
         }
-        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.ADD);
+        feedService.create(review.getUserId(), review.getReviewId(), EventTypes.REVIEW, Operations.ADD);
         return reviewDbStorage.create(review);
     }
 
@@ -46,7 +46,7 @@ public class ReviewService {
         if (review.getUseful() == null) {
             review.setUseful(existingReview.getUseful());
         }
-        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.UPDATE);
+        feedService.create(review.getUserId(), review.getReviewId(), EventTypes.REVIEW, Operations.UPDATE);
 
         return reviewDbStorage.update(review);
     }
@@ -59,7 +59,7 @@ public class ReviewService {
     public void delete(Long reviewId) {
         Review review = findById(reviewId);
 
-        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.REMOVE);
+        feedService.create(review.getUserId(), reviewId, EventTypes.REVIEW, Operations.REMOVE);
         reviewDbStorage.delete(reviewId);
     }
 
