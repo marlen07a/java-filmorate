@@ -50,7 +50,7 @@ public class FeedService {
     public List<Feed> getByUserId(Long id) {
         log.info("События из ленты для пользователя с id: {} получены", id);
 
-        return storage.getByUserId(id).reversed();
+        return storage.getByUserId(id);
     }
 
     public List<Feed> getAll() {
