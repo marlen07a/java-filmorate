@@ -87,7 +87,7 @@ public class FeedDbStorage {
         feed.setEventType(EventTypes.valueOf(rs.getString("event_type")));
         feed.setOperation(Operations.valueOf(rs.getString("operation")));
         feed.setTimestamp(rs.getTimestamp("timestamp") != null ?
-                rs.getTimestamp("timestamp").toLocalDateTime() : null);
+                rs.getTimestamp("timestamp") : null);
 
         return feed;
     }
