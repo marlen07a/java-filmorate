@@ -62,6 +62,29 @@ CREATE TABLE IF NOT EXISTS friendships (
     FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+--reviews
+CREATE TABLE IF NOT EXISTS reviews (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    content TEXT NOT NULL,
+    is_positive BOOLEAN NOT NULL,
+    user_id BIGINT NOT NULL,
+    film_id BIGINT NOT NULL,
+    useful INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (film_id) REFERENCES films(id) ON DELETE CASCADE
+);
+
+-- Review likes/dislikes table
+CREATE TABLE IF NOT EXISTS review_likes (
+    review_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    is_like BOOLEAN NOT NULL, -- true = лайк, false = дизлайк
+    PRIMARY KEY (review_id, user_id),
+    FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- Индексы для оптимизации
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_login ON users(login);
@@ -70,3 +93,5 @@ CREATE INDEX IF NOT EXISTS idx_films_mpa_id ON films(mpa_id);
 CREATE INDEX IF NOT EXISTS idx_film_genres_genre_id ON film_genres(genre_id);
 CREATE INDEX IF NOT EXISTS idx_film_likes_user_id ON film_likes(user_id);
 CREATE INDEX IF NOT EXISTS idx_friendships_friend_id ON friendships(friend_id);
+CREATE INDEX IF NOT EXISTS idx_review_likes_user_id ON review_likes(user_id);
+CREATE INDEX IF NOT EXISTS idx_review_likes_review_id ON review_likes(review_id);
