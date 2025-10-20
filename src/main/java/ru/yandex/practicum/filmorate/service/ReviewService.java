@@ -73,7 +73,11 @@ public class ReviewService {
 
     public Review addLike(Long reviewId, Long userId) {
         getUserOrThrow(userId);
-        return reviewDbStorage.addLike(reviewId, userId);
+        Review review = reviewDbStorage.addLike(reviewId, userId);
+
+        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.LIKE, Operations.ADD);
+
+        return review;
     }
 
     public Review addDislike(Long reviewId, Long userId) {
@@ -83,6 +87,9 @@ public class ReviewService {
 
     public void removeLike(Long reviewId, Long userId) {
         getUserOrThrow(userId);
+        Review review = findById(reviewId);
+
+        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.LIKE, Operations.REMOVE);
         reviewDbStorage.removeLike(reviewId, userId);
     }
 
