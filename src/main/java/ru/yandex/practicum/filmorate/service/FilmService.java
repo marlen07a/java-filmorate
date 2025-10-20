@@ -225,4 +225,13 @@ public class FilmService {
             throw new FilmValidationException("Дата релиза не может быть раньше " + RULE_FILM_DATE);
         }
     }
+
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        userStorage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id = " + userId + " не найден"));
+        userStorage.findById(friendId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id = " + friendId + " не найден"));
+
+        return filmStorage.findCommonFilms(userId, friendId);
+    }
 }
