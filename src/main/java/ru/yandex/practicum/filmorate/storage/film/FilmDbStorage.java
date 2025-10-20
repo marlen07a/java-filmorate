@@ -12,8 +12,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
 
 import java.sql.*;
-import java.util.List;
-import java.util.Optional;
+import java.sql.Date;
+import java.util.*;
 
 @Repository
 @Primary
@@ -166,5 +166,19 @@ public class FilmDbStorage implements FilmStorage {
         String deleteSql = "DELETE FROM film_likes WHERE film_id = ?";
         jdbcTemplate.update(deleteSql, film.getId());
         saveLikes(film);
+    }
+
+    @Override
+    public Map<Long, Set<Long>> getFilmLikesByUsers() {
+        String sql = "SELECT user_id, film_id FROM film_likes";
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+
+        Map<Long, Set<Long>> userLikes = new HashMap<>();
+        for (Map<String, Object> row : rows) {
+            Long userId = ((Number) row.get("user_id")).longValue();
+            Long filmId = ((Number) row.get("film_id")).longValue();
+            userLikes.computeIfAbsent(userId, k -> new HashSet<>()).add(filmId);
+        }
+        return userLikes;
     }
 }
