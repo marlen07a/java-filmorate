@@ -92,5 +92,11 @@ public class UserService {
 
     public List<Feed> getAllFeedsByIdUser(Long id) {
         return feedService.getByUserId(id);
+    } 
+      
+    public void deleteUser(Long id) {
+        userStorage.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
+        userStorage.delete(id);
     }
 }

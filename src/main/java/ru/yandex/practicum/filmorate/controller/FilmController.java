@@ -58,8 +58,47 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<Film> getPopularFilms(
-            @RequestParam(defaultValue = "10") int count) {
-        log.info("Получен запрос на получение {} популярных фильмов", count);
-        return filmService.getPopularFilms(count);
+            @RequestParam(defaultValue = "10") int count,
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) Integer year) {
+
+        if (genreId != null && year != null) {
+            log.info("Получен запрос на получение {} популярных фильмов по жанру {} и году {}",
+                    count, genreId, year);
+            return filmService.getPopularFilmsByGenreAndYear(count, genreId, year);
+        } else if (genreId != null) {
+            log.info("Получен запрос на получение {} популярных фильмов по жанру {}",
+                    count, genreId);
+            return filmService.getPopularFilmsByGenre(count, genreId);
+        } else if (year != null) {
+            log.info("Получен запрос на получение {} популярных фильмов по году {}",
+                    count, year);
+            return filmService.getPopularFilmsByYear(count, year);
+        } else {
+            log.info("Получен запрос на получение {} популярных фильмов", count);
+            return filmService.getPopularFilms(count);
+        }
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirector(
+            @PathVariable Long directorId,
+            @RequestParam(defaultValue = "year") String sortBy) {
+        log.info("Получен запрос на получение фильмов режиссёра с id: {}, сортировка: {}", directorId, sortBy);
+        return filmService.getFilmsByDirector(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<Film> searchFilms(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "title,director") String by) {
+        log.info("Получен запрос на поиск фильмов: query='{}', by='{}'", query, by);
+        return filmService.searchFilms(query, by);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteFilm(@PathVariable Long id) {
+        log.info("Получен запрос на удаление фильма с id: {}", id);
+        filmService.deleteFilm(id);
     }
 }

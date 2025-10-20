@@ -50,6 +50,7 @@ public class ReviewService {
         }
         feedService.create(new Feed(0L,
                 review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.UPDATE, LocalDateTime.now()));
+
         return reviewDbStorage.update(review);
     }
 

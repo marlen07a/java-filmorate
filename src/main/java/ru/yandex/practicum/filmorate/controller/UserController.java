@@ -6,7 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import java.util.List;
 
@@ -15,10 +17,12 @@ import java.util.List;
 public class UserController {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
+    private final RecommendationService recommendationService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, RecommendationService recommendationService) {
         this.userService = userService;
+        this.recommendationService = recommendationService;
     }
 
     @GetMapping
@@ -73,5 +77,17 @@ public class UserController {
     public List<Feed> getFeedByUserId(@PathVariable Long id) {
         log.info("Получен запрос на получение ленты событий пользователя с id: {}", id);
         return userService.getAllFeedsByIdUser(id);
+    }
+  
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        log.info("Получен запрос на удаление пользователя с id: {}", id);
+        userService.deleteUser(id);
+    }
+      
+    @GetMapping("/{id}/recommendations")
+    public List<Film> getRecommendations(@PathVariable Long id) {
+        log.info("Запрошены рекомендации для пользователя {}", id);
+        return recommendationService.getRecommendations(id);
     }
 }
