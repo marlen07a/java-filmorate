@@ -78,13 +78,13 @@ public class UserController {
         log.info("Получен запрос на получение ленты событий пользователя с id: {}", id);
         return userService.getAllFeedsByIdUser(id);
     }
-  
+
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         log.info("Получен запрос на удаление пользователя с id: {}", id);
         userService.deleteUser(id);
     }
-      
+
     @GetMapping("/{id}/recommendations")
     public List<Film> getRecommendations(@PathVariable Long id) {
         log.info("Запрошены рекомендации для пользователя {}", id);
