@@ -3,18 +3,24 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.EventTypes;
+import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Operations;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final FeedService feedService;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FeedService feedService) {
         this.userStorage = userStorage;
+        this.feedService = feedService;
     }
 
     public List<User> findAll() {
@@ -42,6 +48,7 @@ public class UserService {
             throw new NotFoundException("Пользователь с id = " + friendId + " не найден");
         }
         userStorage.addFriend(userId, friendId);
+        feedService.create(new Feed(0L, userId, friendId, EventTypes.FRIEND, Operations.ADD, LocalDateTime.now()));
     }
 
     public void removeFriend(Long userId, Long friendId) {
@@ -52,6 +59,7 @@ public class UserService {
             throw new NotFoundException("Пользователь с id = " + friendId + " не найден");
         }
         userStorage.removeFriend(userId, friendId);
+        feedService.create(new Feed(0L, userId, friendId, EventTypes.FRIEND, Operations.REMOVE, LocalDateTime.now()));
     }
 
     public List<User> getFriends(Long userId) {
@@ -82,4 +90,7 @@ public class UserService {
         return commonFriends;
     }
 
+    public List<Feed> getAllFeedsByIdUser(Long id) {
+        return feedService.getByUserId(id);
+    }
 }

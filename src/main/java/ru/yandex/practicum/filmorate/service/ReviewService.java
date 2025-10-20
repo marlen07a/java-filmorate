@@ -4,13 +4,12 @@ import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -19,6 +18,7 @@ public class ReviewService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage; // Нужно добавить зависимость
     private final ReviewStorage reviewDbStorage;
+    private final FeedService feedService;
 
     public Review create(Review review) {
         if (review.getUserId() == null) {
@@ -36,6 +36,8 @@ public class ReviewService {
         if (review.getUseful() == null) {
             review.setUseful(0);
         }
+        feedService.create(new Feed(0L,
+                review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.ADD, LocalDateTime.now()));
         return reviewDbStorage.create(review);
     }
 
@@ -46,7 +48,8 @@ public class ReviewService {
         if (review.getUseful() == null) {
             review.setUseful(existingReview.getUseful());
         }
-
+        feedService.create(new Feed(0L,
+                review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.UPDATE, LocalDateTime.now()));
         return reviewDbStorage.update(review);
     }
 
@@ -56,6 +59,10 @@ public class ReviewService {
     }
 
     public void delete(Long reviewId) {
+        Review review = findById(reviewId);
+
+        feedService.create(new Feed(0L,
+                review.getUserId(), review.getFilmId(), EventTypes.REVIEW, Operations.REMOVE, LocalDateTime.now()));
         reviewDbStorage.delete(reviewId);
     }
 

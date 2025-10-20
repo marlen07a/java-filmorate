@@ -4,11 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmValidationException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,14 +20,16 @@ public class FilmService {
     private final UserStorage userStorage;
     private final MPAService mpaService;
     private final GenreService genreService;
+    private final FeedService feedService;
 
     @Autowired
     public FilmService(FilmStorage filmStorage, UserStorage userStorage,
-                       MPAService mpaService, GenreService genreService) {
+                       MPAService mpaService, GenreService genreService, FeedService feedService) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.mpaService = mpaService;
         this.genreService = genreService;
+        this.feedService = feedService;
     }
 
     public List<Film> findAll() {
@@ -80,6 +82,7 @@ public class FilmService {
 
         film.getLikes().add(userId);
         filmStorage.update(film);
+        feedService.create(new Feed(0L, userId, filmId, EventTypes.LIKE, Operations.ADD, LocalDateTime.now()));
     }
 
     public void removeLike(Long filmId, Long userId) {
@@ -89,6 +92,7 @@ public class FilmService {
 
         film.getLikes().remove(userId);
         filmStorage.update(film);
+        feedService.create(new Feed(0L, userId, filmId, EventTypes.LIKE, Operations.REMOVE, LocalDateTime.now()));
     }
 
     public List<Film> getPopularFilms(int count) {

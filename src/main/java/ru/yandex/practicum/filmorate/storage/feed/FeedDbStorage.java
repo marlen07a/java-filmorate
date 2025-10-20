@@ -7,7 +7,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.EventTypes;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Operations;
@@ -15,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.Operations;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -43,16 +43,13 @@ public class FeedDbStorage {
     public Feed update(Feed feed) {
         String sql = "UPDATE feeds SET user_id = ?, entity_id = ?, event_type = ?, operation = ? WHERE event_id = ?";
 
-        int updated = jdbcTemplate.update(sql,
+        jdbcTemplate.update(sql,
                 feed.getUserId(),
                 feed.getEntityId(),
                 String.valueOf(feed.getEventType()),
-                String.valueOf(feed.getOperation())
+                String.valueOf(feed.getOperation()),
+                feed.getEventId()
         );
-
-        if (updated == 0) {
-            throw new NotFoundException("Фильм с id = " + feed.getEventId() + " не найден");
-        }
 
         return feed;
     }
@@ -63,7 +60,23 @@ public class FeedDbStorage {
         jdbcTemplate.update(sql, id);
     }
 
-    // add getAll() and getById
+    public List<Feed> getAll() {
+        String sql = "SELECT * FROM feeds";
+
+        return jdbcTemplate.query(sql, this::mapRowToFeed);
+    }
+
+    public Feed getById(Long id) {
+        String sql = "SELECT * FROM feeds WHERE event_id = ?";
+
+        return jdbcTemplate.query(sql, this::mapRowToFeed, id).getFirst();
+    }
+
+    public List<Feed> getByUserId(Long id) {
+        String sql = "SELECT * FROM feeds WHERE user_id = ?";
+
+        return jdbcTemplate.query(sql, this::mapRowToFeed, id);
+    }
 
     private Feed mapRowToFeed(ResultSet rs, int rowNum) throws SQLException {
         Feed feed = new Feed();
