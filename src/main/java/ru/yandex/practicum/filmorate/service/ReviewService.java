@@ -35,8 +35,11 @@ public class ReviewService {
         if (review.getUseful() == null) {
             review.setUseful(0);
         }
-        feedService.create(review.getUserId(), review.getReviewId(), EventTypes.REVIEW, Operations.ADD);
-        return reviewDbStorage.create(review);
+
+        Review newReview = reviewDbStorage.create(review);
+        feedService.create(review.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.ADD);
+
+        return newReview;
     }
 
     public Review update(Review review) {
