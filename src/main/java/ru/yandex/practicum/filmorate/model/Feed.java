@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @Data
 @AllArgsConstructor
@@ -22,5 +22,5 @@ public class Feed {
 
     private EventTypes eventType;
     private Operations operation;
-    private LocalDateTime timestamp;
+    private Timestamp timestamp;
 }

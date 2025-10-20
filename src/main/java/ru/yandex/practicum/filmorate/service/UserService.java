@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Operations;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -48,7 +49,8 @@ public class UserService {
             throw new NotFoundException("Пользователь с id = " + friendId + " не найден");
         }
         userStorage.addFriend(userId, friendId);
-        feedService.create(new Feed(0L, userId, friendId, EventTypes.FRIEND, Operations.ADD, LocalDateTime.now()));
+        feedService.create(new Feed(0L,
+                userId, friendId, EventTypes.FRIEND, Operations.ADD, Timestamp.valueOf(LocalDateTime.now())));
     }
 
     public void removeFriend(Long userId, Long friendId) {
@@ -59,7 +61,8 @@ public class UserService {
             throw new NotFoundException("Пользователь с id = " + friendId + " не найден");
         }
         userStorage.removeFriend(userId, friendId);
-        feedService.create(new Feed(0L, userId, friendId, EventTypes.FRIEND, Operations.REMOVE, LocalDateTime.now()));
+        feedService.create(new Feed(0L,
+                userId, friendId, EventTypes.FRIEND, Operations.REMOVE, Timestamp.valueOf(LocalDateTime.now())));
     }
 
     public List<User> getFriends(Long userId) {
