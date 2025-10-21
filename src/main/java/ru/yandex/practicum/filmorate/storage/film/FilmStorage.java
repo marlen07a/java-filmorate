@@ -22,4 +22,6 @@ public interface FilmStorage {
     boolean existsById(Long id);
 
     Map<Long, Set<Long>> getFilmLikesByUsers();
+
+    List<Film> findCommonFilms(Long userId, Long friendId);
 }
