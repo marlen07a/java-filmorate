@@ -4,9 +4,7 @@ import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -19,6 +17,7 @@ public class ReviewService {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage; // Нужно добавить зависимость
     private final ReviewStorage reviewDbStorage;
+    private final FeedService feedService;
 
     public Review create(Review review) {
         if (review.getUserId() == null) {
@@ -36,7 +35,11 @@ public class ReviewService {
         if (review.getUseful() == null) {
             review.setUseful(0);
         }
-        return reviewDbStorage.create(review);
+
+        Review newReview = reviewDbStorage.create(review);
+        feedService.create(review.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.ADD);
+
+        return newReview;
     }
 
     public Review update(Review review) {
@@ -46,8 +49,10 @@ public class ReviewService {
         if (review.getUseful() == null) {
             review.setUseful(existingReview.getUseful());
         }
+        Review newReview = reviewDbStorage.update(review);
+        feedService.create(review.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.UPDATE);
 
-        return reviewDbStorage.update(review);
+        return newReview;
     }
 
     public Review findById(Long reviewId) {
@@ -56,6 +61,9 @@ public class ReviewService {
     }
 
     public void delete(Long reviewId) {
+        Review review = findById(reviewId);
+
+        feedService.create(review.getUserId(), review.getReviewId(), EventTypes.REVIEW, Operations.REMOVE);
         reviewDbStorage.delete(reviewId);
     }
 
@@ -69,7 +77,11 @@ public class ReviewService {
 
     public Review addLike(Long reviewId, Long userId) {
         getUserOrThrow(userId);
-        return reviewDbStorage.addLike(reviewId, userId);
+        Review review = reviewDbStorage.addLike(reviewId, userId);
+
+        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.LIKE, Operations.ADD);
+
+        return review;
     }
 
     public Review addDislike(Long reviewId, Long userId) {
@@ -79,6 +91,9 @@ public class ReviewService {
 
     public void removeLike(Long reviewId, Long userId) {
         getUserOrThrow(userId);
+        Review review = findById(reviewId);
+
+        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.LIKE, Operations.REMOVE);
         reviewDbStorage.removeLike(reviewId, userId);
     }
 
