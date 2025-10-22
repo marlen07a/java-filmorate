@@ -66,7 +66,6 @@ public class UserDbStorage implements UserStorage {
             throw new NotFoundException("Пользователь с id = " + user.getId() + " не найден");
         }
 
-        // Обновляем друзей в БД
         updateFriends(user);
 
         return user;
