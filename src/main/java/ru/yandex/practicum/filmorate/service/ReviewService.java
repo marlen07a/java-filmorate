@@ -63,8 +63,8 @@ public class ReviewService {
     public void delete(Long reviewId) {
         Review review = findById(reviewId);
 
-        feedService.create(review.getUserId(), review.getReviewId(), EventTypes.REVIEW, Operations.REMOVE);
         reviewDbStorage.delete(reviewId);
+        feedService.create(review.getUserId(), review.getReviewId(), EventTypes.REVIEW, Operations.REMOVE);
     }
 
     public List<Review> findByFilmId(Long filmId, int count) {
@@ -79,6 +79,8 @@ public class ReviewService {
         getUserOrThrow(userId);
         Review review = reviewDbStorage.addLike(reviewId, userId);
 
+        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.LIKE, Operations.ADD);
+
         return review;
     }
 
@@ -92,6 +94,7 @@ public class ReviewService {
         Review review = findById(reviewId);
 
         reviewDbStorage.removeLike(reviewId, userId);
+        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.LIKE, Operations.REMOVE);
     }
 
     public void removeDislike(Long reviewId, Long userId) {
