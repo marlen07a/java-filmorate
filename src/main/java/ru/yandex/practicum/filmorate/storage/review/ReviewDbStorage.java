@@ -41,7 +41,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
         review.setReviewId(keyHolder.getKey().longValue());
 
-        return review;
+        return findById(review.getReviewId()).get();
     }
 
     private void checkUserExists(Long userId) {
