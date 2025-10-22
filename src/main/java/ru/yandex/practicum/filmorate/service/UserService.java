@@ -60,9 +60,15 @@ public class UserService {
         if (!userStorage.existsById(userId)) {
             throw new NotFoundException("Пользователь с id = " + userId + " не найден");
         }
+
         if (!userStorage.existsById(friendId)) {
             throw new NotFoundException("Пользователь с id = " + friendId + " не найден");
         }
+
+        if (userId.equals(friendId)) {
+            throw new IllegalArgumentException("id = пользователя не должен быть равен id = друга");
+        }
+
         userStorage.removeFriend(userId, friendId);
         feedService.create(userId, friendId, EventTypes.FRIEND, Operations.REMOVE);
     }
@@ -71,7 +77,7 @@ public class UserService {
         User user = findById(userId);
         List<User> friendList = new ArrayList<>();
 
-        for (Long friendId : user.getFriends()) { // убрали .keySet()
+        for (Long friendId : user.getFriends()) {
             userStorage.findById(friendId).ifPresent(friendList::add);
         }
 
