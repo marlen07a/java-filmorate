@@ -90,6 +90,10 @@ public class UserService {
     }
 
     public List<Feed> getAllFeedsByIdUser(Long id) {
+        if (feedService.getByUserId(id).isEmpty()) {
+            throw new NotFoundException("События не найдены");
+        }
+
         return feedService.getByUserId(id);
     }
 
