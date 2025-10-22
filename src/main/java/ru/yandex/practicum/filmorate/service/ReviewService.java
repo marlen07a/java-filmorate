@@ -20,14 +20,6 @@ public class ReviewService {
     private final FeedService feedService;
 
     public Review create(Review review) {
-        if (review.getUserId() == null) {
-            throw new ValidationException("User ID не может быть null");
-        }
-        if (review.getFilmId() == null) {
-            throw new ValidationException("Film ID не может быть null");
-        }
-
-        // Проверяем существование пользователя и фильма
         getUserOrThrow(review.getUserId());
         getFilmOrThrow(review.getFilmId());
 
@@ -37,7 +29,7 @@ public class ReviewService {
         }
 
         Review newReview = reviewDbStorage.create(review);
-        feedService.create(review.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.ADD);
+        feedService.create(newReview.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.ADD);
 
         return newReview;
     }
