@@ -42,7 +42,7 @@ public class ReviewService {
             review.setUseful(existingReview.getUseful());
         }
         Review newReview = reviewDbStorage.update(review);
-        feedService.create(review.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.UPDATE);
+        feedService.create(newReview.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.UPDATE);
 
         return newReview;
     }
