@@ -51,12 +51,13 @@ public class FilmDbStorage implements FilmStorage {
         saveGenres(film);
         saveLikes(film);
 
-        return film;
+        return findById(film.getId()).get();
     }
 
     @Override
     public Film update(Film film) {
         String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
+
         int updated = jdbcTemplate.update(sql,
                 film.getName(),
                 film.getDescription(),
@@ -74,7 +75,7 @@ public class FilmDbStorage implements FilmStorage {
         updateGenres(film);
         updateLikes(film);
 
-        return film;
+        return findById(film.getId()).get();
     }
 
     @Override
