@@ -142,7 +142,7 @@ public class FilmService {
         return filmStorage.findAll().stream()
                 .filter(film -> year.equals(film.getReleaseDate().getYear())
                         && film.getGenres().stream().anyMatch(genre -> genre.getId().equals(genreId)))
-                .sorted((f2, f1) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                .sorted((f2, f1) -> Integer.compare(f1.getLikes().size(), f2.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());
     }
