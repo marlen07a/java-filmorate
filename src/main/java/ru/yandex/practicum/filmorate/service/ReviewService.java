@@ -79,8 +79,6 @@ public class ReviewService {
         getUserOrThrow(userId);
         Review review = reviewDbStorage.addLike(reviewId, userId);
 
-        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.LIKE, Operations.ADD);
-
         return review;
     }
 
@@ -93,7 +91,6 @@ public class ReviewService {
         getUserOrThrow(userId);
         Review review = findById(reviewId);
 
-        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.LIKE, Operations.REMOVE);
         reviewDbStorage.removeLike(reviewId, userId);
     }
 
