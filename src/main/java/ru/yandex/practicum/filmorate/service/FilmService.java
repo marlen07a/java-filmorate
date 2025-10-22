@@ -112,7 +112,7 @@ public class FilmService {
 
     public List<Film> getPopularFilms(int count) {
         return filmStorage.findAll().stream()
-                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                .sorted((f2, f1) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());
     }
@@ -124,7 +124,7 @@ public class FilmService {
                 .filter(film -> film.getGenres() != null &&
                         film.getGenres().stream()
                                 .anyMatch(genre -> genre.getId().equals(genreId)))
-                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                .sorted((f2, f1) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());
     }
@@ -133,7 +133,7 @@ public class FilmService {
         return filmStorage.findAll().stream()
                 .filter(film -> film.getReleaseDate() != null &&
                         film.getReleaseDate().getYear() == year)
-                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                .sorted((f2, f1) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());
     }
@@ -147,7 +147,7 @@ public class FilmService {
                 .filter(film -> film.getGenres() != null &&
                         film.getGenres().stream()
                                 .anyMatch(genre -> genre.getId().equals(genreId)))
-                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                .sorted((f2, f1) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());
     }
