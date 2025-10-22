@@ -93,20 +93,24 @@ public class FilmService {
 
     public void addLike(Long filmId, Long userId) {
         Film film = findById(filmId);
+
         userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id = " + userId + " не найден"));
 
         film.getLikes().add(userId);
+
         filmStorage.update(film);
         feedService.create(userId, filmId, EventTypes.LIKE, Operations.ADD);
     }
 
     public void removeLike(Long filmId, Long userId) {
         Film film = findById(filmId);
+
         userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id = " + userId + " не найден"));
 
         film.getLikes().remove(userId);
+
         filmStorage.update(film);
         feedService.create(userId, filmId, EventTypes.LIKE, Operations.REMOVE);
     }

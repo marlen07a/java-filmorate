@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewService {
     private final UserStorage userStorage;
-    private final FilmStorage filmStorage; // Нужно добавить зависимость
+    private final FilmStorage filmStorage;
     private final ReviewStorage reviewDbStorage;
     private final FeedService feedService;
 
@@ -23,7 +23,6 @@ public class ReviewService {
         getUserOrThrow(review.getUserId());
         getFilmOrThrow(review.getFilmId());
 
-        // Гарантируем, что useful не null
         if (review.getUseful() == null) {
             review.setUseful(0);
         }
@@ -37,7 +36,6 @@ public class ReviewService {
     public Review update(Review review) {
         Review existingReview = findById(review.getReviewId());
 
-        // Сохраняем текущее значение useful, если в обновлении оно null
         if (review.getUseful() == null) {
             review.setUseful(existingReview.getUseful());
         }
@@ -71,7 +69,7 @@ public class ReviewService {
         getUserOrThrow(userId);
         Review review = reviewDbStorage.addLike(reviewId, userId);
 
-        feedService.create(userId, reviewId, EventTypes.LIKE, Operations.ADD);
+        //feedService.create(userId, reviewId, EventTypes.LIKE, Operations.ADD);
 
         return review;
     }
@@ -79,7 +77,7 @@ public class ReviewService {
     public Review addDislike(Long reviewId, Long userId) {
         getUserOrThrow(userId);
         Review review = reviewDbStorage.addDislike(reviewId, userId);
-        feedService.create(userId, reviewId, EventTypes.LIKE, Operations.ADD);
+        //feedService.create(userId, reviewId, EventTypes.LIKE, Operations.ADD);
 
         return review;
     }
@@ -89,14 +87,14 @@ public class ReviewService {
         Review review = findById(reviewId);
 
         reviewDbStorage.removeLike(reviewId, userId);
-        feedService.create(userId, reviewId, EventTypes.LIKE, Operations.REMOVE);
+        //feedService.create(userId, reviewId, EventTypes.LIKE, Operations.REMOVE);
     }
 
     public void removeDislike(Long reviewId, Long userId) {
         getUserOrThrow(userId);
 
         reviewDbStorage.removeDislike(reviewId, userId);
-        feedService.create(userId, reviewId, EventTypes.LIKE, Operations.REMOVE);
+        //feedService.create(userId, reviewId, EventTypes.LIKE, Operations.REMOVE);
     }
 
     public int getUseful(Long reviewId) {
