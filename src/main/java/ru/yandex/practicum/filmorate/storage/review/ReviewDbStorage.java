@@ -47,6 +47,7 @@ public class ReviewDbStorage implements ReviewStorage {
     private void checkUserExists(Long userId) {
         String sql = "SELECT COUNT(*) FROM users WHERE id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+
         if (count == null || count == 0) {
             throw new NotFoundException("Пользователь с ID " + userId + " не найден");
         }
