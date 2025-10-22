@@ -79,7 +79,7 @@ public class ReviewService {
         getUserOrThrow(userId);
         Review review = reviewDbStorage.addLike(reviewId, userId);
 
-        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.LIKE, Operations.ADD);
+        feedService.create(userId, reviewId, EventTypes.LIKE, Operations.ADD);
 
         return review;
     }
@@ -87,7 +87,7 @@ public class ReviewService {
     public Review addDislike(Long reviewId, Long userId) {
         getUserOrThrow(userId);
         Review review = reviewDbStorage.addDislike(reviewId, userId);
-        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.LIKE, Operations.ADD);
+        feedService.create(userId, reviewId, EventTypes.LIKE, Operations.ADD);
 
         return review;
     }
@@ -97,7 +97,7 @@ public class ReviewService {
         Review review = findById(reviewId);
 
         reviewDbStorage.removeLike(reviewId, userId);
-        feedService.create(review.getUserId(), review.getFilmId(), EventTypes.LIKE, Operations.REMOVE);
+        feedService.create(userId, reviewId, EventTypes.LIKE, Operations.REMOVE);
     }
 
     public void removeDislike(Long reviewId, Long userId) {
