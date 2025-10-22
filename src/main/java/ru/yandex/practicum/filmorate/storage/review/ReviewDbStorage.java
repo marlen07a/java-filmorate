@@ -40,7 +40,8 @@ public class ReviewDbStorage implements ReviewStorage {
         }, keyHolder);
 
         review.setReviewId(keyHolder.getKey().longValue());
-        return review;
+
+        return findById(review.getReviewId()).get();
     }
 
     private void checkUserExists(Long userId) {
@@ -71,7 +72,7 @@ public class ReviewDbStorage implements ReviewStorage {
     public Review update(Review review) {
         String sql = "UPDATE reviews SET content = ?, is_positive = ? WHERE id = ?";
         jdbcTemplate.update(sql, review.getContent(), review.getIsPositive(), review.getReviewId());
-        return review;
+        return findById(review.getReviewId()).get();
     }
 
     @Override
