@@ -102,7 +102,7 @@ public class UserService {
     }
 
     public List<Feed> getAllFeedsByIdUser(Long id) {
-        if (feedService.getByUserId(id).isEmpty()) {
+        if (feedService.getByUserId(id).isEmpty() || feedService.getByUserId(id).getFirst().getUserId() == null) {
             throw new NotFoundException("События не найдены");
         }
 
