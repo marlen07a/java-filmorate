@@ -32,10 +32,9 @@ public class DirectorDbStorage {
 
     public Director create(Director director) {
         String sql = "INSERT INTO directors (id, name) VALUES (?, ?)";
-        if (director.getId() == null) {
-            id++;
-            director.setId(id);
-        }
+
+        id++;
+        director.setId(id);
 
         jdbcTemplate.update(sql, director.getId(), director.getName());
 

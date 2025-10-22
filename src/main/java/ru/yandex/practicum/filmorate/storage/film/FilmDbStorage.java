@@ -51,7 +51,7 @@ public class FilmDbStorage implements FilmStorage {
         saveGenres(film);
         saveLikes(film);
 
-        return findById(film.getId()).get();
+        return film;
     }
 
     @Override
