@@ -130,7 +130,7 @@ public class FilmService {
 
     public List<Film> getPopularFilmsByYear(int count, Integer year) {
         return filmStorage.findAll().stream()
-                .filter(film -> film.getReleaseDate().getYear() == year)
+                .filter(film -> year.equals(film.getReleaseDate().getYear()))
                 .sorted((f2, f1) -> Integer.compare(f1.getLikes().size(), f2.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());
@@ -140,7 +140,7 @@ public class FilmService {
         genreService.getGenreById(genreId);
 
         return filmStorage.findAll().stream()
-                .filter(film -> film.getReleaseDate().getYear() == year && film.getGenres().stream()
+                .filter(film -> year.equals(film.getReleaseDate().getYear()) && film.getGenres().stream()
                                 .anyMatch(genre -> genre.getId().equals(genreId)))
                 .sorted((f2, f1) -> Integer.compare(f1.getLikes().size(), f2.getLikes().size()))
                 .limit(count)
