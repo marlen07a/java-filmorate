@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class Review {
     private Long reviewId;
 
+    @NotNull
     @NotBlank(message = "Контент отзыва не может быть пустым")
     private String content;
 
