@@ -163,18 +163,15 @@ public class FilmService {
                 .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
                 .toList();
 
-        switch (sortBy) {
-            case YEAR:
-                return directorFilms.stream()
-                        .sorted(Comparator.comparing(Film::getReleaseDate))
-                        .collect(Collectors.toList());
-            case LIKES:
-                return directorFilms.stream()
-                        .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
-                        .collect(Collectors.toList());
-            default:
-                throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy);
-        }
+        return switch (sortBy) {
+            case YEAR -> directorFilms.stream()
+                    .sorted(Comparator.comparing(Film::getReleaseDate))
+                    .collect(Collectors.toList());
+            case LIKES -> directorFilms.stream()
+                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                    .collect(Collectors.toList());
+            default -> throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy);
+        };
     }
 
     public List<Film> searchFilms(String query, List<SearchBy> by) {
