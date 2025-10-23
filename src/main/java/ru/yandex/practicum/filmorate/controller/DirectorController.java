@@ -35,7 +35,7 @@ public class DirectorController {
     }
 
     @PutMapping
-    public Director updateDirector(@Valid @RequestBody Director director) {
+    public Director updateDirector(@RequestBody Director director) {
         log.info("Получен запрос на обновление режиссёра: {}", director);
         return directorService.updateDirector(director);
     }

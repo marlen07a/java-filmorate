@@ -24,9 +24,60 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> findAll() {
-        String sql = "SELECT f.*, m.id as mpa_id, m.code as mpa_code, m.name as mpa_name, m.description as mpa_description " +
-                "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
-        return jdbcTemplate.query(sql, this::mapRowToFilm);
+        String sql = """
+        SELECT f.id AS film_id,
+               f.name AS film_name,
+               f.description,
+               f.release_date,
+               f.duration,
+               f.created_at,
+               m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+               g.id AS genre_id, g.name AS genre_name,
+               d.id AS director_id, d.name AS director_name
+        FROM films f
+        LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+        LEFT JOIN film_genres fg ON f.id = fg.film_id
+        LEFT JOIN genres g ON fg.genre_id = g.id
+        LEFT JOIN films_directors fd ON f.id = fd.film_id
+        LEFT JOIN directors d ON fd.director_id = d.id
+        ORDER BY f.id
+    """;
+
+        Map<Long, Film> filmMap = new LinkedHashMap<>();
+
+        jdbcTemplate.query(sql, (rs) -> {
+            Long filmId = rs.getLong("film_id");
+            Film film = filmMap.get(filmId);
+
+            if (film == null) {
+                film = new Film();
+                film.setId(filmId);
+                film.setName(rs.getString("film_name"));
+                film.setDescription(rs.getString("description"));
+                film.setReleaseDate(rs.getDate("release_date").toLocalDate());
+                film.setDuration(rs.getInt("duration"));
+                film.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+
+                MPA mpa = new MPA(rs.getLong("mpa_id"), rs.getString("mpa_name"), rs.getString("mpa_description"));
+                film.setMpa(mpa);
+
+                film.setGenres(new LinkedHashSet<>());
+                film.setDirectors(new LinkedHashSet<>());
+                filmMap.put(filmId, film);
+            }
+
+            Long genreId = rs.getLong("genre_id");
+            if (genreId != 0) {
+                film.getGenres().add(new Genre(genreId, rs.getString("genre_name")));
+            }
+
+            Long directorId = rs.getLong("director_id");
+            if (directorId != 0) {
+                film.getDirectors().add(new Director(directorId, rs.getString("director_name")));
+            }
+        });
+
+        return new ArrayList<>(filmMap.values());
     }
 
     @Override
@@ -244,5 +295,78 @@ public class FilmDbStorage implements FilmStorage {
                 ") DESC";
 
         return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
+    }
+
+    @Override
+    public List<Film> findPopularByGenre(int count, Long genreId) {
+        String sql = """
+        SELECT f.*, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description
+        FROM films f
+        LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+        JOIN film_genres fg ON f.id = fg.film_id
+        WHERE fg.genre_id = ?
+        ORDER BY (
+            SELECT COUNT(*) FROM film_likes fl WHERE fl.film_id = f.id
+        ) DESC
+        LIMIT ?
+        """;
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
+    }
+
+    @Override
+    public List<Film> findPopularByYear(int count, int year) {
+        String sql = """
+        SELECT f.*, COUNT(l.user_id) AS like_count
+        FROM films f
+        LEFT JOIN likes l ON f.id = l.film_id
+        WHERE EXTRACT(YEAR FROM f.release_date) = ?
+        GROUP BY f.id
+        ORDER BY like_count DESC
+        LIMIT ?
+    """;
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
+    }
+
+    @Override
+    public List<Film> findPopularByGenreAndYear(int count, Long genreId, Integer year) {
+        String sql = """
+        SELECT f.*, COUNT(l.user_id) AS like_count
+        FROM films f
+        LEFT JOIN film_genres fg ON f.id = fg.film_id
+        LEFT JOIN likes l ON f.id = l.film_id
+        WHERE fg.genre_id = ?
+          AND EXTRACT(YEAR FROM f.release_date) = ?
+        GROUP BY f.id
+        ORDER BY like_count DESC
+        LIMIT ?
+    """;
+        return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
+    }
+
+    @Override
+    public List<Film> findFilmsByDirector(Long directorId, String sortBy) {
+        String orderClause;
+
+        if ("year".equalsIgnoreCase(sortBy)) {
+            orderClause = "f.release_date";
+        } else if ("likes".equalsIgnoreCase(sortBy)) {
+            orderClause = "like_count DESC";
+        } else {
+            throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy);
+        }
+
+        String sql = String.format("""
+        SELECT f.*, COUNT(l.user_id) AS like_count
+        FROM films f
+        JOIN film_directors fd ON f.id = fd.film_id
+        LEFT JOIN likes l ON f.id = l.film_id
+        WHERE fd.director_id = ?
+        GROUP BY f.id
+        ORDER BY %s
+    """, orderClause);
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
     }
 }

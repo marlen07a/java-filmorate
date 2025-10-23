@@ -124,32 +124,16 @@ public class FilmService {
 
     public List<Film> getPopularFilmsByGenre(int count, Long genreId) {
         genreService.getGenreById(genreId);
-
-        return filmStorage.findAll().stream()
-                .filter(film -> film.getGenres().stream()
-                                .anyMatch(genre -> genre.getId().equals(genreId)))
-                .sorted((f2, f1) -> Integer.compare(f1.getLikes().size(), f2.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmStorage.findPopularByGenre(count, genreId);
     }
 
     public List<Film> getPopularFilmsByYear(int count, Integer year) {
-        return filmStorage.findAll().stream()
-                .filter(film -> year.equals(film.getReleaseDate().getYear()))
-                .sorted((f2, f1) -> Integer.compare(f1.getLikes().size(), f2.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmStorage.findPopularByYear(count, year);
     }
 
     public List<Film> getPopularFilmsByGenreAndYear(int count, Long genreId, Integer year) {
         genreService.getGenreById(genreId);
-
-        return filmStorage.findAll().stream()
-                .filter(film -> year.equals(film.getReleaseDate().getYear())
-                        && film.getGenres().stream().anyMatch(genre -> genre.getId().equals(genreId)))
-                .sorted((f2, f1) -> Integer.compare(f1.getLikes().size(), f2.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmStorage.findPopularByGenreAndYear(count, genreId, year);
     }
 
     public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
