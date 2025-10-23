@@ -297,7 +297,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findPopularByGenre(int count, Long genreId) {
         String sql = """
-        SELECT f.*, 
+        SELECT f.*,\s
                m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
                COUNT(fl.user_id) AS like_count
         FROM films f
@@ -308,7 +308,7 @@ public class FilmDbStorage implements FilmStorage {
         GROUP BY f.id, m.id, m.name, m.description, f.name, f.description, f.release_date, f.duration, f.created_at
         ORDER BY like_count DESC
         LIMIT ?
-    """;
+   \s""";
 
         List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
 
@@ -323,7 +323,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findPopularByGenreAndYear(int count, Long genreId, Integer year) {
         String sql = """
-        SELECT f.*, 
+        SELECT f.*,\s
                m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
                COUNT(fl.user_id) AS like_count
         FROM films f
@@ -335,7 +335,7 @@ public class FilmDbStorage implements FilmStorage {
         GROUP BY f.id, m.id, m.name, m.description, f.name, f.description, f.release_date, f.duration, f.created_at
         ORDER BY like_count DESC
         LIMIT ?
-    """;
+   \s""";
 
         List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
 
@@ -351,7 +351,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findPopularByYear(int count, int year) {
         String sql = """
-        SELECT f.*, 
+        SELECT f.*,\s
                m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
                COUNT(fl.user_id) AS like_count
         FROM films f
@@ -361,7 +361,7 @@ public class FilmDbStorage implements FilmStorage {
         GROUP BY f.id, m.id
         ORDER BY like_count DESC
         LIMIT ?
-    """;
+   \s""";
         List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
 
         for (Film film : films) {
@@ -409,7 +409,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findPopularFilms(int count) {
         String sql = """
-        SELECT f.*, 
+        SELECT f.*,\s
                m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
                COUNT(fl.user_id) AS like_count
         FROM films f
@@ -418,7 +418,7 @@ public class FilmDbStorage implements FilmStorage {
         GROUP BY f.id, m.id
         ORDER BY like_count DESC
         LIMIT ?
-    """;
+   \s""";
         return jdbcTemplate.query(sql, this::mapRowToFilm, count);
     }
 
