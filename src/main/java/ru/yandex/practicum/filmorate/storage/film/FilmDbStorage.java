@@ -7,10 +7,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPA;
+import ru.yandex.practicum.filmorate.model.*;
 
 import java.sql.*;
 import java.sql.Date;
@@ -300,73 +297,195 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findPopularByGenre(int count, Long genreId) {
         String sql = """
-        SELECT f.*, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description
+        SELECT f.*, 
+               m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+               COUNT(fl.user_id) AS like_count
         FROM films f
-        LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
         JOIN film_genres fg ON f.id = fg.film_id
+        LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+        LEFT JOIN film_likes fl ON f.id = fl.film_id
         WHERE fg.genre_id = ?
-        ORDER BY (
-            SELECT COUNT(*) FROM film_likes fl WHERE fl.film_id = f.id
-        ) DESC
-        LIMIT ?
-        """;
-
-        return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
-    }
-
-    @Override
-    public List<Film> findPopularByYear(int count, int year) {
-        String sql = """
-        SELECT f.*, COUNT(l.user_id) AS like_count
-        FROM films f
-        LEFT JOIN likes l ON f.id = l.film_id
-        WHERE EXTRACT(YEAR FROM f.release_date) = ?
-        GROUP BY f.id
+        GROUP BY f.id, m.id, m.name, m.description, f.name, f.description, f.release_date, f.duration, f.created_at
         ORDER BY like_count DESC
         LIMIT ?
     """;
 
-        return jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
+        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
+
+        for (Film film : films) {
+            loadGenres(film);
+            loadDirectors(film);
+        }
+
+        return films;
     }
 
     @Override
     public List<Film> findPopularByGenreAndYear(int count, Long genreId, Integer year) {
         String sql = """
-        SELECT f.*, COUNT(l.user_id) AS like_count
+        SELECT f.*, 
+               m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+               COUNT(fl.user_id) AS like_count
         FROM films f
-        LEFT JOIN film_genres fg ON f.id = fg.film_id
-        LEFT JOIN likes l ON f.id = l.film_id
+        JOIN film_genres fg ON f.id = fg.film_id
+        LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+        LEFT JOIN film_likes fl ON f.id = fl.film_id
         WHERE fg.genre_id = ?
           AND EXTRACT(YEAR FROM f.release_date) = ?
-        GROUP BY f.id
+        GROUP BY f.id, m.id, m.name, m.description, f.name, f.description, f.release_date, f.duration, f.created_at
         ORDER BY like_count DESC
         LIMIT ?
     """;
-        return jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
+
+        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
+
+        for (Film film : films) {
+            loadGenres(film);
+            loadDirectors(film);
+        }
+
+        return films;
+    }
+
+
+    @Override
+    public List<Film> findPopularByYear(int count, int year) {
+        String sql = """
+        SELECT f.*, 
+               m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+               COUNT(fl.user_id) AS like_count
+        FROM films f
+        LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+        LEFT JOIN film_likes fl ON f.id = fl.film_id
+        WHERE EXTRACT(YEAR FROM f.release_date) = ?
+        GROUP BY f.id, m.id
+        ORDER BY like_count DESC
+        LIMIT ?
+    """;
+        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
+
+        for (Film film : films) {
+            loadGenres(film);
+            loadDirectors(film);
+        }
+
+        return films;
     }
 
     @Override
     public List<Film> findFilmsByDirector(Long directorId, String sortBy) {
         String orderClause;
-
         if ("year".equalsIgnoreCase(sortBy)) {
-            orderClause = "f.release_date";
+            orderClause = "f.release_date ASC";
         } else if ("likes".equalsIgnoreCase(sortBy)) {
             orderClause = "like_count DESC";
         } else {
-            throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy);
+            throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
         }
 
         String sql = String.format("""
-        SELECT f.*, COUNT(l.user_id) AS like_count
+        SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
+               m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+               COUNT(fl.user_id) AS like_count
         FROM films f
-        JOIN film_directors fd ON f.id = fd.film_id
-        LEFT JOIN likes l ON f.id = l.film_id
+        JOIN films_directors fd ON f.id = fd.film_id
+        LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+        LEFT JOIN film_likes fl ON f.id = fl.film_id
         WHERE fd.director_id = ?
-        GROUP BY f.id
+        GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
+                 m.id, m.name, m.description
         ORDER BY %s
     """, orderClause);
 
-        return jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
+        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
+
+        for (Film film : films) {
+            loadGenres(film);
+            loadDirectors(film);
+        }
+
+        return films;
+    }
+    @Override
+    public List<Film> findPopularFilms(int count) {
+        String sql = """
+        SELECT f.*, 
+               m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+               COUNT(fl.user_id) AS like_count
+        FROM films f
+        LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+        LEFT JOIN film_likes fl ON f.id = fl.film_id
+        GROUP BY f.id, m.id
+        ORDER BY like_count DESC
+        LIMIT ?
+    """;
+        return jdbcTemplate.query(sql, this::mapRowToFilm, count);
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, List<SearchBy> by) {
+        String lowerQuery = "%" + query.toLowerCase() + "%";
+
+        boolean searchByTitle = by.contains(SearchBy.TITLE);
+        boolean searchByDirector = by.contains(SearchBy.DIRECTOR);
+
+        if (!searchByTitle && !searchByDirector) {
+            return Collections.emptyList();
+        }
+
+        StringBuilder sql = new StringBuilder("""
+        SELECT DISTINCT f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
+               m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+               COUNT(fl.user_id) AS like_count
+        FROM films f
+        LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+        LEFT JOIN films_directors fd ON f.id = fd.film_id
+        LEFT JOIN directors d ON fd.director_id = d.id
+        LEFT JOIN film_likes fl ON f.id = fl.film_id
+        WHERE
+    """);
+
+        List<Object> params = new ArrayList<>();
+
+        if (searchByTitle) {
+            sql.append(" LOWER(f.name) LIKE ? ");
+            params.add(lowerQuery);
+        }
+        if (searchByDirector) {
+            if (searchByTitle) {
+                sql.append(" OR ");
+            }
+            sql.append(" LOWER(d.name) LIKE ? ");
+            params.add(lowerQuery);
+        }
+
+        sql.append("""
+        GROUP BY f.id, m.id, m.name, m.description, f.name, f.description, f.release_date, f.duration, f.created_at
+        ORDER BY like_count DESC, f.release_date ASC, f.id ASC
+    """);
+
+        List<Film> films = jdbcTemplate.query(sql.toString(), (rs, rowNum) -> {
+            Film film = new Film();
+            film.setId(rs.getLong("id"));
+            film.setName(rs.getString("name"));
+            film.setDescription(rs.getString("description"));
+            film.setReleaseDate(rs.getDate("release_date").toLocalDate());
+            film.setDuration(rs.getInt("duration"));
+            film.setCreatedAt(rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null);
+
+            MPA mpa = new MPA();
+            mpa.setId(rs.getLong("mpa_id"));
+            mpa.setName(rs.getString("mpa_name"));
+            mpa.setDescription(rs.getString("mpa_description"));
+            film.setMpa(mpa);
+
+            return film;
+        }, params.toArray());
+
+        for (Film film : films) {
+            loadGenres(film);
+            loadDirectors(film);
+        }
+        return films;
     }
 }

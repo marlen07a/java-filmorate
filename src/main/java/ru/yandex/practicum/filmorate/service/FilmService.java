@@ -115,12 +115,12 @@ public class FilmService {
         feedService.create(userId, filmId, EventTypes.LIKE, Operations.REMOVE);
     }
 
-    public List<Film> getPopularFilms(int count) {
-        return filmStorage.findAll().stream()
-                .sorted((f2, f1) -> Integer.compare(f1.getLikes().size(), f2.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
-    }
+   // public List<Film> getPopularFilms(int count) {
+      //  return filmStorage.findAll().stream()
+             //   .sorted((f2, f1) -> Integer.compare(f1.getLikes().size(), f2.getLikes().size()))
+             //   .limit(count)
+             //   .collect(Collectors.toList());
+    //}
 
     public List<Film> getPopularFilmsByGenre(int count, Long genreId) {
         genreService.getGenreById(genreId);
@@ -137,62 +137,14 @@ public class FilmService {
     }
 
     public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
-        List<Film> directorFilms;
-
         directorService.getDirectorById(directorId);
-
-        directorFilms = filmStorage
-                .findAll()
-                .stream()
-                .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
-                .toList();
-
-        return switch (sortBy) {
-            case YEAR -> directorFilms.stream()
-                    .sorted(Comparator.comparing(Film::getReleaseDate))
-                    .collect(Collectors.toList());
-            case LIKES -> directorFilms.stream()
-                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
-                    .collect(Collectors.toList());
-            default -> throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy);
-        };
+        String sortParam = sortBy == DirectorSortBy.YEAR ? "year" : "likes";
+        return filmStorage.findFilmsByDirector(directorId, sortParam);
     }
 
+
     public List<Film> searchFilms(String query, List<SearchBy> by) {
-        if (query == null || query.trim().isEmpty()) {
-            throw new IllegalArgumentException("Поисковый запрос не может быть пустым");
-        }
-
-        String lowerQuery = query.toLowerCase();
-        List<Film> allFilms = filmStorage.findAll();
-
-        boolean searchByTitle = by.contains(SearchBy.TITLE);
-        boolean searchByDirector = by.contains(SearchBy.DIRECTOR);
-
-        if (searchByTitle && searchByDirector) {
-            return allFilms.stream()
-                    .filter(film -> {
-                        boolean matchesTitle = film.getName().toLowerCase().contains(lowerQuery);
-                        boolean matchesDirector = film.getDirectors().stream()
-                                .anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery));
-                        return matchesTitle || matchesDirector;
-                    })
-                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
-                    .collect(Collectors.toList());
-        } else if (searchByTitle) {
-            return allFilms.stream()
-                    .filter(film -> film.getName().toLowerCase().contains(lowerQuery))
-                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
-                    .collect(Collectors.toList());
-        } else if (searchByDirector) {
-            return allFilms.stream()
-                    .filter(film -> film.getDirectors().stream()
-                            .anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery)))
-                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
-                    .collect(Collectors.toList());
-        } else {
-            throw new IllegalArgumentException("Некорректные параметры поиска: " + by);
-        }
+        return filmStorage.searchFilms(query, by);
     }
 
     public void deleteFilm(Long id) {
@@ -219,5 +171,9 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с id = " + friendId + " не найден"));
 
         return filmStorage.findCommonFilms(userId, friendId);
+    }
+
+    public List<Film> getPopularFilms(int count) {
+        return filmStorage.findPopularFilms(count);
     }
 }

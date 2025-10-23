@@ -4,11 +4,15 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.DirectorSortBy;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.SearchBy;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -81,20 +85,30 @@ public class FilmController {
     @GetMapping("/director/{directorId}")
     public List<Film> getFilmsByDirector(
             @PathVariable Long directorId,
-            @RequestParam(defaultValue = "year") DirectorSortBy sortBy) {
+            @RequestParam(defaultValue = "year") String sortByValue) {
 
-        log.info("Получен запрос на получение фильмов режиссёра с id: {}, сортировка: {}", directorId, sortBy);
+        DirectorSortBy sortBy;
+        try {
+            sortBy = DirectorSortBy.fromValue(sortByValue);
+        } catch (IllegalArgumentException e) {
+            throw new NotFoundException("Unknown sort type: " + sortByValue);
+        }
         return filmService.getFilmsByDirector(directorId, sortBy);
     }
 
     @GetMapping("/search")
     public List<Film> searchFilms(
             @RequestParam String query,
-            @RequestParam(defaultValue = "title,director") List<SearchBy> by) {
+            @RequestParam(defaultValue = "title,director") String by) {
 
-        log.info("Получен запрос на поиск фильмов: query='{}', by='{}'", query, by);
-        return filmService.searchFilms(query, by);
+        List<SearchBy> byList = Arrays.stream(by.split(","))
+                .map(String::trim)
+                .map(s -> SearchBy.valueOf(s.toUpperCase()))
+                .collect(Collectors.toList());
+
+        return filmService.searchFilms(query, byList);
     }
+
 
     @DeleteMapping("/{id}")
     public void deleteFilm(@PathVariable Long id) {

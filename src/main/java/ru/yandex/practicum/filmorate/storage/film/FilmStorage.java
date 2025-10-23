@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SearchBy;
 
 import java.util.List;
 import java.util.Map;
@@ -32,4 +33,8 @@ public interface FilmStorage {
     List<Film> findPopularByGenreAndYear(int count, Long genreId, Integer year);
 
     List<Film> findFilmsByDirector(Long directorId, String sortBy);
+
+    List<Film> findPopularFilms(int count);
+
+    List<Film> searchFilms(String query, List<SearchBy> by);
 }
