@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +13,10 @@ import ru.yandex.practicum.filmorate.service.DirectorService;
 import java.util.List;
 
 @RestController
+@Slf4j
 @RequestMapping("/directors")
 @RequiredArgsConstructor
 public class DirectorController {
-    private static final Logger log = LoggerFactory.getLogger(DirectorController.class);
     private final DirectorService directorService;
 
     @GetMapping
@@ -46,13 +47,5 @@ public class DirectorController {
     public void deleteDirector(@PathVariable Long id) {
         log.info("Получен запрос на удаление режиссёра с id: {}", id);
         directorService.deleteDirector(id);
-    }
-
-    @GetMapping("/{id}/films")
-    public List<Film> getFilmsByDirector(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "year") String sortBy) {
-        log.info("Получен запрос на получение фильмов режиссёра с id: {}, сортировка: {}", id, sortBy);
-        return directorService.getFilmsByDirector(id, sortBy);
     }
 }

@@ -152,7 +152,7 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
+    public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
         List<Film> directorFilms;
 
         directorService.getDirectorById(directorId);
@@ -163,20 +163,21 @@ public class FilmService {
                 .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
                 .toList();
 
-        if ("year".equalsIgnoreCase(sortBy)) {
-            return directorFilms.stream()
-                    .sorted(Comparator.comparing(Film::getReleaseDate))
-                    .collect(Collectors.toList());
-        } else if ("likes".equalsIgnoreCase(sortBy)) {
-            return directorFilms.stream()
-                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
-                    .collect(Collectors.toList());
-        } else {
-            throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy);
+        switch (sortBy) {
+            case YEAR:
+                return directorFilms.stream()
+                        .sorted(Comparator.comparing(Film::getReleaseDate))
+                        .collect(Collectors.toList());
+            case LIKES:
+                return directorFilms.stream()
+                        .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                        .collect(Collectors.toList());
+            default:
+                throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy);
         }
     }
 
-    public List<Film> searchFilms(String query, String by) {
+    public List<Film> searchFilms(String query, List<SearchBy> by) {
         if (query == null || query.trim().isEmpty()) {
             throw new IllegalArgumentException("Поисковый запрос не может быть пустым");
         }
@@ -184,30 +185,32 @@ public class FilmService {
         String lowerQuery = query.toLowerCase();
         List<Film> allFilms = filmStorage.findAll();
 
-        if (by.contains("title") && by.contains("director")) {
+        boolean searchByTitle = by.contains(SearchBy.TITLE);
+        boolean searchByDirector = by.contains(SearchBy.DIRECTOR);
+
+        if (searchByTitle && searchByDirector) {
             return allFilms.stream()
                     .filter(film -> {
-                        boolean isEqualsName = film.getName().toLowerCase().contains(lowerQuery);
-                        boolean isEqualsDir = film.getDirectors().stream().anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery));
-
-                        return isEqualsName || isEqualsDir;
+                        boolean matchesTitle = film.getName().toLowerCase().contains(lowerQuery);
+                        boolean matchesDirector = film.getDirectors().stream()
+                                .anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery));
+                        return matchesTitle || matchesDirector;
                     })
-                    .sorted((f1, f2) -> Integer.compare(
-                            f2.getLikes().size(),
-                            f1.getLikes().size()))
+                    .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                     .collect(Collectors.toList());
-        } else if (by.contains("title")) {
+        } else if (searchByTitle) {
             return allFilms.stream()
                     .filter(film -> film.getName().toLowerCase().contains(lowerQuery))
                     .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                     .collect(Collectors.toList());
-        } else if (by.contains("director")) {
+        } else if (searchByDirector) {
             return allFilms.stream()
-                    .filter(film -> film.getDirectors().stream().anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery)))
+                    .filter(film -> film.getDirectors().stream()
+                            .anyMatch(d -> d.getName().toLowerCase().contains(lowerQuery)))
                     .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
                     .collect(Collectors.toList());
         } else {
-            throw new IllegalArgumentException("Некорректный параметр поиска: " + by);
+            throw new IllegalArgumentException("Некорректные параметры поиска: " + by);
         }
     }
 

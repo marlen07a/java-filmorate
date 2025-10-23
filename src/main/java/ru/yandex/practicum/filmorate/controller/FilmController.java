@@ -1,18 +1,21 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.DirectorSortBy;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SearchBy;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import java.util.List;
 
 @RestController
+@Slf4j
 @RequestMapping("/films")
 public class FilmController {
-    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     private final FilmService filmService;
 
     @Autowired
@@ -80,7 +83,8 @@ public class FilmController {
     @GetMapping("/director/{directorId}")
     public List<Film> getFilmsByDirector(
             @PathVariable Long directorId,
-            @RequestParam(defaultValue = "year") String sortBy) {
+            @RequestParam(defaultValue = "year") DirectorSortBy sortBy) {
+
         log.info("Получен запрос на получение фильмов режиссёра с id: {}, сортировка: {}", directorId, sortBy);
         return filmService.getFilmsByDirector(directorId, sortBy);
     }
@@ -88,7 +92,8 @@ public class FilmController {
     @GetMapping("/search")
     public List<Film> searchFilms(
             @RequestParam String query,
-            @RequestParam(defaultValue = "title,director") String by) {
+            @RequestParam(defaultValue = "title,director") List<SearchBy> by) {
+
         log.info("Получен запрос на поиск фильмов: query='{}', by='{}'", query, by);
         return filmService.searchFilms(query, by);
     }
