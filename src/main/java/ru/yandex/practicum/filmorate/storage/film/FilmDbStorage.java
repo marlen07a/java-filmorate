@@ -438,10 +438,10 @@ public class FilmDbStorage implements FilmStorage {
 
         List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
 
-        for (Film film : films) {
-            loadGenres(film);
-            loadDirectors(film);
-        }
+//        for (Film film : films) {
+//            loadGenres(film);
+//            loadDirectors(film);
+//        }
 
         return films;
     }
