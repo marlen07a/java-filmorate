@@ -83,7 +83,9 @@ public class FilmDbStorage implements FilmStorage {
     public Optional<Film> findById(Long id) {
         String sql = "SELECT f.*, m.id as mpa_id, m.code as mpa_code, m.name as mpa_name, m.description as mpa_description " +
                 "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id WHERE f.id = ?";
+
         List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, id);
+
         return films.stream().findFirst();
     }
 
@@ -106,15 +108,7 @@ public class FilmDbStorage implements FilmStorage {
                     ORDER BY f.id
                 """, inClause);
 
-        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm);
-
-        for (Film film : films) {
-            loadDirectors(film);
-            loadGenres(film);
-            loadLikes(film);
-        }
-
-        return films;
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
     @Override
@@ -128,6 +122,20 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT COUNT(*) FROM films WHERE id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);
         return count != null && count > 0;
+    }
+
+    @Override
+    public Map<Long, Set<Long>> getFilmLikesByUsers() {
+        String sql = "SELECT user_id, film_id FROM film_likes";
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+
+        Map<Long, Set<Long>> userLikes = new HashMap<>();
+        for (Map<String, Object> row : rows) {
+            Long userId = ((Number) row.get("user_id")).longValue();
+            Long filmId = ((Number) row.get("film_id")).longValue();
+            userLikes.computeIfAbsent(userId, k -> new HashSet<>()).add(filmId);
+        }
+        return userLikes;
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
@@ -252,20 +260,6 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT name FROM directors WHERE id = ?";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getString("name"), id).getFirst();
-    }
-
-    @Override
-    public Map<Long, Set<Long>> getFilmLikesByUsers() {
-        String sql = "SELECT user_id, film_id FROM film_likes";
-        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
-
-        Map<Long, Set<Long>> userLikes = new HashMap<>();
-        for (Map<String, Object> row : rows) {
-            Long userId = ((Number) row.get("user_id")).longValue();
-            Long filmId = ((Number) row.get("film_id")).longValue();
-            userLikes.computeIfAbsent(userId, k -> new HashSet<>()).add(filmId);
-        }
-        return userLikes;
     }
 
     @Override
