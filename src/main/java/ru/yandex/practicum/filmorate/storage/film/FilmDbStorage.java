@@ -438,7 +438,7 @@ public class FilmDbStorage implements FilmStorage {
 
          switch (sortBy) {
             case DirectorSortBy.YEAR -> {
-                return films.stream().sorted((f1, f2) -> f2.getReleaseDate().getYear() - f1.getReleaseDate().getYear()).toList();
+                return films.stream().sorted((f1, f2) -> f1.getReleaseDate().getYear() - f2.getReleaseDate().getYear()).toList();
             }
             case DirectorSortBy.LIKES -> {
                 return films.stream().sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList();
