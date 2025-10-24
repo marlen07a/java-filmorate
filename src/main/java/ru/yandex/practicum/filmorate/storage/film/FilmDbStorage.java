@@ -431,7 +431,7 @@ public class FilmDbStorage implements FilmStorage {
 //                    ORDER BY %s
 //                """, orderClause);
 
-        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, directorId)
+        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm)
                 .stream()
                 .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
                 .toList();
