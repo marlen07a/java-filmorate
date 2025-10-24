@@ -33,32 +33,6 @@ public class DirectorService {
         return directorStorage.create(director);
     }
 
-    public Director updateDirector(Director director) {
-        if (director.getId() == null) {
-            throw new NotFoundException("Id режиссёра не указан");
-        }
-
-        Director existingDirector = directorStorage.getById(director.getId())
-                .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + director.getId() + " не найден"));
-
-        if (director.getName() != null) {
-            if (director.getName().isBlank()) {
-                throw new ValidationException("Имя режиссёра не может быть пустым");
-            }
-            existingDirector.setName(director.getName());
-        }
-
-        return directorStorage.update(existingDirector);
-    }
-
-
-    public void deleteDirector(Long id) {
-        directorStorage.getById(id)
-                .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + id + " не найден"));
-
-        directorStorage.delete(id);
-    }
-
     public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
         directorStorage.getById(directorId)
                 .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + directorId + " не найден"));
@@ -81,6 +55,31 @@ public class DirectorService {
             throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy +
                     ". Допустимые значения: year, likes");
         }
+    }
+
+    public Director updateDirector(Director director) {
+        if (director.getId() == null) {
+            throw new NotFoundException("Id режиссёра не указан");
+        }
+
+        Director existingDirector = directorStorage.getById(director.getId())
+                .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + director.getId() + " не найден"));
+
+        if (director.getName() != null) {
+            if (director.getName().isBlank()) {
+                throw new ValidationException("Имя режиссёра не может быть пустым");
+            }
+            existingDirector.setName(director.getName());
+        }
+
+        return directorStorage.update(existingDirector);
+    }
+
+    public void deleteDirector(Long id) {
+        directorStorage.getById(id)
+                .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + id + " не найден"));
+
+        directorStorage.delete(id);
     }
 
     public void validateDirectorsExist(Set<Long> directorIds) {
