@@ -103,65 +103,42 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review addLike(long reviewId, long userId) {
-        checkReviewExists(reviewId);
-        checkUserExists(userId);
-
-        // проверяею существующий голос
-        String checkSql = "SELECT is_like FROM review_likes WHERE review_id = ? AND user_id = ?";
-        List<Boolean> existingVotes = jdbcTemplate.query(checkSql,
-                (rs, rowNum) -> rs.getBoolean("is_like"), reviewId, userId);
-
-        if (!existingVotes.isEmpty()) {
-            Boolean existingVote = existingVotes.get(0);
-            if (existingVote) {
-                // Уже лайкнул
-                return findById(reviewId).orElseThrow();
-            } else {
-                // был диз, тогдп меняю на лайк (+2 к useful)
-                String updateSql = "UPDATE reviews SET useful = useful + 2 WHERE id = ?";
-                jdbcTemplate.update(updateSql, reviewId);
-                String updateLikeSql = "UPDATE review_likes SET is_like = true WHERE review_id = ? AND user_id = ?";
-                jdbcTemplate.update(updateLikeSql, reviewId, userId);
-            }
-        } else {
-            // новый лайк
-            String updateSql = "UPDATE reviews SET useful = useful + 1 WHERE id = ?";
-            jdbcTemplate.update(updateSql, reviewId);
-            String insertSql = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, true)";
-            jdbcTemplate.update(insertSql, reviewId, userId);
-        }
-
-        return findById(reviewId).orElseThrow();
+        return processReviewVote(reviewId, userId, true);
     }
 
     @Override
     public Review addDislike(long reviewId, long userId) {
+        return processReviewVote(reviewId, userId, false);
+    }
+
+    private Review processReviewVote(long reviewId, long userId, boolean isLike) {
         checkReviewExists(reviewId);
         checkUserExists(userId);
 
-        // проверяю существующий голос
         String checkSql = "SELECT is_like FROM review_likes WHERE review_id = ? AND user_id = ?";
         List<Boolean> existingVotes = jdbcTemplate.query(checkSql,
                 (rs, rowNum) -> rs.getBoolean("is_like"), reviewId, userId);
 
         if (!existingVotes.isEmpty()) {
             Boolean existingVote = existingVotes.get(0);
-            if (!existingVote) {
-                // уже дизлайкнул
+
+            if (existingVote == isLike) {
                 return findById(reviewId).orElseThrow();
-            } else {
-                // был лайк, тогда меняю на дизлайк (-2 к useful)
-                String updateSql = "UPDATE reviews SET useful = useful - 2 WHERE id = ?";
-                jdbcTemplate.update(updateSql, reviewId);
-                String updateLikeSql = "UPDATE review_likes SET is_like = false WHERE review_id = ? AND user_id = ?";
-                jdbcTemplate.update(updateLikeSql, reviewId, userId);
             }
+
+            int usefulChange = isLike ? 2 : -2;
+            String updateSql = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
+            jdbcTemplate.update(updateSql, usefulChange, reviewId);
+
+            String updateLikeSql = "UPDATE review_likes SET is_like = ? WHERE review_id = ? AND user_id = ?";
+            jdbcTemplate.update(updateLikeSql, isLike, reviewId, userId);
         } else {
-            // новый диз
-            String updateSql = "UPDATE reviews SET useful = useful - 1 WHERE id = ?";
-            jdbcTemplate.update(updateSql, reviewId);
-            String insertSql = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, false)";
-            jdbcTemplate.update(insertSql, reviewId, userId);
+            int usefulChange = isLike ? 1 : -1;
+            String updateSql = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
+            jdbcTemplate.update(updateSql, usefulChange, reviewId);
+
+            String insertSql = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, ?)";
+            jdbcTemplate.update(insertSql, reviewId, userId, isLike);
         }
 
         return findById(reviewId).orElseThrow();
@@ -169,24 +146,15 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void removeLike(long reviewId, long userId) {
-        checkReviewExists(reviewId);
-        checkUserExists(userId);
-
-        String checkSql = "SELECT is_like FROM review_likes WHERE review_id = ? AND user_id = ?";
-        List<Boolean> existingVotes = jdbcTemplate.query(checkSql,
-                (rs, rowNum) -> rs.getBoolean("is_like"), reviewId, userId);
-
-        if (!existingVotes.isEmpty() && existingVotes.get(0)) {
-            // удаляю только если был лайк
-            String updateSql = "UPDATE reviews SET useful = useful - 1 WHERE id = ?";
-            jdbcTemplate.update(updateSql, reviewId);
-            String deleteSql = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
-            jdbcTemplate.update(deleteSql, reviewId, userId);
-        }
+        removeReviewVote(reviewId, userId, true);
     }
 
     @Override
     public void removeDislike(long reviewId, long userId) {
+        removeReviewVote(reviewId, userId, false);
+    }
+
+    private void removeReviewVote(long reviewId, long userId, boolean isLike) {
         checkReviewExists(reviewId);
         checkUserExists(userId);
 
@@ -194,10 +162,11 @@ public class ReviewDbStorage implements ReviewStorage {
         List<Boolean> existingVotes = jdbcTemplate.query(checkSql,
                 (rs, rowNum) -> rs.getBoolean("is_like"), reviewId, userId);
 
-        if (!existingVotes.isEmpty() && !existingVotes.get(0)) {
-            // удаляю только если был дизлайк
-            String updateSql = "UPDATE reviews SET useful = useful + 1 WHERE id = ?";
-            jdbcTemplate.update(updateSql, reviewId);
+        if (!existingVotes.isEmpty() && existingVotes.get(0) == isLike) {
+            int usefulChange = isLike ? -1 : 1;
+            String updateSql = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
+            jdbcTemplate.update(updateSql, usefulChange, reviewId);
+
             String deleteSql = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
             jdbcTemplate.update(deleteSql, reviewId, userId);
         }
