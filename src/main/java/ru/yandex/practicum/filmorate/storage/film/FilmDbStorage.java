@@ -414,7 +414,7 @@ public class FilmDbStorage implements FilmStorage {
 //        }
 
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at, m.id AS mpa_id, " +
-                "m.name AS mpa_name, m.description AS mpa_description" +
+                "m.name AS mpa_name, m.description AS mpa_description " +
                 "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
 
 //        String sql = String.format("""
