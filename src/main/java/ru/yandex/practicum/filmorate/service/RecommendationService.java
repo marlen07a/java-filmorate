@@ -48,10 +48,6 @@ public class RecommendationService {
         Set<Long> similarUserLikes = new HashSet<>(userLikes.get(mostSimilarUserId));
         similarUserLikes.removeAll(targetUserLikes);
 
-        return similarUserLikes.stream()
-                .map(filmStorage::findById)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+        return filmStorage.findByIds(similarUserLikes);
     }
 }

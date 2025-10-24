@@ -135,6 +135,36 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> findByIds(Set<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+
+        String inClause = String.join(",", ids.stream()
+                .map(String::valueOf)
+                .toArray(String[]::new));
+
+        String sql = String.format("""
+                    SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
+                           m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description
+                    FROM films f
+                    LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+                    WHERE f.id IN (%s)
+                    ORDER BY f.id
+                """, inClause);
+
+        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm);
+
+        for (Film film : films) {
+            loadDirectors(film);
+            loadGenres(film);
+            loadLikes(film);
+        }
+
+        return films;
+    }
+
+    @Override
     public void delete(Long id) {
         String sql = "DELETE FROM films WHERE id = ?";
         jdbcTemplate.update(sql, id);

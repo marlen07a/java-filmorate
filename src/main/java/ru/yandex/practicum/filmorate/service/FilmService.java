@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.model.Film.RULE_FILM_DATE;
 
@@ -44,16 +46,18 @@ public class FilmService {
             mpaService.getMPAById(film.getMpa().getId());
         }
 
-        if (film.getGenres() != null) {
-            for (Genre genre : film.getGenres()) {
-                genreService.getGenreById(genre.getId());
-            }
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            Set<Long> genreIds = film.getGenres().stream()
+                    .map(Genre::getId)
+                    .collect(Collectors.toSet());
+            genreService.validateGenresExist(genreIds);
         }
 
-        if (film.getDirectors() != null) {
-            for (Director director : film.getDirectors()) {
-                directorService.getDirectorById(director.getId());
-            }
+        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+            Set<Long> directorIds = film.getDirectors().stream()
+                    .map(Director::getId)
+                    .collect(Collectors.toSet());
+            directorService.validateDirectorsExist(directorIds);
         }
 
         return filmStorage.create(film);
@@ -66,16 +70,18 @@ public class FilmService {
             mpaService.getMPAById(film.getMpa().getId());
         }
 
-        if (film.getGenres() != null) {
-            for (Genre genre : film.getGenres()) {
-                genreService.getGenreById(genre.getId());
-            }
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            Set<Long> genreIds = film.getGenres().stream()
+                    .map(Genre::getId)
+                    .collect(Collectors.toSet());
+            genreService.validateGenresExist(genreIds);
         }
 
-        if (film.getDirectors() != null) {
-            for (Director director : film.getDirectors()) {
-                directorService.getDirectorById(director.getId());
-            }
+        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+            Set<Long> directorIds = film.getDirectors().stream()
+                    .map(Director::getId)
+                    .collect(Collectors.toSet());
+            directorService.validateDirectorsExist(directorIds);
         }
 
         Film existingFilm = filmStorage.findById(film.getId())

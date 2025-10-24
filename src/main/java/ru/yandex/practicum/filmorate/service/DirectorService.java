@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -79,6 +80,25 @@ public class DirectorService {
         } else {
             throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy +
                     ". Допустимые значения: year, likes");
+        }
+    }
+
+    public void validateDirectorsExist(Set<Long> directorIds) {
+        if (directorIds == null || directorIds.isEmpty()) {
+            return;
+        }
+
+        List<Director> existingDirectors = directorStorage.findByIds(directorIds);
+        Set<Long> foundIds = existingDirectors.stream()
+                .map(Director::getId)
+                .collect(Collectors.toSet());
+
+        Set<Long> missingIds = directorIds.stream()
+                .filter(id -> !foundIds.contains(id))
+                .collect(Collectors.toSet());
+
+        if (!missingIds.isEmpty()) {
+            throw new NotFoundException("Режиссёры с id " + missingIds + " не найдены");
         }
     }
 }

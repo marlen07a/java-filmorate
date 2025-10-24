@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,6 +29,19 @@ public class DirectorDbStorage {
         String sql = "SELECT * FROM directors WHERE id = ?";
 
         return jdbcTemplate.query(sql, this::mapRowToDirector, id).stream().findFirst();
+    }
+
+    public List<Director> findByIds(Set<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+
+        String inClause = String.join(",", ids.stream()
+                .map(String::valueOf)
+                .toArray(String[]::new));
+
+        String sql = "SELECT * FROM directors WHERE id IN (" + inClause + ")";
+        return jdbcTemplate.query(sql, this::mapRowToDirector);
     }
 
     public Director create(Director director) {

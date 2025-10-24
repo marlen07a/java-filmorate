@@ -18,6 +18,8 @@ public interface FilmStorage {
 
     Optional<Film> findById(Long id);
 
+    List<Film> findByIds(Set<Long> ids);
+
     void delete(Long id);
 
     boolean existsById(Long id);
