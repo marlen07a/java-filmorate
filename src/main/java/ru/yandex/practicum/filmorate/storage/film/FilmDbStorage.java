@@ -418,7 +418,7 @@ public class FilmDbStorage implements FilmStorage {
                     if (!f2.getLikes().isEmpty() || !f1.getLikes().isEmpty()) {
                         return f2.getLikes().size() - f1.getLikes().size();
                     } else {
-                        return Math.toIntExact(f2.getId() - f1.getId());
+                        return Math.toIntExact(f1.getId() - f2.getId());
                     }
                 }).toList();
             }
