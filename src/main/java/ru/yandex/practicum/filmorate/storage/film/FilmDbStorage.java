@@ -414,13 +414,7 @@ public class FilmDbStorage implements FilmStorage {
                 return films.stream().sorted(Comparator.comparingInt(f -> f.getReleaseDate().getYear())).toList();
             }
             case DirectorSortBy.LIKES -> {
-                return films.stream().sorted((f1, f2) -> {
-                    if (!f2.getLikes().isEmpty() || !f1.getLikes().isEmpty()) {
-                        return f2.getLikes().size() - f1.getLikes().size();
-                    } else {
-                        return Math.toIntExact(f1.getId() - f2.getId());
-                    }
-                }).toList();
+                return films.stream().sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList().reversed();
             }
             default -> throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
         }
