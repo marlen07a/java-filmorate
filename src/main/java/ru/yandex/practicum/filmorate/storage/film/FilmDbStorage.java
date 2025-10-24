@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.*;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @Primary
@@ -379,11 +380,6 @@ public class FilmDbStorage implements FilmStorage {
 
         List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
 
-        for (Film film : films) {
-            loadGenres(film);
-            loadDirectors(film);
-        }
-
         return films;
     }
 
@@ -404,46 +400,56 @@ public class FilmDbStorage implements FilmStorage {
                 \s""";
         List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
 
-        for (Film film : films) {
-            loadGenres(film);
-            loadDirectors(film);
-        }
-
         return films;
     }
 
     @Override
     public List<Film> findFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
-        String orderClause;
+//        String orderClause;
+//
+//        switch (sortBy) {
+//            case DirectorSortBy.YEAR -> orderClause = "f.release_date ASC, f.id ASC";
+//            case DirectorSortBy.LIKES -> orderClause = "like_count DESC, f.id ASC";
+//            default -> throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
+//        }
 
-        switch (sortBy) {
-            case DirectorSortBy.YEAR -> orderClause = "f.release_date ASC, f.id ASC";
-            case DirectorSortBy.LIKES -> orderClause = "like_count DESC, f.id ASC";
+        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at, mpa_id, mpa_name, mpa_description" +
+                "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
+
+//        String sql = String.format("""
+//                    SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
+//                           m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+//                           COUNT(fl.user_id) AS like_count
+//                    FROM films f
+//                    JOIN films_directors fd ON f.id = fd.film_id
+//                    LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+//                    LEFT JOIN film_likes fl ON f.id = fl.film_id
+//                    WHERE fd.director_id = ?
+//                    GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
+//                             m.id, m.name, m.description
+//                    ORDER BY %s
+//                """, orderClause);
+
+        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, directorId)
+                .stream()
+                .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
+                .toList();
+
+         switch (sortBy) {
+            case DirectorSortBy.YEAR -> {
+                films.sort((f1, f2) -> f2.getReleaseDate().getYear() - f1.getReleaseDate().getYear());
+
+                return films;
+            }
+            case DirectorSortBy.LIKES -> {
+                films.sort((f1, f2) -> f2.getLikes().size() - f1.getLikes().size());
+
+                return films;
+            }
             default -> throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
         }
 
-        String sql = String.format("""
-                    SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
-                           m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
-                           COUNT(fl.user_id) AS like_count
-                    FROM films f
-                    JOIN films_directors fd ON f.id = fd.film_id
-                    LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
-                    LEFT JOIN film_likes fl ON f.id = fl.film_id
-                    WHERE fd.director_id = ?
-                    GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
-                             m.id, m.name, m.description
-                    ORDER BY %s
-                """, orderClause);
-
-        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
-
-//        for (Film film : films) {
-//            loadGenres(film);
-//            loadDirectors(film);
-//        }
-
-        return films;
+//        return films;
     }
 
     @Override
