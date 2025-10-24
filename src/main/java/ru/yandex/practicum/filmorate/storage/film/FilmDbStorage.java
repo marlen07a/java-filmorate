@@ -19,63 +19,63 @@ import java.util.*;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    @Override
-    public List<Film> findAll() {
-        String sql = """
-                    SELECT f.id AS film_id,
-                           f.name AS film_name,
-                           f.description,
-                           f.release_date,
-                           f.duration,
-                           f.created_at,
-                           m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
-                           g.id AS genre_id, g.name AS genre_name,
-                           d.id AS director_id, d.name AS director_name
-                    FROM films f
-                    LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
-                    LEFT JOIN film_genres fg ON f.id = fg.film_id
-                    LEFT JOIN genres g ON fg.genre_id = g.id
-                    LEFT JOIN films_directors fd ON f.id = fd.film_id
-                    LEFT JOIN directors d ON fd.director_id = d.id
-                    ORDER BY f.id
-                """;
-
-        Map<Long, Film> filmMap = new LinkedHashMap<>();
-
-        jdbcTemplate.query(sql, (rs) -> {
-            Long filmId = rs.getLong("film_id");
-            Film film = filmMap.get(filmId);
-
-            if (film == null) {
-                film = new Film();
-                film.setId(filmId);
-                film.setName(rs.getString("film_name"));
-                film.setDescription(rs.getString("description"));
-                film.setReleaseDate(rs.getDate("release_date").toLocalDate());
-                film.setDuration(rs.getInt("duration"));
-                film.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-
-                MPA mpa = new MPA(rs.getLong("mpa_id"), rs.getString("mpa_name"), rs.getString("mpa_description"));
-                film.setMpa(mpa);
-
-                film.setGenres(new LinkedHashSet<>());
-                film.setDirectors(new LinkedHashSet<>());
-                filmMap.put(filmId, film);
-            }
-
-            Long genreId = rs.getLong("genre_id");
-            if (genreId != 0) {
-                film.getGenres().add(new Genre(genreId, rs.getString("genre_name")));
-            }
-
-            Long directorId = rs.getLong("director_id");
-            if (directorId != 0) {
-                film.getDirectors().add(new Director(directorId, rs.getString("director_name")));
-            }
-        });
-
-        return new ArrayList<>(filmMap.values());
-    }
+//    @Override
+//    public List<Film> findAll() {
+//        String sql = """
+//                    SELECT f.id AS film_id,
+//                           f.name AS film_name,
+//                           f.description,
+//                           f.release_date,
+//                           f.duration,
+//                           f.created_at,
+//                           m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+//                           g.id AS genre_id, g.name AS genre_name,
+//                           d.id AS director_id, d.name AS director_name
+//                    FROM films f
+//                    LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+//                    LEFT JOIN film_genres fg ON f.id = fg.film_id
+//                    LEFT JOIN genres g ON fg.genre_id = g.id
+//                    LEFT JOIN films_directors fd ON f.id = fd.film_id
+//                    LEFT JOIN directors d ON fd.director_id = d.id
+//                    ORDER BY f.id
+//                """;
+//
+//        Map<Long, Film> filmMap = new LinkedHashMap<>();
+//
+//        jdbcTemplate.query(sql, (rs) -> {
+//            Long filmId = rs.getLong("film_id");
+//            Film film = filmMap.get(filmId);
+//
+//            if (film == null) {
+//                film = new Film();
+//                film.setId(filmId);
+//                film.setName(rs.getString("film_name"));
+//                film.setDescription(rs.getString("description"));
+//                film.setReleaseDate(rs.getDate("release_date").toLocalDate());
+//                film.setDuration(rs.getInt("duration"));
+//                film.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+//
+//                MPA mpa = new MPA(rs.getLong("mpa_id"), rs.getString("mpa_name"), rs.getString("mpa_description"));
+//                film.setMpa(mpa);
+//
+//                film.setGenres(new LinkedHashSet<>());
+//                film.setDirectors(new LinkedHashSet<>());
+//                filmMap.put(filmId, film);
+//            }
+//
+//            Long genreId = rs.getLong("genre_id");
+//            if (genreId != 0) {
+//                film.getGenres().add(new Genre(genreId, rs.getString("genre_name")));
+//            }
+//
+//            Long directorId = rs.getLong("director_id");
+//            if (directorId != 0) {
+//                film.getDirectors().add(new Director(directorId, rs.getString("director_name")));
+//            }
+//        });
+//
+//        return new ArrayList<>(filmMap.values());
+//    }
 
     @Override
     public Film create(Film film) {
@@ -396,9 +396,9 @@ public class FilmDbStorage implements FilmStorage {
 
         return films;
     }
-
+    //!
     @Override
-    public List<Film> findFilmsByDirector() {
+    public List<Film> findAll() {
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at, m.id AS mpa_id, " +
                 "m.name AS mpa_name, m.description AS mpa_description " +
                 "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";

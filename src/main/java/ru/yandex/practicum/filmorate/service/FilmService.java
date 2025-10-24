@@ -137,7 +137,7 @@ public class FilmService {
     public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
         directorService.getDirectorById(directorId);
 
-        List<Film> films = filmStorage.findFilmsByDirector()
+        List<Film> films = filmStorage.findAll()
                 .stream()
                 .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
                 .toList();
