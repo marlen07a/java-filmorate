@@ -87,13 +87,15 @@ public class FilmController {
             @PathVariable Long directorId,
             @RequestParam(defaultValue = "year") String sortByValue) {
 
-        DirectorSortBy sortBy;
-        try {
-            sortBy = DirectorSortBy.fromValue(sortByValue);
-        } catch (IllegalArgumentException e) {
-            throw new NotFoundException("Unknown sort type: " + sortByValue);
-        }
-        return filmService.getFilmsByDirector(directorId, sortBy);
+//        DirectorSortBy sortBy;
+//        try {
+//            sortBy = DirectorSortBy.fromValue(sortByValue);
+//        } catch (IllegalArgumentException e) {
+//            throw new NotFoundException("Unknown sort type: " + sortByValue);
+//        }
+//        return filmService.getFilmsByDirector(directorId, sortBy);
+
+        return filmService.getFilmsByDirector(directorId, DirectorSortBy.valueOf(sortByValue));
     }
 
     @GetMapping("/search")

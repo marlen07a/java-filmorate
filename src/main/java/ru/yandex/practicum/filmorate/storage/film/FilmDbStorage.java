@@ -413,15 +413,22 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> findFilmsByDirector(Long directorId, String sortBy) {
+    public List<Film> findFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
         String orderClause;
-        if ("year".equalsIgnoreCase(sortBy)) {
-            orderClause = "f.release_date ASC, f.id ASC";
-        } else if ("likes".equalsIgnoreCase(sortBy)) {
-            orderClause = "like_count DESC, f.id ASC";
-        } else {
-            throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
+
+        switch (sortBy) {
+            case DirectorSortBy.YEAR -> orderClause = "f.release_date ASC, f.id ASC";
+            case DirectorSortBy.LIKES -> orderClause = "like_count DESC, f.id ASC";
+            default -> throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
         }
+
+//        if ("year".equalsIgnoreCase(sortBy)) {
+//            orderClause = "f.release_date ASC, f.id ASC";
+//        } else if ("likes".equalsIgnoreCase(sortBy)) {
+//            orderClause = "like_count DESC, f.id ASC";
+//        } else {
+//            throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
+//        }
 
         String sql = String.format("""
                     SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
