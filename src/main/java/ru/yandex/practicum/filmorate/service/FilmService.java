@@ -120,13 +120,6 @@ public class FilmService {
         feedService.create(userId, filmId, EventTypes.LIKE, Operations.REMOVE);
     }
 
-    // public List<Film> getPopularFilms(int count) {
-    //  return filmStorage.findAll().stream()
-    //   .sorted((f2, f1) -> Integer.compare(f1.getLikes().size(), f2.getLikes().size()))
-    //   .limit(count)
-    //   .collect(Collectors.toList());
-    //}
-
     public List<Film> getPopularFilmsByGenre(int count, Long genreId) {
         genreService.getGenreById(genreId);
         return filmStorage.findPopularByGenre(count, genreId);
@@ -141,20 +134,20 @@ public class FilmService {
         return filmStorage.findPopularByGenreAndYear(count, genreId, year);
     }
 
-        public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
+    public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
         directorService.getDirectorById(directorId);
 
         List<Film> films = filmStorage.findFilmsByDirector()
                 .stream()
                 .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
-                .toList();;
+                .toList();
 
         switch (sortBy) {
             case DirectorSortBy.YEAR -> {
                 return films.stream().sorted(Comparator.comparingInt(f -> f.getReleaseDate().getYear())).toList();
             }
             case DirectorSortBy.LIKES -> {
-                return films.stream().sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList();
+                return films.stream().sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList().reversed();
             }
             default -> throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
         }
