@@ -30,15 +30,13 @@ public class FilmDbStorage implements FilmStorage {
                            f.created_at,
                            m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
                            g.id AS genre_id, g.name AS genre_name,
-                           d.id AS director_id, d.name AS director_name,
-                           fl.user_id AS like
+                           d.id AS director_id, d.name AS director_name
                     FROM films f
                     LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
                     LEFT JOIN film_genres fg ON f.id = fg.film_id
                     LEFT JOIN genres g ON fg.genre_id = g.id
                     LEFT JOIN films_directors fd ON f.id = fd.film_id
                     LEFT JOIN directors d ON fd.director_id = d.id
-                    LEFT JOIN film_likes fl ON f.id = fl.film_id
                     ORDER BY f.id
                 """;
 
@@ -73,11 +71,6 @@ public class FilmDbStorage implements FilmStorage {
             Long directorId = rs.getLong("director_id");
             if (directorId != 0) {
                 film.getDirectors().add(new Director(directorId, rs.getString("director_name")));
-            }
-
-            Long like = rs.getLong("like");
-            if (like != 0) {
-                film.getLikes().add(like);
             }
         });
 
