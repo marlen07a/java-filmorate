@@ -438,14 +438,10 @@ public class FilmDbStorage implements FilmStorage {
 
          switch (sortBy) {
             case DirectorSortBy.YEAR -> {
-                films.sort((f1, f2) -> f2.getReleaseDate().getYear() - f1.getReleaseDate().getYear());
-
-                return films;
+                return films.stream().sorted((f1, f2) -> f2.getReleaseDate().getYear() - f1.getReleaseDate().getYear()).toList();
             }
             case DirectorSortBy.LIKES -> {
-                films.sort((f1, f2) -> f2.getLikes().size() - f1.getLikes().size());
-
-                return films;
+                return films.stream().sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList();
             }
             default -> throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
         }
