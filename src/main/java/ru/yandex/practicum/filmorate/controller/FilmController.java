@@ -95,7 +95,7 @@ public class FilmController {
 //        }
 //        return filmService.getFilmsByDirector(directorId, sortBy);
 
-        return filmService.getFilmsByDirector(directorId, DirectorSortBy.valueOf(sortByValue));
+        return filmService.getFilmsByDirector(directorId, DirectorSortBy.fromValue(sortByValue));
     }
 
     @GetMapping("/search")
