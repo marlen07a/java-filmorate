@@ -142,15 +142,11 @@ public class FilmService {
                 .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
                 .toList();
 
-        switch (sortBy) {
-            case DirectorSortBy.YEAR -> {
-                return films.stream().sorted(Comparator.comparingInt(f -> f.getReleaseDate().getYear())).toList();
-            }
-            case DirectorSortBy.LIKES -> {
-                return films.stream().sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList().reversed();
-            }
-            default -> throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
+        if (sortBy.equals(DirectorSortBy.LIKES)) {
+            return films.stream().sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList();
         }
+
+        return films.stream().sorted(Comparator.comparingInt(f -> f.getReleaseDate().getYear())).toList();
     }
 
 
