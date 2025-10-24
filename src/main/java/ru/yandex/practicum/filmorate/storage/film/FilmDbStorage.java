@@ -422,14 +422,6 @@ public class FilmDbStorage implements FilmStorage {
             default -> throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
         }
 
-//        if ("year".equalsIgnoreCase(sortBy)) {
-//            orderClause = "f.release_date ASC, f.id ASC";
-//        } else if ("likes".equalsIgnoreCase(sortBy)) {
-//            orderClause = "like_count DESC, f.id ASC";
-//        } else {
-//            throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
-//        }
-
         String sql = String.format("""
                     SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
                            m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,

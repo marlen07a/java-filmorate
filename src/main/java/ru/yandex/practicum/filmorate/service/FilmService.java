@@ -140,13 +140,6 @@ public class FilmService {
         return filmStorage.findPopularByGenreAndYear(count, genreId, year);
     }
 
-//    public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
-//        directorService.getDirectorById(directorId);
-//        String sortParam = sortBy == DirectorSortBy.YEAR ? "year" : "likes";
-//
-//        return filmStorage.findFilmsByDirector(directorId, sortParam);
-//    }
-
         public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
         directorService.getDirectorById(directorId);
 
