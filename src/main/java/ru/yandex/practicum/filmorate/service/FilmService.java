@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -143,7 +144,20 @@ public class FilmService {
         public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
         directorService.getDirectorById(directorId);
 
-        return filmStorage.findFilmsByDirector(directorId, sortBy);
+        List<Film> films = filmStorage.findFilmsByDirector()
+                .stream()
+                .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
+                .toList();;
+
+        switch (sortBy) {
+            case DirectorSortBy.YEAR -> {
+                return films.stream().sorted(Comparator.comparingInt(f -> f.getReleaseDate().getYear())).toList();
+            }
+            case DirectorSortBy.LIKES -> {
+                return films.stream().sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList();
+            }
+            default -> throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
+        }
     }
 
 

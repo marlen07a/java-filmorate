@@ -399,25 +399,12 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> findFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
+    public List<Film> findFilmsByDirector() {
         String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at, m.id AS mpa_id, " +
                 "m.name AS mpa_name, m.description AS mpa_description " +
                 "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
 
-        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm)
-                .stream()
-                .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
-                .toList();
-
-         switch (sortBy) {
-            case DirectorSortBy.YEAR -> {
-                return films.stream().sorted(Comparator.comparingInt(f -> f.getReleaseDate().getYear())).toList();
-            }
-            case DirectorSortBy.LIKES -> {
-                return films.stream().sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList();
-            }
-            default -> throw new IllegalArgumentException("Invalid sort parameter: " + sortBy);
-        }
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
     @Override
