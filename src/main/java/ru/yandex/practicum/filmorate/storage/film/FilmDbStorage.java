@@ -22,6 +22,15 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
+    public List<Film> findAll() {
+        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at, m.id AS mpa_id, " +
+                "m.name AS mpa_name, m.description AS mpa_description " +
+                "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
+    }
+
+    @Override
     public Film create(Film film) {
         String sql = "INSERT INTO films (name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?)";
 
@@ -339,15 +348,6 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
 
         return films;
-    }
-    //!
-    @Override
-    public List<Film> findAll() {
-        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at, m.id AS mpa_id, " +
-                "m.name AS mpa_name, m.description AS mpa_description " +
-                "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
-
-        return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
     @Override
