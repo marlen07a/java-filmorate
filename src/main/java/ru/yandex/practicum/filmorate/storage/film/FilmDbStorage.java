@@ -103,7 +103,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getFilmsByDirector(Long directorId) {
         return jdbcTemplate.query(FIND_ALL_SQL +
-                        " LEFT JOIN films_directors fd ON f.id = fd.film_id WHERE fd.director_id = ? AND fd.film_id = f.id",
+                        " LEFT JOIN films_directors fd ON f.id = fd.film_id WHERE fd.director_id = ?",
                 this::mapRowToFilm, directorId);
     }
 
@@ -142,7 +142,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void delete(Long id) {
         String sql = "DELETE FROM films WHERE id = ?";
+        String sqlFd = "DELETE FROM films_directors WHERE film_id = ?";
         jdbcTemplate.update(sql, id);
+        jdbcTemplate.update(sqlFd, id);
     }
 
     @Override
