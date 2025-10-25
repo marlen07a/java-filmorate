@@ -32,7 +32,7 @@ public class FilmDbStorage implements FilmStorage {
             "LEFT JOIN film_likes fl ON f.id = fl.film_id";
     private static String ORDER_BY_LIKES =
             "GROUP BY f.id " +
-            "ORDER BY DESC count_likes " +
+            "ORDER BY count_likes DESC " +
             "LIMIT ";
 
     @Override
