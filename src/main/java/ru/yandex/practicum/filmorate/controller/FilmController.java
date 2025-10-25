@@ -83,12 +83,7 @@ public class FilmController {
     public List<Film> searchFilms(
             @RequestParam String query,
             @RequestParam(defaultValue = "title,director") String by) {
-        List<SearchBy> byList = Arrays.stream(by.split(","))
-                .map(String::trim)
-                .map(s -> SearchBy.valueOf(s.toUpperCase()))
-                .collect(Collectors.toList());
-
-        return filmService.searchFilms(query, byList);
+        return filmService.searchFilms(query, Arrays.stream(by.split(",")).map(SearchBy::fromValue).toList());
     }
 
 
