@@ -33,7 +33,7 @@ public class FilmDbStorage implements FilmStorage {
     private static String ORDER_BY_LIKES =
             "GROUP BY f.id " +
             "ORDER BY count_likes " +
-            "LIMIT = ";
+            "LIMIT ";
 
     @Override
     public List<Film> findAll() {
