@@ -21,9 +21,19 @@ import java.util.*;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    private static String FIND_ALL_SQL = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at, " +
-            "m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description " +
-            "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
+    private static String FIND_ALL_SQL =
+            "SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description " +
+            "FROM films f " +
+            "LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
+    private static String FIND_ALL_SQL_WITH_LIKES_COUNT =
+            "SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description, COUNT(film_likes.user_id) AS count_likes" +
+            "FROM films f " +
+            "LEFT JOIN mpa_ratings m ON f.mpa_id = m.id " +
+            "LEFT JOIN film_likes fl ON f.id = film_likes.film_id";
+    private static String ORDER_BY_LIKES =
+            "GROUP BY f.id " +
+            "ORDER BY count_likes " +
+            "LIMIT = ?";
 
     @Override
     public List<Film> findAll() {
@@ -80,24 +90,33 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopularFilmsByGenreYear(Long genreId, Integer year) {
-        return jdbcTemplate.query(FIND_ALL_SQL +
-                " LEFT JOIN film_genres fg ON f.id = fg.film_id WHERE fg.genre_id = ? AND YEAR(f.release_date) = ?",
-                this::mapRowToFilm, genreId, year);
+    public List<Film> getPopularFilms(int count) {
+        return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
+                        " LEFT JOIN film_genres fg ON f.id = fg.film_id " + ORDER_BY_LIKES,
+                this::mapRowToFilm, count);
     }
 
     @Override
-    public List<Film> getPopularFilmsByGenre(Long genreId) {
-        return jdbcTemplate.query(FIND_ALL_SQL +
-                        " LEFT JOIN film_genres fg ON f.id = fg.film_id WHERE fg.genre_id = ?",
-                this::mapRowToFilm, genreId);
+    public List<Film> getPopularFilmsByGenreYear(Long genreId, Integer year, int count) {
+        return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
+                " LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+                        "WHERE fg.genre_id = ? AND YEAR(f.release_date) = ? " + ORDER_BY_LIKES,
+                this::mapRowToFilm, genreId, year, count);
     }
 
     @Override
-    public List<Film> getPopularFilmsByYear(Integer year) {
-        return jdbcTemplate.query(FIND_ALL_SQL +
-                        " WHERE YEAR(f.release_date) = ?",
-                this::mapRowToFilm, year);
+    public List<Film> getPopularFilmsByGenre(Long genreId, int count) {
+        return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
+                        " LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+                        "WHERE fg.genre_id = ? " + ORDER_BY_LIKES,
+                this::mapRowToFilm, genreId, count);
+    }
+
+    @Override
+    public List<Film> getPopularFilmsByYear(Integer year, int count) {
+        return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
+                        " WHERE YEAR(f.release_date) = ? " + ORDER_BY_LIKES,
+                this::mapRowToFilm, year, count);
     }
 
     @Override

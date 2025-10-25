@@ -20,11 +20,13 @@ public interface FilmStorage {
 
     List<Film> findByIds(Set<Long> ids);
 
-    List<Film> getPopularFilmsByGenreYear(Long genreId, Integer year);
+    List<Film> getPopularFilms(int count);
 
-    List<Film> getPopularFilmsByGenre(Long genreId);
+    List<Film> getPopularFilmsByGenreYear(Long genreId, Integer year, int count);
 
-    List<Film> getPopularFilmsByYear(Integer year);
+    List<Film> getPopularFilmsByGenre(Long genreId, int count);
+
+    List<Film> getPopularFilmsByYear(Integer year, int count);
 
     List<Film> getFilmsByDirector(Long directorId);
 

@@ -122,19 +122,15 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int count, Long genreId, Integer year) {
-        Stream<Film> stream;
-
         if (genreId != null && year != null) {
-            stream = filmStorage.getPopularFilmsByGenreYear(genreId, year).stream();
+            return filmStorage.getPopularFilmsByGenreYear(genreId, year, count);
         } else if (genreId != null) {
-            stream = filmStorage.getPopularFilmsByGenre(genreId).stream();
+            return filmStorage.getPopularFilmsByGenre(genreId, count);
         } else if (year != null) {
-            stream = filmStorage.getPopularFilmsByYear(year).stream();
+            return filmStorage.getPopularFilmsByYear(year, count);
         } else {
-            stream = filmStorage.findAll().stream();
+            return filmStorage.getPopularFilms(count);
         }
-
-        return stream.sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).limit(count).toList();
     }
 
     public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
