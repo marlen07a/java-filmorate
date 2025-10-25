@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static ru.yandex.practicum.filmorate.model.Film.RULE_FILM_DATE;
 
@@ -121,34 +122,48 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int count, Long genreId, Integer year) {
+//        Stream<Film> filterByGenreId = filmStorage.findAll().stream()
+//                .filter(f -> f.getGenres().stream().anyMatch(g -> g.getId().equals(genreId)));
+//        Stream<Film> filterByYear = filmStorage.findAll().stream()
+//                .filter(f -> f.getGenres().stream().anyMatch(g -> f.getReleaseDate().getYear() == year));
+        Stream<Film> stream = filmStorage.findAll().stream();
+
         if (genreId != null && year != null) {
-            //return filmStorage.findPopularByGenreAndYear(count, genreId, year);
-            return filmStorage.findAll().stream()
-                    .filter(f -> f.getGenres().stream().anyMatch(g -> g.getId().equals(genreId)) && f.getReleaseDate().getYear() == year)
-                    .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
-                    .limit(count)
-                    .toList();
+//            return filmStorage.findAll().stream()
+//                    .filter(f -> f.getGenres().stream().anyMatch(g -> g.getId().equals(genreId)) && f.getReleaseDate().getYear() == year)
+//              return Stream.concat(filterByGenreId, filterByYear)
+//                    .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+//                    .limit(count)
+//                    .toList();
+            stream = stream
+                    .filter(f -> f.getGenres().stream().anyMatch(g -> g.getId().equals(genreId)) && f.getReleaseDate().getYear() == year);
         } else if (genreId != null) {
-//            return filmStorage.findPopularByGenre(count, genreId);
-            return filmStorage.findAll().stream()
-                    .filter(f -> f.getGenres().stream().anyMatch(g -> g.getId().equals(genreId)))
-                    .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
-                    .limit(count)
-                    .toList();
+//            return filmStorage.findAll().stream()
+//                    .filter(f -> f.getGenres().stream().anyMatch(g -> g.getId().equals(genreId)))
+//                     return filterByGenreId
+//                    .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+//                    .limit(count)
+//                    .toList();
+            stream = stream
+                    .filter(f -> f.getGenres().stream().anyMatch(g -> g.getId().equals(genreId)));
         } else if (year != null) {
-//            return filmStorage.findPopularByYear(count, year);
-            return filmStorage.findAll().stream()
-                    .filter(f -> f.getGenres().stream().anyMatch(g -> f.getReleaseDate().getYear() == year))
-                    .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
-                    .limit(count)
-                    .toList();
-        } else {
-//            return filmStorage.findPopularFilms(count);
-            return filmStorage.findAll().stream()
-                    .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
-                    .limit(count)
-                    .toList();
+//            return filmStorage.findAll().stream()
+//                    .filter(f -> f.getGenres().stream().anyMatch(g -> f.getReleaseDate().getYear() == year))
+//                    return filterByYear
+//                    .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+//                    .limit(count)
+//                    .toList();
+            stream = stream
+                    .filter(f -> f.getGenres().stream().anyMatch(g -> f.getReleaseDate().getYear() == year));
         }
+//        } else {
+//            return filmStorage.findAll().stream()
+//                    .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+//                    .limit(count)
+//                    .toList();
+//        }
+
+        return stream.sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).limit(count).toList();
     }
 
     public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
