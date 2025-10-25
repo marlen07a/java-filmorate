@@ -120,18 +120,36 @@ public class FilmService {
         feedService.create(userId, filmId, EventTypes.LIKE, Operations.REMOVE);
     }
 
-    public List<Film> getPopularFilmsByGenre(int count, Long genreId) {
-        genreService.getGenreById(genreId);
-        return filmStorage.findPopularByGenre(count, genreId);
-    }
 
-    public List<Film> getPopularFilmsByYear(int count, Integer year) {
-        return filmStorage.findPopularByYear(count, year);
-    }
+//    public List<Film> getPopularFilmsByGenre(int count, Long genreId) {
+//        genreService.getGenreById(genreId);
+//        return filmStorage.findPopularByGenre(count, genreId);
+//    }
+//
+//    public List<Film> getPopularFilmsByYear(int count, Integer year) {
+//        return filmStorage.findPopularByYear(count, year);
+//    }
+//
+//    public List<Film> getPopularFilmsByGenreAndYear(int count, Long genreId, Integer year) {
+//        genreService.getGenreById(genreId);
+//        return filmStorage.findPopularByGenreAndYear(count, genreId, year);
+//    }
+//
+//    public List<Film> getPopularFilms(int count) {
+//        return filmStorage.findPopularFilms(count);
+//    }
 
-    public List<Film> getPopularFilmsByGenreAndYear(int count, Long genreId, Integer year) {
-        genreService.getGenreById(genreId);
-        return filmStorage.findPopularByGenreAndYear(count, genreId, year);
+
+    public List<Film> getPopularFilms(int count, Long genreId, Integer year) {
+        if (genreId != null && year != null) {
+            return filmStorage.findPopularByGenreAndYear(count, genreId, year);
+        } else if (genreId != null) {
+            return filmStorage.findPopularByGenreAndYear(count, genreId, year);
+        } else if (year != null) {
+            return filmStorage.findPopularByYear(count, year);
+        } else {
+            return filmStorage.findPopularFilms(count);
+        }
     }
 
     public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
@@ -178,9 +196,5 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с id = " + friendId + " не найден"));
 
         return filmStorage.findCommonFilms(userId, friendId);
-    }
-
-    public List<Film> getPopularFilms(int count) {
-        return filmStorage.findPopularFilms(count);
     }
 }
