@@ -25,7 +25,7 @@ public class ReviewController {
     }
 
     @PutMapping
-    public Review update(@Valid @RequestBody Review review) {
+    public Review update(@RequestBody Review review) {
         log.info("Обновлён отзыв {}", review.getReviewId());
         return reviewService.update(review);
     }
