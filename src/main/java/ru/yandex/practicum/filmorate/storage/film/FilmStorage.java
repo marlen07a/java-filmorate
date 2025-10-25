@@ -26,6 +26,8 @@ public interface FilmStorage {
 
     List<Film> getPopularFilmsByYear(Integer year);
 
+    List<Film> getFilmsByDirector(Long directorId);
+
     void delete(Long id);
 
     boolean existsById(Long id);

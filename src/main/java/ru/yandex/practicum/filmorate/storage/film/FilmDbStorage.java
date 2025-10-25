@@ -99,6 +99,12 @@ public class FilmDbStorage implements FilmStorage {
                         " WHERE YEAR(f.release_date) = ?",
                 this::mapRowToFilm, year);
     }
+    @Override
+    public List<Film> getFilmsByDirector(Long directorId) {
+        return jdbcTemplate.query(FIND_ALL_SQL +
+                        " LEFT JOIN films_directors fd ON f.id = fd.film_id WHERE fg.director_id = ?",
+                this::mapRowToFilm, directorId);
+    }
 
     @Override
     public Optional<Film> findById(Long id) {

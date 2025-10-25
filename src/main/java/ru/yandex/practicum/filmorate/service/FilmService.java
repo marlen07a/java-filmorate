@@ -125,17 +125,10 @@ public class FilmService {
         Stream<Film> stream;
 
         if (genreId != null && year != null) {
-//            stream = stream
-//                    .filter(f -> f.getGenres().stream()
-//                            .anyMatch(g -> g.getId().equals(genreId)) && f.getReleaseDate().getYear() == year);
             stream = filmStorage.getPopularFilmsByGenreYear(genreId, year).stream();
         } else if (genreId != null) {
-//            stream = stream
-//                    .filter(f -> f.getGenres().stream().anyMatch(g -> g.getId().equals(genreId)));
             stream = filmStorage.getPopularFilmsByGenre(genreId).stream();
         } else if (year != null) {
-//            stream = stream
-//                    .filter(f -> f.getGenres().stream().anyMatch(g -> f.getReleaseDate().getYear() == year));
             stream = filmStorage.getPopularFilmsByYear(year).stream();
         } else {
             stream = filmStorage.findAll().stream();
@@ -147,10 +140,7 @@ public class FilmService {
     public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
         directorService.getDirectorById(directorId);
 
-        List<Film> films = filmStorage.findAll()
-                .stream()
-                .filter(f -> f.getDirectors().stream().anyMatch(d -> d.getId().equals(directorId)))
-                .toList();
+        List<Film> films = filmStorage.getFilmsByDirector(directorId);
 
         if (sortBy.equals(DirectorSortBy.LIKES)) {
             return films.stream().sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList();
