@@ -323,31 +323,6 @@ public class FilmDbStorage implements FilmStorage {
                     ORDER BY like_count DESC, f.release_date ASC, f.id ASC
                 """);
 
-//        List<Film> films = jdbcTemplate.query(sql.toString(), (rs, rowNum) -> {
-//            Film film = new Film();
-//            film.setId(rs.getLong("id"));
-//            film.setName(rs.getString("name"));
-//            film.setDescription(rs.getString("description"));
-//            film.setReleaseDate(rs.getDate("release_date").toLocalDate());
-//            film.setDuration(rs.getInt("duration"));
-//            film.setCreatedAt(rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null);
-//
-//            MPA mpa = new MPA();
-//            mpa.setId(rs.getLong("mpa_id"));
-//            mpa.setName(rs.getString("mpa_name"));
-//            mpa.setDescription(rs.getString("mpa_description"));
-//            film.setMpa(mpa);
-//
-//            return film;
-//        }, params.toArray());
-//
-//        for (Film film : films) {
-//            loadGenres(film);
-//            loadDirectors(film);
-//        }
-//
-//        return films;
-
         return jdbcTemplate.query(sql.toString(), this::mapRowToFilm, params.toArray());
     }
 }
