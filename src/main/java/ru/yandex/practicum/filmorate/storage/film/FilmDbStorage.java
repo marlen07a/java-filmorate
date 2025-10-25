@@ -91,7 +91,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopularFilms(int count) {
-        return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT + " " + ORDER_BY_LIKES + count, this::mapRowToFilm);
+        String sql = FIND_ALL_SQL_WITH_LIKES_COUNT + " " + ORDER_BY_LIKES + count;
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
     @Override
