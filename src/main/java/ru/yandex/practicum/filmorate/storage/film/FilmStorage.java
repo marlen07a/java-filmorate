@@ -20,6 +20,12 @@ public interface FilmStorage {
 
     List<Film> findByIds(Set<Long> ids);
 
+    List<Film> getPopularFilmsByGenreYear(Long genreId, Integer year);
+
+    List<Film> getPopularFilmsByGenre(Long genreId);
+
+    List<Film> getPopularFilmsByYear(Integer year);
+
     void delete(Long id);
 
     boolean existsById(Long id);

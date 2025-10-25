@@ -21,13 +21,13 @@ import java.util.*;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
+    private static String FIND_ALL_SQL = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at, " +
+            "m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description " +
+            "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
+
     @Override
     public List<Film> findAll() {
-        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at, m.id AS mpa_id, " +
-                "m.name AS mpa_name, m.description AS mpa_description " +
-                "FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
-
-        return jdbcTemplate.query(sql, this::mapRowToFilm);
+        return jdbcTemplate.query(FIND_ALL_SQL, this::mapRowToFilm);
     }
 
     @Override
@@ -77,6 +77,27 @@ public class FilmDbStorage implements FilmStorage {
         updateLikes(film);
 
         return findById(film.getId()).get();
+    }
+
+    @Override
+    public List<Film> getPopularFilmsByGenreYear(Long genreId, Integer year) {
+        return jdbcTemplate.query(FIND_ALL_SQL +
+                " LEFT JOIN film_genres fg ON f.id = fg.film_id WHERE fg.genre_id = ? AND YEAR(f.release_date) = ?",
+                this::mapRowToFilm, genreId, year);
+    }
+
+    @Override
+    public List<Film> getPopularFilmsByGenre(Long genreId) {
+        return jdbcTemplate.query(FIND_ALL_SQL +
+                        " LEFT JOIN film_genres fg ON f.id = fg.film_id WHERE fg.genre_id = ?",
+                this::mapRowToFilm, genreId);
+    }
+
+    @Override
+    public List<Film> getPopularFilmsByYear(Integer year) {
+        return jdbcTemplate.query(FIND_ALL_SQL +
+                        " LEFT JOIN film_genres fg ON f.id = fg.film_id WHERE YEAR(f.release_date) = ?",
+                this::mapRowToFilm, year);
     }
 
     @Override
