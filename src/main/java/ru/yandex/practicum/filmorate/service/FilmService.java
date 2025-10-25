@@ -138,7 +138,7 @@ public class FilmService {
     }
 
     public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
-        filmStorage.getFilmsByDirector(directorId);
+        directorService.getDirectorById(directorId);
 
         List<Film> films = filmStorage.getFilmsByDirector(directorId);
 
