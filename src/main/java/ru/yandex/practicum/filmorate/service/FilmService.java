@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
