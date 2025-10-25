@@ -280,85 +280,85 @@ public class FilmDbStorage implements FilmStorage {
 
         return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
     }
-
-    @Override
-    public List<Film> findPopularByGenre(int count, Long genreId) {
-        String sql = """
-                     SELECT f.*,\s
-                            m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
-                            COUNT(fl.user_id) AS like_count
-                     FROM films f
-                     JOIN film_genres fg ON f.id = fg.film_id
-                     LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
-                     LEFT JOIN film_likes fl ON f.id = fl.film_id
-                     WHERE fg.genre_id = ?
-                     GROUP BY f.id, m.id, m.name, m.description, f.name, f.description, f.release_date, f.duration, f.created_at
-                     ORDER BY like_count DESC
-                     LIMIT ?
-                \s""";
-
-        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
-
-        return films;
-    }
-
-    @Override
-    public List<Film> findPopularByGenreAndYear(int count, Long genreId, Integer year) {
-        String sql = """
-                     SELECT f.*,\s
-                            m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
-                            COUNT(fl.user_id) AS like_count
-                     FROM films f
-                     JOIN film_genres fg ON f.id = fg.film_id
-                     LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
-                     LEFT JOIN film_likes fl ON f.id = fl.film_id
-                     WHERE fg.genre_id = ?
-                       AND EXTRACT(YEAR FROM f.release_date) = ?
-                     GROUP BY f.id, m.id, m.name, m.description, f.name, f.description, f.release_date, f.duration, f.created_at
-                     ORDER BY like_count DESC
-                     LIMIT ?
-                \s""";
-
-        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
-
-        return films;
-    }
-
-
-    @Override
-    public List<Film> findPopularByYear(int count, int year) {
-        String sql = """
-                     SELECT f.*,\s
-                            m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
-                            COUNT(fl.user_id) AS like_count
-                     FROM films f
-                     LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
-                     LEFT JOIN film_likes fl ON f.id = fl.film_id
-                     WHERE EXTRACT(YEAR FROM f.release_date) = ?
-                     GROUP BY f.id, m.id
-                     ORDER BY like_count DESC
-                     LIMIT ?
-                \s""";
-        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
-
-        return films;
-    }
-
-    @Override
-    public List<Film> findPopularFilms(int count) {
-        String sql = """
-                     SELECT f.*,\s
-                            m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
-                            COUNT(fl.user_id) AS like_count
-                     FROM films f
-                     LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
-                     LEFT JOIN film_likes fl ON f.id = fl.film_id
-                     GROUP BY f.id, m.id
-                     ORDER BY like_count DESC
-                     LIMIT ?
-                \s""";
-        return jdbcTemplate.query(sql, this::mapRowToFilm, count);
-    }
+//
+//    @Override
+//    public List<Film> findPopularByGenre(int count, Long genreId) {
+//        String sql = """
+//                     SELECT f.*,\s
+//                            m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+//                            COUNT(fl.user_id) AS like_count
+//                     FROM films f
+//                     JOIN film_genres fg ON f.id = fg.film_id
+//                     LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+//                     LEFT JOIN film_likes fl ON f.id = fl.film_id
+//                     WHERE fg.genre_id = ?
+//                     GROUP BY f.id, m.id, m.name, m.description, f.name, f.description, f.release_date, f.duration, f.created_at
+//                     ORDER BY like_count DESC
+//                     LIMIT ?
+//                \s""";
+//
+//        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, genreId, count);
+//
+//        return films;
+//    }
+//
+//    @Override
+//    public List<Film> findPopularByGenreAndYear(int count, Long genreId, Integer year) {
+//        String sql = """
+//                     SELECT f.*,\s
+//                            m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+//                            COUNT(fl.user_id) AS like_count
+//                     FROM films f
+//                     JOIN film_genres fg ON f.id = fg.film_id
+//                     LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+//                     LEFT JOIN film_likes fl ON f.id = fl.film_id
+//                     WHERE fg.genre_id = ?
+//                       AND EXTRACT(YEAR FROM f.release_date) = ?
+//                     GROUP BY f.id, m.id, m.name, m.description, f.name, f.description, f.release_date, f.duration, f.created_at
+//                     ORDER BY like_count DESC
+//                     LIMIT ?
+//                \s""";
+//
+//        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, genreId, year, count);
+//
+//        return films;
+//    }
+//
+//
+//    @Override
+//    public List<Film> findPopularByYear(int count, int year) {
+//        String sql = """
+//                     SELECT f.*,\s
+//                            m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+//                            COUNT(fl.user_id) AS like_count
+//                     FROM films f
+//                     LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+//                     LEFT JOIN film_likes fl ON f.id = fl.film_id
+//                     WHERE EXTRACT(YEAR FROM f.release_date) = ?
+//                     GROUP BY f.id, m.id
+//                     ORDER BY like_count DESC
+//                     LIMIT ?
+//                \s""";
+//        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, year, count);
+//
+//        return films;
+//    }
+//
+//    @Override
+//    public List<Film> findPopularFilms(int count) {
+//        String sql = """
+//                     SELECT f.*,\s
+//                            m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+//                            COUNT(fl.user_id) AS like_count
+//                     FROM films f
+//                     LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+//                     LEFT JOIN film_likes fl ON f.id = fl.film_id
+//                     GROUP BY f.id, m.id
+//                     ORDER BY like_count DESC
+//                     LIMIT ?
+//                \s""";
+//        return jdbcTemplate.query(sql, this::mapRowToFilm, count);
+//    }
 
     @Override
     public List<Film> searchFilms(String query, List<SearchBy> by) {

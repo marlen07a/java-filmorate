@@ -120,35 +120,34 @@ public class FilmService {
         feedService.create(userId, filmId, EventTypes.LIKE, Operations.REMOVE);
     }
 
-
-//    public List<Film> getPopularFilmsByGenre(int count, Long genreId) {
-//        genreService.getGenreById(genreId);
-//        return filmStorage.findPopularByGenre(count, genreId);
-//    }
-//
-//    public List<Film> getPopularFilmsByYear(int count, Integer year) {
-//        return filmStorage.findPopularByYear(count, year);
-//    }
-//
-//    public List<Film> getPopularFilmsByGenreAndYear(int count, Long genreId, Integer year) {
-//        genreService.getGenreById(genreId);
-//        return filmStorage.findPopularByGenreAndYear(count, genreId, year);
-//    }
-//
-//    public List<Film> getPopularFilms(int count) {
-//        return filmStorage.findPopularFilms(count);
-//    }
-
-
     public List<Film> getPopularFilms(int count, Long genreId, Integer year) {
         if (genreId != null && year != null) {
-            return filmStorage.findPopularByGenreAndYear(count, genreId, year);
+            //return filmStorage.findPopularByGenreAndYear(count, genreId, year);
+            return filmStorage.findAll().stream()
+                    .filter(f -> f.getGenres().stream().anyMatch(g -> g.getId().equals(genreId)) && f.getReleaseDate().getYear() == year)
+                    .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+                    .limit(count)
+                    .toList();
         } else if (genreId != null) {
-            return filmStorage.findPopularByGenre(count, genreId);
+//            return filmStorage.findPopularByGenre(count, genreId);
+            return filmStorage.findAll().stream()
+                    .filter(f -> f.getGenres().stream().anyMatch(g -> g.getId().equals(genreId)))
+                    .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+                    .limit(count)
+                    .toList();
         } else if (year != null) {
-            return filmStorage.findPopularByYear(count, year);
+//            return filmStorage.findPopularByYear(count, year);
+            return filmStorage.findAll().stream()
+                    .filter(f -> f.getGenres().stream().anyMatch(g -> f.getReleaseDate().getYear() == year))
+                    .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+                    .limit(count)
+                    .toList();
         } else {
-            return filmStorage.findPopularFilms(count);
+//            return filmStorage.findPopularFilms(count);
+            return filmStorage.findAll().stream()
+                    .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+                    .limit(count)
+                    .toList();
         }
     }
 

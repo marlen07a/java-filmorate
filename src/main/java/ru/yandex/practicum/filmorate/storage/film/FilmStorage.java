@@ -27,14 +27,13 @@ public interface FilmStorage {
     Map<Long, Set<Long>> getFilmLikesByUsers();
 
     List<Film> findCommonFilms(Long userId, Long friendId);
-
-    List<Film> findPopularByGenre(int count, Long genreId);
-
-    List<Film> findPopularByYear(int count, int year);
-
-    List<Film> findPopularByGenreAndYear(int count, Long genreId, Integer year);
-
-    List<Film> findPopularFilms(int count);
+//    List<Film> findPopularByGenre(int count, Long genreId);
+//
+//    List<Film> findPopularByYear(int count, int year);
+//
+//    List<Film> findPopularByGenreAndYear(int count, Long genreId, Integer year);
+//
+//    List<Film> findPopularFilms(int count);
 
     List<Film> searchFilms(String query, List<SearchBy> by);
 }

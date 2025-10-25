@@ -69,19 +69,6 @@ public class FilmController {
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Long genreId) {
 
-//        if (genreId != null && year != null) {
-//            log.info("Получен запрос на получение {} популярных фильмов по жанру {} и году {}", count, genreId, year);
-//            return filmService.getPopularFilmsByGenreAndYear(count, genreId, year);
-//        } else if (genreId != null) {
-//            log.info("Получен запрос на получение {} популярных фильмов по жанру {}", count, genreId);
-//            return filmService.getPopularFilmsByGenre(count, genreId);
-//        } else if (year != null) {
-//            log.info("Получен запрос на получение {} популярных фильмов по году {}", count, year);
-//            return filmService.getPopularFilmsByYear(count, year);
-//        } else {
-//            log.info("Получен запрос на получение {} популярных фильмов", count);
-//            return filmService.getPopularFilms(count);
-//        }
         log.info("Получен запрос на получение {} популярных фильмов", count);
         return filmService.getPopularFilms(count, genreId, year);
     }
