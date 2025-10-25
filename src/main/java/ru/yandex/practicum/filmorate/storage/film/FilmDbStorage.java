@@ -29,7 +29,7 @@ public class FilmDbStorage implements FilmStorage {
             "SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description, COUNT(fl.user_id) AS count_likes " +
             "FROM films f " +
             "LEFT JOIN mpa_ratings m ON f.mpa_id = m.id " +
-            "LEFT JOIN film_likes fl ON f.id = film_likes.film_id";
+            "LEFT JOIN film_likes fl ON f.id = fl.film_id";
     private static String ORDER_BY_LIKES =
             "GROUP BY f.id " +
             "ORDER BY count_likes " +
