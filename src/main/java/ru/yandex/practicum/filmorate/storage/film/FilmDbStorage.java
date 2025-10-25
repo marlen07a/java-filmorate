@@ -103,7 +103,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getFilmsByDirector(Long directorId) {
         return jdbcTemplate.query(FIND_ALL_SQL +
-                        " LEFT JOIN films_directors fd ON f.id = fd.film_id WHERE fd.director_id = ?",
+                        " LEFT JOIN films_directors fd ON f.id = fd.film_id WHERE fd.director_id = ? AND fd.film_id = f.id",
                 this::mapRowToFilm, directorId);
     }
 
