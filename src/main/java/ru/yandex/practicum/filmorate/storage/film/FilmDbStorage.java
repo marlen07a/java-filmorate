@@ -21,19 +21,22 @@ import java.util.*;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    private static final String FIND_ALL_SQL =
-            "SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description " +
-            "FROM films f " +
-            "LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
-    private static final String FIND_ALL_SQL_WITH_LIKES_COUNT =
-            "SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description, COUNT(fl.user_id) AS count_likes " +
-            "FROM films f " +
-            "LEFT JOIN mpa_ratings m ON f.mpa_id = m.id " +
-            "LEFT JOIN film_likes fl ON f.id = fl.film_id";
-    private static final String ORDER_BY_LIKES =
-            "GROUP BY f.id " +
-            "ORDER BY count_likes DESC " +
-            "LIMIT ";
+    private static final String FIND_ALL_SQL = String.format("""
+            SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description
+            FROM films f
+            LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+            """);
+    private static final String FIND_ALL_SQL_WITH_LIKES_COUNT = String.format("""
+            SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description, COUNT(fl.user_id) AS count_likes
+            FROM films f
+            LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+            LEFT JOIN film_likes fl ON f.id = fl.film_id\s
+            """);
+    private static final String ORDER_BY_LIKES = String.format("""
+            GROUP BY f.id
+            ORDER BY count_likes DESC
+            LIMIT\s
+            """);
 
     @Override
     public List<Film> findAll() {
