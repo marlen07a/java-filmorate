@@ -26,7 +26,7 @@ public class FilmDbStorage implements FilmStorage {
             "FROM films f " +
             "LEFT JOIN mpa_ratings m ON f.mpa_id = m.id";
     private static String FIND_ALL_SQL_WITH_LIKES_COUNT =
-            "SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description, COUNT(film_likes.user_id) AS count_likes" +
+            "SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description, COUNT(film_likes.user_id) AS count_likes " +
             "FROM films f " +
             "LEFT JOIN mpa_ratings m ON f.mpa_id = m.id " +
             "LEFT JOIN film_likes fl ON f.id = film_likes.film_id";
