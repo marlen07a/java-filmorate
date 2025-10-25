@@ -73,26 +73,18 @@ public class ReviewService {
         return reviewDbStorage.estimate(reviewId, userId, estimation);
     }
 
-//    public Review addDislike(Long reviewId, Long userId) {
-//        getUserOrThrow(userId);
-//        Review review = reviewDbStorage.addDislike(reviewId, userId);
-//
-//        return review;
-//    }
-
-    // Удаление
-    public void removeLike(Long reviewId, Long userId, Integer estimation) {
+    public Review addDislike(Long reviewId, Long userId) {
         getUserOrThrow(userId);
-        Review review = findById(reviewId);
+        Review review = reviewDbStorage.addDislike(reviewId, userId);
 
-        reviewDbStorage.removeEstimate(reviewId, userId, estimation);
+        return review;
     }
 
-//    public void removeDislike(Long reviewId, Long userId) {
-//        getUserOrThrow(userId);
-//
-//        reviewDbStorage.removeDislike(reviewId, userId);
-//    }
+    public void removeDislike(Long reviewId, Long userId) {
+        getUserOrThrow(userId);
+
+        reviewDbStorage.removeDislike(reviewId, userId);
+    }
 
     public int getUseful(Long reviewId) {
         return reviewDbStorage.getUseful(reviewId);
