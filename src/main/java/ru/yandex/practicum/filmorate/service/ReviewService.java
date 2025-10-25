@@ -67,32 +67,32 @@ public class ReviewService {
         return reviewDbStorage.findAll(count);
     }
 
-    public Review addLike(Long reviewId, Long userId) {
+    // Добавление
+    public Review addLike(Long reviewId, Long userId, Integer estimation) {
         getUserOrThrow(userId);
-        Review review = reviewDbStorage.addLike(reviewId, userId);
-
-        return review;
+        return reviewDbStorage.estimate(reviewId, userId, estimation);
     }
 
-    public Review addDislike(Long reviewId, Long userId) {
-        getUserOrThrow(userId);
-        Review review = reviewDbStorage.addDislike(reviewId, userId);
+//    public Review addDislike(Long reviewId, Long userId) {
+//        getUserOrThrow(userId);
+//        Review review = reviewDbStorage.addDislike(reviewId, userId);
+//
+//        return review;
+//    }
 
-        return review;
-    }
-
-    public void removeLike(Long reviewId, Long userId) {
+    // Удаление
+    public void removeLike(Long reviewId, Long userId, Integer estimation) {
         getUserOrThrow(userId);
         Review review = findById(reviewId);
 
-        reviewDbStorage.removeLike(reviewId, userId);
+        reviewDbStorage.removeEstimate(reviewId, userId, estimation);
     }
 
-    public void removeDislike(Long reviewId, Long userId) {
-        getUserOrThrow(userId);
-
-        reviewDbStorage.removeDislike(reviewId, userId);
-    }
+//    public void removeDislike(Long reviewId, Long userId) {
+//        getUserOrThrow(userId);
+//
+//        reviewDbStorage.removeDislike(reviewId, userId);
+//    }
 
     public int getUseful(Long reviewId) {
         return reviewDbStorage.getUseful(reviewId);

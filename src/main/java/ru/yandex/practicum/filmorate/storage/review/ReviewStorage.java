@@ -18,13 +18,17 @@ public interface ReviewStorage {
 
     List<Review> findAll(int count);
 
-    Review addLike(long reviewId, long userId);
+//    Review addLike(long reviewId, long userId);
+//
+//    Review addDislike(long reviewId, long userId);
+//
+//    void removeLike(long reviewId, long userId);
+//
+//    void removeDislike(long reviewId, long userId);
 
-    Review addDislike(long reviewId, long userId);
+    Review estimate(long reviewId, long userId, Integer estimation);
 
-    void removeLike(long reviewId, long userId);
-
-    void removeDislike(long reviewId, long userId);
+    void removeEstimate(long reviewId, long userId, Integer estimation);
 
     int getUseful(long reviewId);
 }

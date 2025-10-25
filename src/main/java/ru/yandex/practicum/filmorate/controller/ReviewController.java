@@ -51,29 +51,31 @@ public class ReviewController {
         return reviewService.findReviews(filmId, count);
     }
 
-    @PutMapping("/{id}/like/{userId}")
-    public Review addLike(@PathVariable Long id, @PathVariable Long userId) {
+    // Добавление
+    @PutMapping("/{id}/like/{userId}/{estimation}")
+    public Review addLike(@PathVariable Long id, @PathVariable Long userId, @PathVariable Integer estimation) {
         log.info("Пользователь {} поставил лайк отзыву {}", userId, id);
-        return reviewService.addLike(id, userId);
+        return reviewService.addLike(id, userId, estimation);
     }
 
-    @PutMapping("/{id}/dislike/{userId}")
-    public Review addDislike(@PathVariable Long id, @PathVariable Long userId) {
-        log.info("Пользователь {} поставил дизлайк отзыву {}", userId, id);
-        return reviewService.addDislike(id, userId);
-    }
+//    @PutMapping("/{id}/dislike/{userId}")
+//    public Review addDislike(@PathVariable Long id, @PathVariable Long userId) {
+//        log.info("Пользователь {} поставил дизлайк отзыву {}", userId, id);
+//        return reviewService.addDislike(id, userId);
+//    }
 
-    @DeleteMapping("/{id}/like/{userId}")
-    public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
+    // Удаление
+    @DeleteMapping("/{id}/like/{userId}/{estimation}")
+    public void removeLike(@PathVariable Long id, @PathVariable Long userId, @PathVariable Integer estimation) {
         log.info("Пользователь {} удалил лайк с отзыва {}", userId, id);
-        reviewService.removeLike(id, userId);
+        reviewService.removeLike(id, userId, estimation);
     }
 
-    @DeleteMapping("/{id}/dislike/{userId}")
-    public void removeDislike(@PathVariable Long id, @PathVariable Long userId) {
-        log.info("Пользователь {} удалил дизлайк с отзыва {}", userId, id);
-        reviewService.removeDislike(id, userId);
-    }
+//    @DeleteMapping("/{id}/dislike/{userId}")
+//    public void removeDislike(@PathVariable Long id, @PathVariable Long userId) {
+//        log.info("Пользователь {} удалил дизлайк с отзыва {}", userId, id);
+//        reviewService.removeDislike(id, userId);
+//    }
 
     @GetMapping("/{id}/useful")
     public int getUseful(@PathVariable Long id) {

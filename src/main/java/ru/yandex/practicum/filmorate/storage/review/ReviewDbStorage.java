@@ -17,7 +17,6 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -42,31 +41,6 @@ public class ReviewDbStorage implements ReviewStorage {
         review.setReviewId(keyHolder.getKey().longValue());
 
         return findById(review.getReviewId()).get();
-    }
-
-    private void checkUserExists(Long userId) {
-        String sql = "SELECT COUNT(*) FROM users WHERE id = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
-
-        if (count == null || count == 0) {
-            throw new NotFoundException("Пользователь с ID " + userId + " не найден");
-        }
-    }
-
-    private void checkFilmExists(Long filmId) {
-        String sql = "SELECT COUNT(*) FROM films WHERE id = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId);
-        if (count == null || count == 0) {
-            throw new NotFoundException("Фильм с ID " + filmId + " не найден");
-        }
-    }
-
-    private void checkReviewExists(Long reviewId) {
-        String sql = "SELECT COUNT(*) FROM reviews WHERE id = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, reviewId);
-        if (count == null || count == 0) {
-            throw new NotFoundException("Отзыв с ID " + reviewId + " не найден");
-        }
     }
 
     @Override
@@ -101,76 +75,124 @@ public class ReviewDbStorage implements ReviewStorage {
         return jdbcTemplate.query(sql, this::mapRowToReview, count);
     }
 
+    // Добавление
     @Override
-    public Review addLike(long reviewId, long userId) {
-        return processReviewVote(reviewId, userId, true);
-    }
-
-    @Override
-    public Review addDislike(long reviewId, long userId) {
-        return processReviewVote(reviewId, userId, false);
-    }
-
-    private Review processReviewVote(long reviewId, long userId, boolean isLike) {
+    public Review estimate(long reviewId, long userId, Integer estimation) {
         checkReviewExists(reviewId);
         checkUserExists(userId);
 
-        String checkSql = "SELECT is_like FROM review_likes WHERE review_id = ? AND user_id = ?";
-        List<Boolean> existingVotes = jdbcTemplate.query(checkSql,
-                (rs, rowNum) -> rs.getBoolean("is_like"), reviewId, userId);
+        String checkSql = "SELECT estimation FROM review_likes WHERE review_id = ? AND user_id = ?";
+        String updateSql = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
+        String updateLikeSql = "UPDATE review_likes SET estimation = ? WHERE review_id = ? AND user_id = ?";
+        String insertSql = "INSERT INTO review_likes (review_id, user_id, estimation) VALUES (?, ?, ?)";
 
-        if (!existingVotes.isEmpty()) {
-            Boolean existingVote = existingVotes.get(0);
+        List<Integer> estimations = jdbcTemplate.query(checkSql,
+                (rs, rowNum) -> rs.getInt("estimation"), reviewId, userId);
 
-            if (existingVote == isLike) {
+        if (!estimations.isEmpty()) {
+            if (estimations.getFirst().equals(estimation)) {
                 return findById(reviewId).orElseThrow();
             }
 
-            int usefulChange = isLike ? 2 : -2;
-            String updateSql = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
-            jdbcTemplate.update(updateSql, usefulChange, reviewId);
-
-            String updateLikeSql = "UPDATE review_likes SET is_like = ? WHERE review_id = ? AND user_id = ?";
-            jdbcTemplate.update(updateLikeSql, isLike, reviewId, userId);
+            jdbcTemplate.update(updateSql, estimation > 5 ? 2 : -2, reviewId);
+            jdbcTemplate.update(updateLikeSql, estimation > 5 ? 2 : -2, reviewId, userId);
         } else {
-            int usefulChange = isLike ? 1 : -1;
-            String updateSql = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
-            jdbcTemplate.update(updateSql, usefulChange, reviewId);
-
-            String insertSql = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, ?)";
-            jdbcTemplate.update(insertSql, reviewId, userId, isLike);
+            jdbcTemplate.update(updateSql, estimation > 5 ? 1 : -1, reviewId);
+            jdbcTemplate.update(insertSql, reviewId, userId, estimation > 5 ? 1 : -1);
         }
 
         return findById(reviewId).orElseThrow();
     }
 
+    // Удаление
     @Override
-    public void removeLike(long reviewId, long userId) {
-        removeReviewVote(reviewId, userId, true);
-    }
-
-    @Override
-    public void removeDislike(long reviewId, long userId) {
-        removeReviewVote(reviewId, userId, false);
-    }
-
-    private void removeReviewVote(long reviewId, long userId, boolean isLike) {
+    public void removeEstimate(long reviewId, long userId, Integer estimation) {
         checkReviewExists(reviewId);
         checkUserExists(userId);
 
-        String checkSql = "SELECT is_like FROM review_likes WHERE review_id = ? AND user_id = ?";
-        List<Boolean> existingVotes = jdbcTemplate.query(checkSql,
-                (rs, rowNum) -> rs.getBoolean("is_like"), reviewId, userId);
+        String checkSql = "SELECT estimation FROM review_likes WHERE review_id = ? AND user_id = ?";
+        String updateSql = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
+        String deleteSql = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
 
-        if (!existingVotes.isEmpty() && existingVotes.get(0) == isLike) {
-            int usefulChange = isLike ? -1 : 1;
-            String updateSql = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
-            jdbcTemplate.update(updateSql, usefulChange, reviewId);
+        List<Integer> estimations = jdbcTemplate.query(checkSql,
+                (rs, rowNum) -> rs.getInt("estimation"), reviewId, userId);
 
-            String deleteSql = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
+        if (!estimations.isEmpty() && estimations.getFirst().equals(estimation)) {
+            jdbcTemplate.update(updateSql, estimation > 5 ? -1 : 1, reviewId);
             jdbcTemplate.update(deleteSql, reviewId, userId);
         }
     }
+
+//    @Override
+//    public Review addLike(long reviewId, long userId) {
+//        return processReviewVote(reviewId, userId, true);
+//    }
+//
+//    @Override
+//    public Review addDislike(long reviewId, long userId) {
+//        return processReviewVote(reviewId, userId, false);
+//    }
+//
+//    private Review processReviewVote(long reviewId, long userId, boolean isLike) {
+//        checkReviewExists(reviewId);
+//        checkUserExists(userId);
+//
+//        String checkSql = "SELECT is_like FROM review_likes WHERE review_id = ? AND user_id = ?";
+//        List<Boolean> existingVotes = jdbcTemplate.query(checkSql,
+//                (rs, rowNum) -> rs.getBoolean("is_like"), reviewId, userId);
+//
+//        if (!existingVotes.isEmpty()) {
+//            Boolean existingVote = existingVotes.get(0);
+//
+//            if (existingVote == isLike) {
+//                return findById(reviewId).orElseThrow();
+//            }
+//
+//            int usefulChange = isLike ? 2 : -2;
+//            String updateSql = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
+//            jdbcTemplate.update(updateSql, usefulChange, reviewId);
+//
+//            String updateLikeSql = "UPDATE review_likes SET is_like = ? WHERE review_id = ? AND user_id = ?";
+//            jdbcTemplate.update(updateLikeSql, isLike, reviewId, userId);
+//        } else {
+//            int usefulChange = isLike ? 1 : -1;
+//            String updateSql = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
+//            jdbcTemplate.update(updateSql, usefulChange, reviewId);
+//
+//            String insertSql = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, ?)";
+//            jdbcTemplate.update(insertSql, reviewId, userId, isLike);
+//        }
+//
+//        return findById(reviewId).orElseThrow();
+//    }
+
+//    @Override
+//    public void removeLike(long reviewId, long userId) {
+//        removeReviewVote(reviewId, userId, true);
+//    }
+//
+//    @Override
+//    public void removeDislike(long reviewId, long userId) {
+//        removeReviewVote(reviewId, userId, false);
+//    }
+//
+//    private void removeReviewVote(long reviewId, long userId, boolean isLike) {
+//        checkReviewExists(reviewId);
+//        checkUserExists(userId);
+//
+//        String checkSql = "SELECT is_like FROM review_likes WHERE review_id = ? AND user_id = ?";
+//        List<Boolean> existingVotes = jdbcTemplate.query(checkSql,
+//                (rs, rowNum) -> rs.getBoolean("is_like"), reviewId, userId);
+//
+//        if (!existingVotes.isEmpty() && existingVotes.get(0) == isLike) {
+//            int usefulChange = isLike ? -1 : 1;
+//            String updateSql = "UPDATE reviews SET useful = useful + ? WHERE id = ?";
+//            jdbcTemplate.update(updateSql, usefulChange, reviewId);
+//
+//            String deleteSql = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
+//            jdbcTemplate.update(deleteSql, reviewId, userId);
+//        }
+//    }
 
     @Override
     public int getUseful(long reviewId) {
@@ -193,4 +215,28 @@ public class ReviewDbStorage implements ReviewStorage {
         );
     }
 
+    private void checkUserExists(Long userId) {
+        String sql = "SELECT COUNT(*) FROM users WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+
+        if (count == null || count == 0) {
+            throw new NotFoundException("Пользователь с ID " + userId + " не найден");
+        }
+    }
+
+    private void checkFilmExists(Long filmId) {
+        String sql = "SELECT COUNT(*) FROM films WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId);
+        if (count == null || count == 0) {
+            throw new NotFoundException("Фильм с ID " + filmId + " не найден");
+        }
+    }
+
+    private void checkReviewExists(Long reviewId) {
+        String sql = "SELECT COUNT(*) FROM reviews WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, reviewId);
+        if (count == null || count == 0) {
+            throw new NotFoundException("Отзыв с ID " + reviewId + " не найден");
+        }
+    }
 }
