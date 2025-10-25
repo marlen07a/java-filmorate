@@ -33,7 +33,7 @@ public class FilmDbStorage implements FilmStorage {
     private static String ORDER_BY_LIKES =
             "GROUP BY f.id " +
             "ORDER BY count_likes " +
-            "LIMIT = ?";
+            "LIMIT = ";
 
     @Override
     public List<Film> findAll() {
@@ -92,31 +92,31 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getPopularFilms(int count) {
         return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
-                        " LEFT JOIN film_genres fg ON f.id = fg.film_id " + ORDER_BY_LIKES,
-                this::mapRowToFilm, count);
+                        " LEFT JOIN film_genres fg ON f.id = fg.film_id " + ORDER_BY_LIKES + count,
+                this::mapRowToFilm);
     }
 
     @Override
     public List<Film> getPopularFilmsByGenreYear(Long genreId, Integer year, int count) {
         return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
                 " LEFT JOIN film_genres fg ON f.id = fg.film_id " +
-                        "WHERE fg.genre_id = ? AND YEAR(f.release_date) = ? " + ORDER_BY_LIKES,
-                this::mapRowToFilm, genreId, year, count);
+                        "WHERE fg.genre_id = ? AND YEAR(f.release_date) = ? " + ORDER_BY_LIKES + count,
+                this::mapRowToFilm, genreId, year);
     }
 
     @Override
     public List<Film> getPopularFilmsByGenre(Long genreId, int count) {
         return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
                         " LEFT JOIN film_genres fg ON f.id = fg.film_id " +
-                        "WHERE fg.genre_id = ? " + ORDER_BY_LIKES,
-                this::mapRowToFilm, genreId, count);
+                        "WHERE fg.genre_id = ? " + ORDER_BY_LIKES + count,
+                this::mapRowToFilm, genreId);
     }
 
     @Override
     public List<Film> getPopularFilmsByYear(Integer year, int count) {
         return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
-                        " WHERE YEAR(f.release_date) = ? " + ORDER_BY_LIKES,
-                this::mapRowToFilm, year, count);
+                        " WHERE YEAR(f.release_date) = ? " + ORDER_BY_LIKES + count,
+                this::mapRowToFilm, year);
     }
 
     @Override
