@@ -96,7 +96,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getPopularFilmsByYear(Integer year) {
         return jdbcTemplate.query(FIND_ALL_SQL +
-                        " LEFT JOIN film_genres fg ON f.id = fg.film_id WHERE YEAR(f.release_date) = ?",
+                        " WHERE YEAR(f.release_date) = ?",
                 this::mapRowToFilm, year);
     }
 
