@@ -141,19 +141,41 @@ public class FilmDbStorage implements FilmStorage {
         return films.stream().findFirst();
     }
 
+//    @Override
+//    public List<Film> findByIds(Set<Long> ids) {
+//        if (ids == null || ids.isEmpty()) {
+//            return List.of();
+//        }
+//
+//        String inClause = String.join(",", ids.stream()
+//                .map(String::valueOf)
+//                .toArray(String[]::new));
+//
+//        String sql = String.format("""
+//                    SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
+//                           m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description
+//                    FROM films f
+//                    LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+//                    WHERE f.id IN (%s)
+//                    ORDER BY f.id
+//                """, inClause);
+//
+//        return jdbcTemplate.query(sql, this::mapRowToFilm);
+//    }
+
     @Override
-    public List<Film> findByIds(Set<Long> ids) {
+    public List<Film> findByIds(Set<Extension> ids) {
         if (ids == null || ids.isEmpty()) {
             return List.of();
         }
 
         String inClause = String.join(",", ids.stream()
-                .map(String::valueOf)
+                .filter(ex -> ex.getExtension() > 5)
+                .map(ex -> String.valueOf(ex.getFilmId()))
                 .toArray(String[]::new));
 
         String sql = String.format("""
-                    SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
-                           m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description
+                    SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description
                     FROM films f
                     LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
                     WHERE f.id IN (%s)
@@ -176,16 +198,31 @@ public class FilmDbStorage implements FilmStorage {
         return count != null && count > 0;
     }
 
+//    @Override
+//    public Map<Long, Set<Long>> getFilmLikesByUsers() {
+//        String sql = "SELECT user_id, film_id FROM film_likes";
+//        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+//
+//        Map<Long, Set<Long>> userLikes = new HashMap<>();
+//        for (Map<String, Object> row : rows) {
+//            Long userId = ((Number) row.get("user_id")).longValue();
+//            Long filmId = ((Number) row.get("film_id")).longValue();
+//            userLikes.computeIfAbsent(userId, k -> new HashSet<>()).add(filmId);
+//        }
+//        return userLikes;
+//    }
+
     @Override
-    public Map<Long, Set<Long>> getFilmLikesByUsers() {
-        String sql = "SELECT user_id, film_id FROM film_likes";
+    public Map<Long, Set<Extension>> getFilmLikesByUsers() {
+        String sql = "SELECT user_id, film_id, estimation FROM film_likes";
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
 
-        Map<Long, Set<Long>> userLikes = new HashMap<>();
+        Map<Long, Set<Extension>> userLikes = new HashMap<>();
         for (Map<String, Object> row : rows) {
             Long userId = ((Number) row.get("user_id")).longValue();
             Long filmId = ((Number) row.get("film_id")).longValue();
-            userLikes.computeIfAbsent(userId, k -> new HashSet<>()).add(filmId);
+            Float estimation = ((Number) row.get("estimation")).floatValue();
+            userLikes.computeIfAbsent(userId, k -> new HashSet<>()).add(new Extension(filmId, estimation));
         }
         return userLikes;
     }

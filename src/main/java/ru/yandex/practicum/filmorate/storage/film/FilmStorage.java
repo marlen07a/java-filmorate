@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import ru.yandex.practicum.filmorate.model.Extension;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.SearchBy;
 
@@ -18,7 +19,9 @@ public interface FilmStorage {
 
     Optional<Film> findById(Long id);
 
-    List<Film> findByIds(Set<Long> ids);
+//    List<Film> findByIds(Set<Long> ids);
+
+    List<Film> findByIds(Set<Extension> ids);
 
     List<Film> getPopularFilms(int count);
 
@@ -34,7 +37,9 @@ public interface FilmStorage {
 
     boolean existsById(Long id);
 
-    Map<Long, Set<Long>> getFilmLikesByUsers();
+//    Map<Long, Set<Long>> getFilmLikesByUsers();
+
+    Map<Long, Set<Extension>> getFilmLikesByUsers();
 
     List<Film> findCommonFilms(Long userId, Long friendId);
 
