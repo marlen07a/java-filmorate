@@ -16,13 +16,13 @@ public class Review {
     @NotBlank(message = "Контент отзыва не может быть пустым")
     private String content;
 
-    @NotBlank(message = "Оценка отзыва не может быть пустой")
+    @NotNull(message = "Оценка отзыва не может быть пустой")
     private Boolean isPositive;
 
-    @NotBlank(message = "Id пользователя не может быть пустым")
+    @NotNull(message = "Id пользователя не может быть пустым")
     private Long userId;
 
-    @NotBlank(message = "Id фильма не может быть пустым")
+    @NotNull(message = "Id фильма не может быть пустым")
     private Long filmId;
 
     private Integer useful;
