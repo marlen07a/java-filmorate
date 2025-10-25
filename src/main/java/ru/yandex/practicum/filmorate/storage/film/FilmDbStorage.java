@@ -348,6 +348,6 @@ public class FilmDbStorage implements FilmStorage {
 //
 //        return films;
 
-        return jdbcTemplate.query(sql.toString(), this::mapRowToFilm);
+        return jdbcTemplate.query(sql.toString(), this::mapRowToFilm, params.toArray());
     }
 }
