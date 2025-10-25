@@ -144,7 +144,7 @@ public class FilmService {
         if (genreId != null && year != null) {
             return filmStorage.findPopularByGenreAndYear(count, genreId, year);
         } else if (genreId != null) {
-            return filmStorage.findPopularByGenreAndYear(count, genreId, year);
+            return filmStorage.findPopularByGenre(count, genreId);
         } else if (year != null) {
             return filmStorage.findPopularByYear(count, year);
         } else {
