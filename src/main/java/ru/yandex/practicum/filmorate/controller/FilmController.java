@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.*;
 
 import ru.yandex.practicum.filmorate.model.DirectorSortBy;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SearchBy;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -80,7 +83,12 @@ public class FilmController {
     public List<Film> searchFilms(
             @RequestParam String query,
             @RequestParam(defaultValue = "title,director") String by) {
-        return filmService.searchFilms(query, by);
+        List<SearchBy> byList = Arrays.stream(by.split(","))
+                .map(String::trim)
+                .map(s -> SearchBy.valueOf(s.toUpperCase()))
+                .collect(Collectors.toList());
+
+        return filmService.searchFilms(query, byList);
     }
 
 

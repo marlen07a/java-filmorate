@@ -23,7 +23,6 @@ public class UserDbStorage implements UserStorage {
     public List<User> findAll() {
         String sql = "SELECT * FROM users";
         List<User> users = jdbcTemplate.query(sql, this::mapRowToUser);
-        // Загружаем друзей для каждого пользователя
         users.forEach(this::loadFriends);
         return users;
     }
@@ -132,11 +131,9 @@ public class UserDbStorage implements UserStorage {
 
 
     private void updateFriends(User user) {
-        // Удаляем старые друзья
         String deleteSql = "DELETE FROM friendships WHERE user_id = ?";
         jdbcTemplate.update(deleteSql, user.getId());
 
-        // Сохраняем новых друзей (без статуса)
         if (user.getFriends() != null && !user.getFriends().isEmpty()) {
             String insertSql = "INSERT INTO friendships (user_id, friend_id) VALUES (?, ?)";
             for (Long friendId : user.getFriends()) {

@@ -156,12 +156,7 @@ public class FilmService {
     }
 
 
-    public List<Film> searchFilms(String query, String by) {
-        List<SearchBy> byList = Arrays.stream(by.split(","))
-                .map(String::trim)
-                .map(s -> SearchBy.valueOf(s.toUpperCase()))
-                .collect(Collectors.toList());
-
+    public List<Film> searchFilms(String query, List<SearchBy> byList) {
         return filmStorage.searchFilms(query, byList);
     }
 

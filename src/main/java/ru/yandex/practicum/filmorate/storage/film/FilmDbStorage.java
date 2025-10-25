@@ -138,6 +138,70 @@ public class FilmDbStorage implements FilmStorage {
         return userLikes;
     }
 
+    @Override
+    public List<Film> findCommonFilms(Long userId, Long friendId) {
+        String sql = "SELECT f.*, m.id as mpa_id, m.code as mpa_code, m.name as mpa_name, m.description as mpa_description " +
+                "FROM films f " +
+                "LEFT JOIN mpa_ratings m ON f.mpa_id = m.id " +
+                "WHERE f.id IN (" +
+                "    SELECT fl1.film_id FROM film_likes fl1 " +
+                "    WHERE fl1.user_id = ? " +
+                "    INTERSECT " +
+                "    SELECT fl2.film_id FROM film_likes fl2 " +
+                "    WHERE fl2.user_id = ?" +
+                ") " +
+                "ORDER BY (" +
+                "    SELECT COUNT(*) FROM film_likes fl WHERE fl.film_id = f.id" +
+                ") DESC";
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, List<SearchBy> by) {
+        String lowerQuery = "%" + query.toLowerCase() + "%";
+
+        boolean searchByTitle = by.contains(SearchBy.TITLE);
+        boolean searchByDirector = by.contains(SearchBy.DIRECTOR);
+
+        if (!searchByTitle && !searchByDirector) {
+            return Collections.emptyList();
+        }
+
+        StringBuilder sql = new StringBuilder("""
+                    SELECT DISTINCT f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
+                           m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
+                           COUNT(fl.user_id) AS like_count
+                    FROM films f
+                    LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+                    LEFT JOIN films_directors fd ON f.id = fd.film_id
+                    LEFT JOIN directors d ON fd.director_id = d.id
+                    LEFT JOIN film_likes fl ON f.id = fl.film_id
+                    WHERE
+                """);
+
+        List<Object> params = new ArrayList<>();
+
+        if (searchByTitle) {
+            sql.append(" LOWER(f.name) LIKE ? ");
+            params.add(lowerQuery);
+        }
+        if (searchByDirector) {
+            if (searchByTitle) {
+                sql.append(" OR ");
+            }
+            sql.append(" LOWER(d.name) LIKE ? ");
+            params.add(lowerQuery);
+        }
+
+        sql.append("""
+                    GROUP BY f.id, m.id, m.name, m.description, f.name, f.description, f.release_date, f.duration, f.created_at
+                    ORDER BY like_count DESC, f.release_date ASC, f.id ASC
+                """);
+
+        return jdbcTemplate.query(sql.toString(), this::mapRowToFilm, params.toArray());
+    }
+
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
         Film film = new Film();
         film.setId(rs.getLong("id"));
@@ -260,69 +324,5 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT name FROM directors WHERE id = ?";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getString("name"), id).getFirst();
-    }
-
-    @Override
-    public List<Film> findCommonFilms(Long userId, Long friendId) {
-        String sql = "SELECT f.*, m.id as mpa_id, m.code as mpa_code, m.name as mpa_name, m.description as mpa_description " +
-                "FROM films f " +
-                "LEFT JOIN mpa_ratings m ON f.mpa_id = m.id " +
-                "WHERE f.id IN (" +
-                "    SELECT fl1.film_id FROM film_likes fl1 " +
-                "    WHERE fl1.user_id = ? " +
-                "    INTERSECT " +
-                "    SELECT fl2.film_id FROM film_likes fl2 " +
-                "    WHERE fl2.user_id = ?" +
-                ") " +
-                "ORDER BY (" +
-                "    SELECT COUNT(*) FROM film_likes fl WHERE fl.film_id = f.id" +
-                ") DESC";
-
-        return jdbcTemplate.query(sql, this::mapRowToFilm, userId, friendId);
-    }
-
-    @Override
-    public List<Film> searchFilms(String query, List<SearchBy> by) {
-        String lowerQuery = "%" + query.toLowerCase() + "%";
-
-        boolean searchByTitle = by.contains(SearchBy.TITLE);
-        boolean searchByDirector = by.contains(SearchBy.DIRECTOR);
-
-        if (!searchByTitle && !searchByDirector) {
-            return Collections.emptyList();
-        }
-
-        StringBuilder sql = new StringBuilder("""
-                    SELECT DISTINCT f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
-                           m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
-                           COUNT(fl.user_id) AS like_count
-                    FROM films f
-                    LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
-                    LEFT JOIN films_directors fd ON f.id = fd.film_id
-                    LEFT JOIN directors d ON fd.director_id = d.id
-                    LEFT JOIN film_likes fl ON f.id = fl.film_id
-                    WHERE
-                """);
-
-        List<Object> params = new ArrayList<>();
-
-        if (searchByTitle) {
-            sql.append(" LOWER(f.name) LIKE ? ");
-            params.add(lowerQuery);
-        }
-        if (searchByDirector) {
-            if (searchByTitle) {
-                sql.append(" OR ");
-            }
-            sql.append(" LOWER(d.name) LIKE ? ");
-            params.add(lowerQuery);
-        }
-
-        sql.append("""
-                    GROUP BY f.id, m.id, m.name, m.description, f.name, f.description, f.release_date, f.duration, f.created_at
-                    ORDER BY like_count DESC, f.release_date ASC, f.id ASC
-                """);
-
-        return jdbcTemplate.query(sql.toString(), this::mapRowToFilm, params.toArray());
     }
 }
