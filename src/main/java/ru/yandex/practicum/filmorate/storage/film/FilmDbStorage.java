@@ -294,7 +294,7 @@ public class FilmDbStorage implements FilmStorage {
 
         sql.append("""
                     GROUP BY f.id, m.id, m.name, m.description, f.name, f.description, f.release_date, f.duration, f.created_at
-                    ORDER BY like_count DESC, f.release_date ASC, f.id ASC
+                    ORDER BY like_count DESC, f.release_date ASC, f.id DESC
                 """);
 
         return jdbcTemplate.query(sql.toString(), this::mapRowToFilm, params.toArray());
