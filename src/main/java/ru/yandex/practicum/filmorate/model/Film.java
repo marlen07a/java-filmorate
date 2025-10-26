@@ -28,7 +28,7 @@ public class Film {
 
     private LocalDateTime createdAt;
     private Set<Long> likes = new HashSet<>();
-    private Float extension;
+    private Float extension = 0f;
     private MPA mpa;
     private Set<Genre> genres = new HashSet<>();
     private Set<Director> directors = new HashSet<>();
