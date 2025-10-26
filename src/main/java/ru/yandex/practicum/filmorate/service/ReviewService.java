@@ -97,19 +97,19 @@ public class ReviewService {
         return reviewDbStorage.getUseful(reviewId);
     }
 
-    private User getUserOrThrow(Long userId) {
+    private void getUserOrThrow(Long userId) {
         if (userId == null) {
             throw new ValidationException("User ID не может быть null");
         }
-        return userStorage.findById(userId)
+        userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID " + userId + " не найден"));
     }
 
-    private Film getFilmOrThrow(Long filmId) {
+    private void getFilmOrThrow(Long filmId) {
         if (filmId == null) {
             throw new ValidationException("Film ID не может быть null");
         }
-        return filmStorage.findById(filmId)
+        filmStorage.findById(filmId)
                 .orElseThrow(() -> new NotFoundException("Фильм с ID " + filmId + " не найден"));
     }
 }
