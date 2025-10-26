@@ -116,7 +116,7 @@ public class FilmService {
 
         film.getLikes().add(userId);
 
-        film.setExtension(film.getExtension() + extension);
+        film.setRate(film.getRate() + extension);
 
         filmStorage.update(film);
         feedService.create(userId, filmId, EventTypes.LIKE, Operations.ADD);
@@ -168,7 +168,7 @@ public class FilmService {
                     .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList();
         } else if (sortBy.equals(DirectorSortBy.RATE)) {
             return films.stream()
-                    .sorted((f1, f2) -> (int) ((f2.getExtension() / f2.getLikes().size()) - (f1.getExtension() / f1.getLikes().size()))).toList();
+                    .sorted((f1, f2) -> (int) ((f2.getRate() / f2.getLikes().size()) - (f1.getRate() / f1.getLikes().size()))).toList();
         }
 
         return films.stream().sorted(Comparator.comparingInt(f -> f.getReleaseDate().getYear())).toList();
