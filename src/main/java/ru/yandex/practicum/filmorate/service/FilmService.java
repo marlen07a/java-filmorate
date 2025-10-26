@@ -166,6 +166,7 @@ public class FilmService {
                     .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList();
         } else if (sortBy.equals(DirectorSortBy.RATE)) {
             return films.stream()
+                    .distinct()
                     .sorted((f1, f2) -> (int) (f2.getRate() - f1.getRate()) * -1).toList();
         }
 
