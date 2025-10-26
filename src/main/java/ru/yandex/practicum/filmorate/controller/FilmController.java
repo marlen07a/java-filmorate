@@ -50,16 +50,10 @@ public class FilmController {
         return filmService.update(film);
     }
 
-//    @PutMapping("/{id}/like/{userId}")
-//    public void addLike(@PathVariable Long id, @PathVariable Long userId) {
-//        log.info("Получен запрос на добавление лайка: фильм {}, пользователь {}", id, userId);
-//        filmService.addLike(id, userId);
-//    }
-
     @PutMapping("/{id}/like/{userId}")
-    public void addLike(@PathVariable Long id, @PathVariable Long userId, @RequestParam(defaultValue = "0") Float extension) {
+    public void addLike(@PathVariable Long id, @PathVariable Long userId, @RequestParam(defaultValue = "0") Float rate) {
         log.info("Получен запрос на добавление лайка: фильм {}, пользователь {}", id, userId);
-        filmService.addLike(id, userId, extension);
+        filmService.addLike(id, userId, rate);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
