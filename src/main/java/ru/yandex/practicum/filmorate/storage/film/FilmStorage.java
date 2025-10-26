@@ -39,7 +39,7 @@ public interface FilmStorage {
 
 //    Map<Long, Set<Long>> getFilmLikesByUsers();
 
-    Map<Long, Set<Extension>> getFilmLikesByUsers();
+    Map<Long, Set<Long>> getFilmLikesByUsers();
 
     List<Film> findCommonFilms(Long userId, Long friendId);
 
