@@ -26,12 +26,20 @@ public class FilmDbStorage implements FilmStorage {
             FROM films f
             LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
             """);
+//    private static final String FIND_ALL_SQL_WITH_LIKES_COUNT = String.format("""
+//            SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description, COUNT(fl.user_id) AS count_likes
+//            FROM films f
+//            LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
+//            LEFT JOIN film_likes fl ON f.id = fl.film_id\s
+//            """);
+
     private static final String FIND_ALL_SQL_WITH_LIKES_COUNT = String.format("""
-            SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description, COUNT(fl.user_id) AS count_likes
+            SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description, fl.estimation / COUNT(fl.user_id) AS count_likes
             FROM films f
             LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
             LEFT JOIN film_likes fl ON f.id = fl.film_id\s
             """);
+
     private static final String ORDER_BY_LIKES = String.format("""
             GROUP BY f.id
             ORDER BY count_likes DESC
@@ -96,7 +104,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getPopularFilms(int count) {
         return jdbcTemplate.query(FIND_ALL_SQL, this::mapRowToFilm)
                 .stream()
-                .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+                .sorted((f1, f2) -> (int) ((f2.getExtension() / f2.getLikes().size()) - (f1.getExtension() /f1.getLikes().size())))
                 .limit(count)
                 .toList();
     }
@@ -341,10 +349,19 @@ public class FilmDbStorage implements FilmStorage {
         }, film.getId());
     }
 
+//    private void loadLikes(Film film) {
+//        String sql = "SELECT user_id FROM film_likes WHERE film_id = ?";
+//        jdbcTemplate.query(sql, (rs, rowNum) -> {
+//            film.getLikes().add(rs.getLong("user_id"));
+//            return null;
+//        }, film.getId());
+//    }
+
     private void loadLikes(Film film) {
-        String sql = "SELECT user_id FROM film_likes WHERE film_id = ?";
+        String sql = "SELECT user_id, estimation FROM film_likes WHERE film_id = ?";
         jdbcTemplate.query(sql, (rs, rowNum) -> {
             film.getLikes().add(rs.getLong("user_id"));
+            film.setExtension(rs.getFloat("estimation"));
             return null;
         }, film.getId());
     }
@@ -377,15 +394,29 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.batchUpdate(sql, batchArgs);
     }
 
+//    private void saveLikes(Film film) {
+//        if (film.getLikes() == null || film.getLikes().isEmpty()) {
+//            return;
+//        }
+//
+//        String sql = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
+//
+//        List<Object[]> batchArgs = film.getLikes().stream()
+//                .map(userId -> new Object[]{film.getId(), userId})
+//                .toList();
+//
+//        jdbcTemplate.batchUpdate(sql, batchArgs);
+//    }
+
     private void saveLikes(Film film) {
         if (film.getLikes() == null || film.getLikes().isEmpty()) {
             return;
         }
 
-        String sql = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
+        String sql = "INSERT INTO film_likes (film_id, user_id, estimation) VALUES (?, ?, ?)";
 
         List<Object[]> batchArgs = film.getLikes().stream()
-                .map(userId -> new Object[]{film.getId(), userId})
+                .map(userId -> new Object[]{film.getId(), userId, film.getExtension()})
                 .toList();
 
         jdbcTemplate.batchUpdate(sql, batchArgs);

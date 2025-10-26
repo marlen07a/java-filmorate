@@ -96,13 +96,26 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException("Фильм с id = " + id + " не найден"));
     }
 
-    public void addLike(Long filmId, Long userId) {
+//    public void addLike(Long filmId, Long userId) {
+//        Film film = findById(filmId);
+//
+//        userStorage.findById(userId)
+//                .orElseThrow(() -> new NotFoundException("Пользователь с id = " + userId + " не найден"));
+//
+//        film.getLikes().add(userId);
+//
+//        filmStorage.update(film);
+//        feedService.create(userId, filmId, EventTypes.LIKE, Operations.ADD);
+//    }
+
+        public void addLike(Long filmId, Long userId, Float extension) {
         Film film = findById(filmId);
 
         userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id = " + userId + " не найден"));
 
         film.getLikes().add(userId);
+        film.setExtension(film.getExtension() + extension);
 
         filmStorage.update(film);
         feedService.create(userId, filmId, EventTypes.LIKE, Operations.ADD);
@@ -132,13 +145,26 @@ public class FilmService {
         }
     }
 
+//    public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
+//        directorService.getDirectorById(directorId);
+//
+//        List<Film> films = filmStorage.getFilmsByDirector(directorId);
+//
+//        if (sortBy.equals(DirectorSortBy.LIKES)) {
+//            return films.stream().sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList();
+//        }
+//
+//        return films.stream().sorted(Comparator.comparingInt(f -> f.getReleaseDate().getYear())).toList();
+//    }
+
     public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
         directorService.getDirectorById(directorId);
 
         List<Film> films = filmStorage.getFilmsByDirector(directorId);
 
         if (sortBy.equals(DirectorSortBy.LIKES)) {
-            return films.stream().sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList();
+            return films.stream()
+                    .sorted((f1, f2) -> (int) ((f2.getExtension() / f2.getLikes().size()) - (f1.getExtension() /f1.getLikes().size()))).toList();
         }
 
         return films.stream().sorted(Comparator.comparingInt(f -> f.getReleaseDate().getYear())).toList();
