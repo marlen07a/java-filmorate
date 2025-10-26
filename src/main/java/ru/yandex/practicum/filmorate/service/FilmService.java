@@ -155,7 +155,7 @@ public class FilmService {
         } else if (sortBy.equals(DirectorSortBy.RATE)) {
             return films.stream()
                     .distinct()
-                    .sorted((f1, f2) -> (int) (f2.getRate() - f1.getRate()) * -1).toList();
+                    .sorted((f1, f2) -> (int) (f2.getRate() - f1.getRate())).toList();
         }
 
         return films.stream().sorted(Comparator.comparingInt(f -> f.getReleaseDate().getYear())).toList();
