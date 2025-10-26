@@ -34,8 +34,10 @@ public class ReviewService {
             review.setUseful(0);
         }
 
-        feedService.create(review.getUserId(), review.getReviewId(), EventTypes.REVIEW, Operations.ADD);
-        return reviewDbStorage.create(review);
+        Review newReview = reviewDbStorage.create(review);
+
+        feedService.create(newReview.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.ADD);
+        return newReview;
     }
 
     public Review update(Review review) {
@@ -45,8 +47,10 @@ public class ReviewService {
             review.setUseful(existingReview.getUseful());
         }
 
-        feedService.create(review.getUserId(), review.getReviewId(), EventTypes.REVIEW, Operations.UPDATE);
-        return reviewDbStorage.update(review);
+        Review newReview = reviewDbStorage.update(review);
+
+        feedService.create(newReview.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.UPDATE);
+        return newReview;
     }
 
     public Review findById(Long reviewId) {
