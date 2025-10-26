@@ -267,7 +267,7 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         StringBuilder sql = new StringBuilder("""
-                    SELECT DISTINCT f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
+                    SELECT DISTINCT f.id, f.name, f.description, f.release_date, f.duration, f.rate, f.created_at,
                            m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description,
                            COUNT(fl.user_id) AS like_count
                     FROM films f
