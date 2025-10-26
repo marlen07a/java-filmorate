@@ -49,7 +49,7 @@ public class FilmService {
 
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             Set<Long> genreIds = film.getGenres().stream()
-                    .map(Genre::getId)
+                    .map(Genre::getId).sorted((id1, id2) -> Math.toIntExact(id1 - id2))
                     .collect(Collectors.toSet());
             genreService.validateGenresExist(genreIds);
         }
