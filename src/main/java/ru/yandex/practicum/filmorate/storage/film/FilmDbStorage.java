@@ -104,7 +104,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getPopularFilms(int count) {
         return jdbcTemplate.query(FIND_ALL_SQL, this::mapRowToFilm)
                 .stream()
-                .sorted((f1, f2) -> (int) ((f2.getExtension() / f2.getLikes().size()) - (f1.getExtension() /f1.getLikes().size())))
+                .sorted((f1, f2) -> (int) ((f2.getExtension() / f2.getLikes().size()) - (f1.getExtension() / f1.getLikes().size())))
                 .limit(count)
                 .toList();
     }
