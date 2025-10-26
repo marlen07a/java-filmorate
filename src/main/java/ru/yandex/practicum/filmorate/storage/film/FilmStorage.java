@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import ru.yandex.practicum.filmorate.model.Extension;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.SearchBy;
 
@@ -21,7 +20,7 @@ public interface FilmStorage {
 
 //    List<Film> findByIds(Set<Long> ids);
 
-    List<Film> findByIds(Set<Extension> ids);
+    List<Film> findByIds(Set<Long> ids);
 
     List<Film> getPopularFilms(int count);
 
