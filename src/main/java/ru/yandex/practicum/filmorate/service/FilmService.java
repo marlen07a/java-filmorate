@@ -85,7 +85,7 @@ public class FilmService {
             directorService.validateDirectorsExist(directorIds);
         }
 
-        Film existingFilm = filmStorage.findById(film.getId())
+        filmStorage.findById(film.getId())
                 .orElseThrow(() -> new NotFoundException("Фильм с id = " + film.getId() + " не найден"));
 
         return filmStorage.update(film);

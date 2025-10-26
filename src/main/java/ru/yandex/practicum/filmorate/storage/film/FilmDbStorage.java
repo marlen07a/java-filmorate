@@ -414,7 +414,7 @@ public class FilmDbStorage implements FilmStorage {
             return;
         }
 
-        String sql = "INSERT INTO film_likes (film_id, user_id, estimation) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO film_likes (film_id, user_id, rate) VALUES (?, ?, ?)";
 
         List<Object[]> batchArgs = film.getLikes().stream()
                 .map(userId -> new Object[]{film.getId(), userId, film.getRate()})
