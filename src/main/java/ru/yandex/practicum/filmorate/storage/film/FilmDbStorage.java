@@ -101,25 +101,43 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getPopularFilmsByGenreYear(Long genreId, Integer year, int count) {
-        return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
-                        "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
-                        "WHERE fg.genre_id = ? AND YEAR(f.release_date) = ? " + ORDER_BY_LIKES + count,
-                this::mapRowToFilm, genreId, year);
+//        return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
+//                        "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+//                        "WHERE fg.genre_id = ? AND YEAR(f.release_date) = ? " + ORDER_BY_LIKES + count,
+//                this::mapRowToFilm, genreId, year);
+
+        return jdbcTemplate.query(FIND_ALL_SQL, this::mapRowToFilm).stream()
+                .filter(f -> f.getGenres().stream().anyMatch(g -> g.getId().equals(genreId) && f.getReleaseDate().getYear() == year))
+                .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+                .limit(count)
+                .toList();
     }
 
     @Override
     public List<Film> getPopularFilmsByGenre(Long genreId, int count) {
-        return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
-                        "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
-                        "WHERE fg.genre_id = ? " + ORDER_BY_LIKES + count,
-                this::mapRowToFilm, genreId);
+//        return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
+//                        "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+//                        "WHERE fg.genre_id = ? " + ORDER_BY_LIKES + count,
+//                this::mapRowToFilm, genreId);
+
+        return jdbcTemplate.query(FIND_ALL_SQL, this::mapRowToFilm).stream()
+                .filter(f -> f.getGenres().stream().anyMatch(g -> g.getId().equals(genreId)))
+                .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+                .limit(count)
+                .toList();
     }
 
     @Override
     public List<Film> getPopularFilmsByYear(Integer year, int count) {
-        return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
-                        "WHERE YEAR(f.release_date) = ? " + ORDER_BY_LIKES + count,
-                this::mapRowToFilm, year);
+//        return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
+//                        "WHERE YEAR(f.release_date) = ? " + ORDER_BY_LIKES + count,
+//                this::mapRowToFilm, year);
+
+        return jdbcTemplate.query(FIND_ALL_SQL, this::mapRowToFilm).stream()
+                .filter(f -> f.getReleaseDate().getYear() == year)
+                .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+                .limit(count)
+                .toList();
     }
 
     @Override
