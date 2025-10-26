@@ -2,10 +2,11 @@ package ru.yandex.practicum.filmorate.service;
 
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -13,38 +14,40 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.List;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class ReviewService {
     private final UserStorage userStorage;
-    private final FilmStorage filmStorage;
+    private final FilmStorage filmStorage; // Нужно добавить зависимость
     private final ReviewStorage reviewDbStorage;
-    private final FeedService feedService;
 
     public Review create(Review review) {
+        if (review.getUserId() == null) {
+            throw new ValidationException("User ID не может быть null");
+        }
+        if (review.getFilmId() == null) {
+            throw new ValidationException("Film ID не может быть null");
+        }
+
+        // Проверяем существование пользователя и фильма
         getUserOrThrow(review.getUserId());
         getFilmOrThrow(review.getFilmId());
 
+        // Гарантируем, что useful не null
         if (review.getUseful() == null) {
             review.setUseful(0);
         }
-
-        Review newReview = reviewDbStorage.create(review);
-        feedService.create(newReview.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.ADD);
-
-        return newReview;
+        return reviewDbStorage.create(review);
     }
 
     public Review update(Review review) {
         Review existingReview = findById(review.getReviewId());
 
+        // Сохраняем текущее значение useful, если в обновлении оно null
         if (review.getUseful() == null) {
             review.setUseful(existingReview.getUseful());
         }
-        Review newReview = reviewDbStorage.update(review);
-        feedService.create(newReview.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.UPDATE);
 
-        return newReview;
+        return reviewDbStorage.update(review);
     }
 
     public Review findById(Long reviewId) {
@@ -53,10 +56,7 @@ public class ReviewService {
     }
 
     public void delete(Long reviewId) {
-        Review review = findById(reviewId);
-
         reviewDbStorage.delete(reviewId);
-        feedService.create(review.getUserId(), review.getReviewId(), EventTypes.REVIEW, Operations.REMOVE);
     }
 
     public List<Review> findByFilmId(Long filmId, int count) {
@@ -67,22 +67,23 @@ public class ReviewService {
         return reviewDbStorage.findAll(count);
     }
 
-    // Добавление
-    public Review addLike(Long reviewId, Long userId, Integer estimation) {
+    public Review addLike(Long reviewId, Long userId) {
         getUserOrThrow(userId);
-        return reviewDbStorage.estimate(reviewId, userId, estimation);
+        return reviewDbStorage.addLike(reviewId, userId);
     }
 
     public Review addDislike(Long reviewId, Long userId) {
         getUserOrThrow(userId);
-        Review review = reviewDbStorage.addDislike(reviewId, userId);
+        return reviewDbStorage.addDislike(reviewId, userId);
+    }
 
-        return review;
+    public void removeLike(Long reviewId, Long userId) {
+        getUserOrThrow(userId);
+        reviewDbStorage.removeLike(reviewId, userId);
     }
 
     public void removeDislike(Long reviewId, Long userId) {
         getUserOrThrow(userId);
-
         reviewDbStorage.removeDislike(reviewId, userId);
     }
 
@@ -104,15 +105,5 @@ public class ReviewService {
         }
         return filmStorage.findById(filmId)
                 .orElseThrow(() -> new NotFoundException("Фильм с ID " + filmId + " не найден"));
-    }
-
-    public List<Review> findReviews(Long filmId, int count) {
-        if (filmId == null) {
-            log.debug("Поиск всех отзывов, count={}", count);
-            return findAll(count);
-        } else {
-            log.debug("Поиск отзывов для фильма {}, count={}", filmId, count);
-            return findByFilmId(filmId, count);
-        }
     }
 }
