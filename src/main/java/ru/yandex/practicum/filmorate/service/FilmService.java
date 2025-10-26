@@ -49,7 +49,7 @@ public class FilmService {
 
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             Set<Long> genreIds = film.getGenres().stream()
-                    .map(Genre::getId).sorted((id1, id2) -> Math.toIntExact(id1 - id2))
+                    .map(Genre::getId)
                     .collect(Collectors.toSet());
             genreService.validateGenresExist(genreIds);
         }
@@ -115,6 +115,7 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с id = " + userId + " не найден"));
 
         film.getLikes().add(userId);
+
         film.setExtension(film.getExtension() + extension);
 
         filmStorage.update(film);
