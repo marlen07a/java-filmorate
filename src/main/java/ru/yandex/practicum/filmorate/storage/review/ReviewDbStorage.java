@@ -145,17 +145,14 @@ public class ReviewDbStorage implements ReviewStorage {
         if (!existingVotes.isEmpty()) {
             Boolean existingVote = existingVotes.get(0);
             if (!existingVote) {
-                // уже дизлайкнул
                 return findById(reviewId).orElseThrow();
             } else {
-                // был лайк, тогда меняю на дизлайк (-2 к useful)
                 String updateSql = "UPDATE reviews SET useful = useful - 2 WHERE id = ?";
                 jdbcTemplate.update(updateSql, reviewId);
                 String updateLikeSql = "UPDATE review_likes SET is_like = false WHERE review_id = ? AND user_id = ?";
                 jdbcTemplate.update(updateLikeSql, reviewId, userId);
             }
         } else {
-            // новый диз
             String updateSql = "UPDATE reviews SET useful = useful - 1 WHERE id = ?";
             jdbcTemplate.update(updateSql, reviewId);
             String insertSql = "INSERT INTO review_likes (review_id, user_id, is_like) VALUES (?, ?, false)";
