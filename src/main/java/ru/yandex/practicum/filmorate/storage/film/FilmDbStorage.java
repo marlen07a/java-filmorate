@@ -362,7 +362,7 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT user_id, rate FROM film_likes WHERE film_id = ?";
         jdbcTemplate.query(sql, (rs, rowNum) -> {
             film.getLikes().add(rs.getLong("user_id"));
-            film.setRate(rs.getFloat("estimation"));
+            film.setRate(rs.getFloat("rate"));
             return null;
         }, film.getId());
     }
