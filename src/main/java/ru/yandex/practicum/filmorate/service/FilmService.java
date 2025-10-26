@@ -116,8 +116,6 @@ public class FilmService {
 
         film.getLikes().add(userId);
 
-        film.setRate(film.getRate() + extension);
-
         filmStorage.update(film);
         feedService.create(userId, filmId, EventTypes.LIKE, Operations.ADD);
     }
