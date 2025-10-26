@@ -28,11 +28,11 @@ public class FilmDbStorage implements FilmStorage {
             """;
 
     private static final String FIND_ALL_SQL_WITH_LIKES_COUNT =
-            " SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description, " +
+            "SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description, " +
                     "COUNT(fl.user_id) AS count_likes FROM films f LEFT JOIN mpa_ratings m ON f.mpa_id = m.id " +
                     "LEFT JOIN film_likes fl ON f.id = fl.film_id ";
 
-    private static final String ORDER_BY_LIKES = " GROUP BY f.id ORDER BY count_likes DESC LIMIT ";
+    private static final String ORDER_BY_LIKES = "GROUP BY f.id ORDER BY count_likes DESC LIMIT ";
 
     @Override
     public List<Film> findAll() {
@@ -102,7 +102,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getPopularFilmsByGenreYear(Long genreId, Integer year, int count) {
         return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
-                        " LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+                        "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
                         "WHERE fg.genre_id = ? AND YEAR(f.release_date) = ? " + ORDER_BY_LIKES + count,
                 this::mapRowToFilm, genreId, year);
     }
@@ -110,7 +110,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getPopularFilmsByGenre(Long genreId, int count) {
         return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
-                        " LEFT JOIN film_genres fg ON f.id = fg.film_id " +
+                        "LEFT JOIN film_genres fg ON f.id = fg.film_id " +
                         "WHERE fg.genre_id = ? " + ORDER_BY_LIKES + count,
                 this::mapRowToFilm, genreId);
     }
@@ -118,14 +118,14 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getPopularFilmsByYear(Integer year, int count) {
         return jdbcTemplate.query(FIND_ALL_SQL_WITH_LIKES_COUNT +
-                        " WHERE YEAR(f.release_date) = ? " + ORDER_BY_LIKES + count,
+                        "WHERE YEAR(f.release_date) = ? " + ORDER_BY_LIKES + count,
                 this::mapRowToFilm, year);
     }
 
     @Override
     public List<Film> getFilmsByDirector(Long directorId) {
         return jdbcTemplate.query(FIND_ALL_SQL +
-                        " LEFT JOIN films_directors fd ON f.id = fd.film_id WHERE fd.director_id = ?",
+                        "LEFT JOIN films_directors fd ON f.id = fd.film_id WHERE fd.director_id = ?",
                 this::mapRowToFilm, directorId);
     }
 
@@ -138,28 +138,6 @@ public class FilmDbStorage implements FilmStorage {
 
         return films.stream().findFirst();
     }
-
-//    @Override
-//    public List<Film> findByIds(Set<Long> ids) {
-//        if (ids == null || ids.isEmpty()) {
-//            return List.of();
-//        }
-//
-//        String inClause = String.join(",", ids.stream()
-//                .map(String::valueOf)
-//                .toArray(String[]::new));
-//
-//        String sql = String.format("""
-//                    SELECT f.id, f.name, f.description, f.release_date, f.duration, f.created_at,
-//                           m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description
-//                    FROM films f
-//                    LEFT JOIN mpa_ratings m ON f.mpa_id = m.id
-//                    WHERE f.id IN (%s)
-//                    ORDER BY f.id
-//                """, inClause);
-//
-//        return jdbcTemplate.query(sql, this::mapRowToFilm);
-//    }
 
     @Override
     public List<Film> findByIds(Set<Long> ids) {
@@ -195,20 +173,6 @@ public class FilmDbStorage implements FilmStorage {
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);
         return count != null && count > 0;
     }
-
-//    @Override
-//    public Map<Long, Set<Long>> getFilmLikesByUsers() {
-//        String sql = "SELECT user_id, film_id FROM film_likes";
-//        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
-//
-//        Map<Long, Set<Long>> userLikes = new HashMap<>();
-//        for (Map<String, Object> row : rows) {
-//            Long userId = ((Number) row.get("user_id")).longValue();
-//            Long filmId = ((Number) row.get("film_id")).longValue();
-//            userLikes.computeIfAbsent(userId, k -> new HashSet<>()).add(filmId);
-//        }
-//        return userLikes;
-//    }
 
     @Override
     public Map<Long, Set<Long>> getFilmLikesByUsers() {
@@ -340,14 +304,6 @@ public class FilmDbStorage implements FilmStorage {
         }, film.getId());
     }
 
-//    private void loadLikes(Film film) {
-//        String sql = "SELECT user_id FROM film_likes WHERE film_id = ?";
-//        jdbcTemplate.query(sql, (rs, rowNum) -> {
-//            film.getLikes().add(rs.getLong("user_id"));
-//            return null;
-//        }, film.getId());
-//    }
-
     private void loadLikes(Film film) {
         String sql = "SELECT user_id, FROM film_likes WHERE film_id = ?";
         jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -383,20 +339,6 @@ public class FilmDbStorage implements FilmStorage {
 
         jdbcTemplate.batchUpdate(sql, batchArgs);
     }
-
-//    private void saveLikes(Film film) {
-//        if (film.getLikes() == null || film.getLikes().isEmpty()) {
-//            return;
-//        }
-//
-//        String sql = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
-//
-//        List<Object[]> batchArgs = film.getLikes().stream()
-//                .map(userId -> new Object[]{film.getId(), userId})
-//                .toList();
-//
-//        jdbcTemplate.batchUpdate(sql, batchArgs);
-//    }
 
     private void saveLikes(Film film) {
         if (film.getLikes() == null || film.getLikes().isEmpty()) {
