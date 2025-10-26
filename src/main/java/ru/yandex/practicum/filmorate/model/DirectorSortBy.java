@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum DirectorSortBy {
     YEAR("year"),
-    LIKES("likes");
+    LIKES("likes"),
+    RATE("rate");
 
     private final String value;
 
