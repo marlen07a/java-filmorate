@@ -23,7 +23,8 @@ public class RecommendationService {
         Set<Long> targetUserLikes = userLikes.getOrDefault(userId, Collections.emptySet());
 
         if (targetUserLikes.isEmpty()) {
-            return Collections.emptyList();
+//            return Collections.emptyList();
+            return List.of(new Film());
         }
 
         Long mostSimilarUserId = null;
