@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -46,7 +47,7 @@ public class UserDbStorage implements UserStorage {
             return stmt;
         }, keyHolder);
 
-        user.setId(keyHolder.getKey().longValue());
+        user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return user;
     }
 
@@ -77,7 +78,7 @@ public class UserDbStorage implements UserStorage {
         if (users.isEmpty()) {
             return Optional.empty();
         }
-        User user = users.get(0);
+        User user = users.getFirst();
         loadFriends(user);
         return Optional.of(user);
     }

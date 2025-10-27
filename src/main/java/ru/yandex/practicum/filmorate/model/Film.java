@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Data
 public class Film {
@@ -28,8 +29,9 @@ public class Film {
 
     private LocalDateTime createdAt;
     private Set<Long> likes = new HashSet<>();
+    private Float rate = 0f;
     private MPA mpa;
-    private Set<Genre> genres = new HashSet<>();
+    private Set<Genre> genres = new TreeSet<>((i1, i2) -> Math.toIntExact(i1.getId() - i2.getId()));
     private Set<Director> directors = new HashSet<>();
 
     public static final LocalDate RULE_FILM_DATE = LocalDate.of(1895, 12, 28);

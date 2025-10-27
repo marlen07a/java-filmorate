@@ -18,9 +18,10 @@ public class RecommendationService {
 
     public List<Film> getRecommendations(Long userId) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с ID " + userId + " не найден"));
-        Map<Long, Set<Long>> userLikes = filmStorage.getFilmLikesByUsers();
 
+        Map<Long, Set<Long>> userLikes = filmStorage.getFilmLikesByUsers();
         Set<Long> targetUserLikes = userLikes.getOrDefault(userId, Collections.emptySet());
+
         if (targetUserLikes.isEmpty()) {
             return Collections.emptyList();
         }

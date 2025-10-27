@@ -85,7 +85,7 @@ public class FilmService {
             directorService.validateDirectorsExist(directorIds);
         }
 
-        Film existingFilm = filmStorage.findById(film.getId())
+        filmStorage.findById(film.getId())
                 .orElseThrow(() -> new NotFoundException("Фильм с id = " + film.getId() + " не найден"));
 
         return filmStorage.update(film);
@@ -106,6 +106,18 @@ public class FilmService {
 
         filmStorage.update(film);
         feedService.create(userId, filmId, EventTypes.LIKE, Operations.ADD);
+    }
+
+    public void addRate(Long filmId, Long userId, Float rate) {
+        Film film = findById(filmId);
+
+        userStorage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id = " + userId + " не найден"));
+
+        film.getLikes().add(userId);
+        film.setRate(film.getRate() + rate);
+
+        filmStorage.update(film);
     }
 
     public void removeLike(Long filmId, Long userId) {
@@ -138,7 +150,11 @@ public class FilmService {
         List<Film> films = filmStorage.getFilmsByDirector(directorId);
 
         if (sortBy.equals(DirectorSortBy.LIKES)) {
-            return films.stream().sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList();
+            return films.stream()
+                    .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size()).toList();
+        } else if (sortBy.equals(DirectorSortBy.RATE)) {
+            return films.stream()
+                    .sorted((f1, f2) -> (int) (f2.getRate() - f1.getRate())).toList();
         }
 
         return films.stream().sorted(Comparator.comparingInt(f -> f.getReleaseDate().getYear())).toList();

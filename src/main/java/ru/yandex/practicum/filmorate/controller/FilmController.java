@@ -56,6 +56,12 @@ public class FilmController {
         filmService.addLike(id, userId);
     }
 
+    @PutMapping("/{id}/like/{userId}/{rate}")
+    public void addRate(@PathVariable Long id, @PathVariable Long userId, @PathVariable Float rate) {
+        log.info("Получен запрос на добавление рейтинга: фильм {}, пользователь {}", id, userId);
+        filmService.addRate(id, userId, rate);
+    }
+
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
         log.info("Получен запрос на удаление лайка: фильм {}, пользователь {}", id, userId);
