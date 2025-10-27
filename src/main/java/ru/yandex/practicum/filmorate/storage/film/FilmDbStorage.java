@@ -156,12 +156,10 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findByIds(Set<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-//            return List.of();
-            return List.of(new Film());
+            return List.of();
         }
 
         String inClause = String.join(",", ids.stream()
-                .filter(ex -> ex > 5)
                 .map(String::valueOf)
                 .toArray(String[]::new));
 
