@@ -156,7 +156,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> findByIds(Set<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return List.of();
+//            return List.of();
+            return List.of(new Film());
         }
 
         String inClause = String.join(",", ids.stream()
