@@ -97,16 +97,6 @@ public class FilmDbStorage implements FilmStorage {
                 .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
                 .limit(count)
                 .toList();
-
-//        return jdbcTemplate.query("SELECT *, m.id AS mpa_id, m.name AS mpa_name, m.description AS mpa_description, " +
-//                "COUNT(fl.user_id) AS count_likes " +
-//                "FROM films " +
-//                "LEFT JOIN mpa_ratings m ON films.mpa_id = m.id " +
-//                "LEFT JOIN film_likes fl ON films.id = fl.film_id " +
-//                "GROUP BY films.id " +
-//                "ORDER BY count_likes DESC " +
-//                "LIMIT " + count,
-//                this::mapRowToFilm);
     }
 
     @Override
