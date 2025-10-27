@@ -23,8 +23,7 @@ public class RecommendationService {
         Set<Long> targetUserLikes = userLikes.getOrDefault(userId, Collections.emptySet());
 
         if (targetUserLikes.isEmpty()) {
-//            return Collections.emptyList();
-            return List.of(new Film());
+            return Collections.emptyList();
         }
 
         Long mostSimilarUserId = null;
@@ -44,7 +43,8 @@ public class RecommendationService {
         }
 
         if (mostSimilarUserId == null) {
-            return Collections.emptyList();
+//            return Collections.emptyList();
+            return List.of(new Film());
         }
 
         Set<Long> similarUserLikes = new HashSet<>(userLikes.get(mostSimilarUserId));
