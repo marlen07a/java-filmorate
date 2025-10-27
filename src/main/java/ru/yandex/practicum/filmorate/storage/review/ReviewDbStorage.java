@@ -185,7 +185,6 @@ public class ReviewDbStorage implements ReviewStorage {
                 (rs, rowNum) -> rs.getBoolean("is_like"), reviewId, userId);
 
         if (!existingVotes.isEmpty() && !existingVotes.get(0)) {
-            // удаляю только если был дизлайк
             String updateSql = "UPDATE reviews SET useful = useful + 1 WHERE id = ?";
             jdbcTemplate.update(updateSql, reviewId);
             String deleteSql = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
