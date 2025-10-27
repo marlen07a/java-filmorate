@@ -96,7 +96,7 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException("Фильм с id = " + id + " не найден"));
     }
 
-    public void addLike(Long filmId, Long userId) {
+    public Film addLike(Long filmId, Long userId) {
         Film film = findById(filmId);
 
         userStorage.findById(userId)
@@ -104,8 +104,8 @@ public class FilmService {
 
         film.getLikes().add(userId);
 
-        filmStorage.update(film);
         feedService.create(userId, filmId, EventTypes.LIKE, Operations.ADD);
+        return filmStorage.update(film);
     }
 
     public void addRate(Long filmId, Long userId, Float rate) {

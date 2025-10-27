@@ -51,9 +51,9 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void addLike(@PathVariable Long id, @PathVariable Long userId) {
+    public Film addLike(@PathVariable Long id, @PathVariable Long userId) {
         log.info("Получен запрос на добавление лайка: фильм {}, пользователь {}", id, userId);
-        filmService.addLike(id, userId);
+        return filmService.addLike(id, userId);
     }
 
     @PutMapping("/{id}/like/{userId}/{rate}")
