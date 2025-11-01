@@ -1,18 +1,24 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import ru.yandex.practicum.filmorate.model.DirectorSortBy;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SearchBy;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
+@Slf4j
 @RequestMapping("/films")
 public class FilmController {
-    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     private final FilmService filmService;
 
     @Autowired
@@ -45,9 +51,15 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void addLike(@PathVariable Long id, @PathVariable Long userId) {
+    public Film addLike(@PathVariable Long id, @PathVariable Long userId) {
         log.info("Получен запрос на добавление лайка: фильм {}, пользователь {}", id, userId);
-        filmService.addLike(id, userId);
+        return filmService.addLike(id, userId);
+    }
+
+    @PutMapping("/{id}/like/{userId}/{rate}")
+    public void addRate(@PathVariable Long id, @PathVariable Long userId, @PathVariable Float rate) {
+        log.info("Получен запрос на добавление рейтинга: фильм {}, пользователь {}", id, userId);
+        filmService.addRate(id, userId, rate);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
@@ -78,23 +90,26 @@ public class FilmController {
             log.info("Получен запрос на получение {} популярных фильмов", count);
             return filmService.getPopularFilms(count);
         }
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Long genreId) {
+        log.info("Получен запрос на получение {} популярных фильмов", count);
+        return filmService.getPopularFilms(count, genreId, year);
     }
 
     @GetMapping("/director/{directorId}")
     public List<Film> getFilmsByDirector(
             @PathVariable Long directorId,
             @RequestParam(defaultValue = "year") String sortBy) {
-        log.info("Получен запрос на получение фильмов режиссёра с id: {}, сортировка: {}", directorId, sortBy);
-        return filmService.getFilmsByDirector(directorId, sortBy);
+        return filmService.getFilmsByDirector(directorId, DirectorSortBy.fromValue(sortBy));
     }
 
     @GetMapping("/search")
     public List<Film> searchFilms(
             @RequestParam String query,
             @RequestParam(defaultValue = "title,director") String by) {
-        log.info("Получен запрос на поиск фильмов: query='{}', by='{}'", query, by);
-        return filmService.searchFilms(query, by);
+        return filmService.searchFilms(query, Arrays.stream(by.split(",")).map(SearchBy::fromValue).toList());
     }
+
 
     @DeleteMapping("/{id}")
     public void deleteFilm(@PathVariable Long id) {

@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.RecommendationService;
@@ -12,9 +12,9 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import java.util.List;
 
 @RestController
+@Slf4j
 @RequestMapping("/users")
 public class UserController {
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
     private final RecommendationService recommendationService;
 
@@ -72,11 +72,18 @@ public class UserController {
         return userService.getCommonFriends(id, otherId);
     }
 
+    @GetMapping("/{id}/feed")
+    public List<Feed> getFeedByUserId(@PathVariable Long id) {
+        log.info("Получен запрос на получение ленты событий пользователя с id: {}", id);
+        return userService.getAllFeedsByIdUser(id);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         log.info("Получен запрос на удаление пользователя с id: {}", id);
         userService.deleteUser(id);
     }
+
     @GetMapping("/{id}/recommendations")
     public List<Film> getRecommendations(@PathVariable Long id) {
         log.info("Запрошены рекомендации для пользователя {}", id);

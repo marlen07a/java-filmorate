@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.SearchBy;
 
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,18 @@ public interface FilmStorage {
 
     Optional<Film> findById(Long id);
 
+    List<Film> findByIds(Set<Long> ids);
+
+    List<Film> getPopularFilms(int count);
+
+    List<Film> getPopularFilmsByGenreYear(Long genreId, Integer year, int count);
+
+    List<Film> getPopularFilmsByGenre(Long genreId, int count);
+
+    List<Film> getPopularFilmsByYear(Integer year, int count);
+
+    List<Film> getFilmsByDirector(Long directorId);
+
     void delete(Long id);
 
     boolean existsById(Long id);
@@ -24,4 +37,6 @@ public interface FilmStorage {
     Map<Long, Set<Long>> getFilmLikesByUsers();
 
     List<Film> findCommonFilms(Long userId, Long friendId);
+
+    List<Film> searchFilms(String query, List<SearchBy> by);
 }

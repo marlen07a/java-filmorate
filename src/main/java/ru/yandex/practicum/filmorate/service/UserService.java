@@ -3,6 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.EventTypes;
+import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Operations;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -11,10 +14,12 @@ import java.util.*;
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final FeedService feedService;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FeedService feedService) {
         this.userStorage = userStorage;
+        this.feedService = feedService;
     }
 
     public List<User> findAll() {
@@ -38,27 +43,41 @@ public class UserService {
         if (!userStorage.existsById(userId)) {
             throw new NotFoundException("Пользователь с id = " + userId + " не найден");
         }
+
         if (!userStorage.existsById(friendId)) {
             throw new NotFoundException("Пользователь с id = " + friendId + " не найден");
         }
+
+        if (userId.equals(friendId)) {
+            throw new IllegalArgumentException("id = пользователя не должен быть равен id = друга");
+        }
+
         userStorage.addFriend(userId, friendId);
+        feedService.create(userId, friendId, EventTypes.FRIEND, Operations.ADD);
     }
 
     public void removeFriend(Long userId, Long friendId) {
         if (!userStorage.existsById(userId)) {
             throw new NotFoundException("Пользователь с id = " + userId + " не найден");
         }
+
         if (!userStorage.existsById(friendId)) {
             throw new NotFoundException("Пользователь с id = " + friendId + " не найден");
         }
+
+        if (userId.equals(friendId)) {
+            throw new IllegalArgumentException("id = пользователя не должен быть равен id = друга");
+        }
+
         userStorage.removeFriend(userId, friendId);
+        feedService.create(userId, friendId, EventTypes.FRIEND, Operations.REMOVE);
     }
 
     public List<User> getFriends(Long userId) {
         User user = findById(userId);
         List<User> friendList = new ArrayList<>();
 
-        for (Long friendId : user.getFriends()) { // убрали .keySet()
+        for (Long friendId : user.getFriends()) {
             userStorage.findById(friendId).ifPresent(friendList::add);
         }
 
@@ -80,6 +99,16 @@ public class UserService {
         }
 
         return commonFriends;
+    }
+
+    public List<Feed> getAllFeedsByIdUser(Long id) {
+        if (feedService.getByUserId(id).isEmpty()) {
+            throw new NotFoundException("События не найдены");
+        }
+
+        findById(id);
+
+        return feedService.getByUserId(id);
     }
 
     public void deleteUser(Long id) {

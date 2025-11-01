@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -23,7 +24,6 @@ public class UserDbStorage implements UserStorage {
     public List<User> findAll() {
         String sql = "SELECT * FROM users";
         List<User> users = jdbcTemplate.query(sql, this::mapRowToUser);
-        // Загружаем друзей для каждого пользователя
         users.forEach(this::loadFriends);
         return users;
     }
@@ -34,6 +34,10 @@ public class UserDbStorage implements UserStorage {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
+        if (user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"id"});
             stmt.setString(1, user.getEmail());
@@ -43,7 +47,7 @@ public class UserDbStorage implements UserStorage {
             return stmt;
         }, keyHolder);
 
-        user.setId(keyHolder.getKey().longValue());
+        user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return user;
     }
 
@@ -62,7 +66,6 @@ public class UserDbStorage implements UserStorage {
             throw new NotFoundException("Пользователь с id = " + user.getId() + " не найден");
         }
 
-        // Обновляем друзей в БД
         updateFriends(user);
 
         return user;
@@ -75,7 +78,7 @@ public class UserDbStorage implements UserStorage {
         if (users.isEmpty()) {
             return Optional.empty();
         }
-        User user = users.get(0);
+        User user = users.getFirst();
         loadFriends(user);
         return Optional.of(user);
     }
@@ -89,8 +92,8 @@ public class UserDbStorage implements UserStorage {
     @Override
     public boolean existsById(Long id) {
         String sql = "SELECT COUNT(*) FROM users WHERE id = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);
-        return count != null && count > 0;
+
+        return jdbcTemplate.queryForObject(sql, Integer.class, id) > 0;
     }
 
     private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
@@ -129,11 +132,9 @@ public class UserDbStorage implements UserStorage {
 
 
     private void updateFriends(User user) {
-        // Удаляем старые друзья
         String deleteSql = "DELETE FROM friendships WHERE user_id = ?";
         jdbcTemplate.update(deleteSql, user.getId());
 
-        // Сохраняем новых друзей (без статуса)
         if (user.getFriends() != null && !user.getFriends().isEmpty()) {
             String insertSql = "INSERT INTO friendships (user_id, friend_id) VALUES (?, ?)";
             for (Long friendId : user.getFriends()) {
