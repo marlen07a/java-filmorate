@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
@@ -24,6 +25,19 @@ public class GenreDbStorage {
         String sql = "SELECT * FROM genres WHERE id = ?";
         List<Genre> genres = jdbcTemplate.query(sql, this::mapRowToGenre, id);
         return genres.stream().findFirst();
+    }
+
+    public List<Genre> findByIds(Set<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+
+        String inClause = String.join(",", ids.stream()
+                .map(String::valueOf)
+                .toArray(String[]::new));
+
+        String sql = "SELECT * FROM genres WHERE id IN (" + inClause + ")";
+        return jdbcTemplate.query(sql, this::mapRowToGenre);
     }
 
     private Genre mapRowToGenre(ResultSet rs, int rowNum) throws SQLException {

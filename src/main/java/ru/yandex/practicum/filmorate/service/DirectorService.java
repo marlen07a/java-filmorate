@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,24 +31,6 @@ public class DirectorService {
 
     public Director createDirector(Director director) {
         return directorStorage.create(director);
-    }
-
-    public Director updateDirector(Director director) {
-        if (director.getId() == null) {
-            throw new NotFoundException("Id режиссёра не указан");
-        }
-
-        directorStorage.getById(director.getId())
-                .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + director.getId() + " не найден"));
-
-        return directorStorage.update(director);
-    }
-
-    public void deleteDirector(Long id) {
-        directorStorage.getById(id)
-                .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + id + " не найден"));
-
-        directorStorage.delete(id);
     }
 
     public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
@@ -70,6 +54,50 @@ public class DirectorService {
         } else {
             throw new IllegalArgumentException("Некорректный параметр сортировки: " + sortBy +
                     ". Допустимые значения: year, likes");
+        }
+    }
+
+    public Director updateDirector(Director director) {
+        if (director.getId() == null) {
+            throw new NotFoundException("Id режиссёра не указан");
+        }
+
+        Director existingDirector = directorStorage.getById(director.getId())
+                .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + director.getId() + " не найден"));
+
+        if (director.getName() != null) {
+            if (director.getName().isBlank()) {
+                throw new ValidationException("Имя режиссёра не может быть пустым");
+            }
+            existingDirector.setName(director.getName());
+        }
+
+        return directorStorage.update(existingDirector);
+    }
+
+    public void deleteDirector(Long id) {
+        directorStorage.getById(id)
+                .orElseThrow(() -> new NotFoundException("Режиссёр с id = " + id + " не найден"));
+
+        directorStorage.delete(id);
+    }
+
+    public void validateDirectorsExist(Set<Long> directorIds) {
+        if (directorIds == null || directorIds.isEmpty()) {
+            return;
+        }
+
+        List<Director> existingDirectors = directorStorage.findByIds(directorIds);
+        Set<Long> foundIds = existingDirectors.stream()
+                .map(Director::getId)
+                .collect(Collectors.toSet());
+
+        Set<Long> missingIds = directorIds.stream()
+                .filter(id -> !foundIds.contains(id))
+                .collect(Collectors.toSet());
+
+        if (!missingIds.isEmpty()) {
+            throw new NotFoundException("Режиссёры с id " + missingIds + " не найдены");
         }
     }
 }
