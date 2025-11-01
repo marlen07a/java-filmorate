@@ -144,6 +144,44 @@ public class FilmService {
         }
     }
 
+    public List<Film> getPopularFilmsByGenre(int count, Long genreId) {
+        genreService.getGenreById(genreId);
+
+        return filmStorage.findAll().stream()
+                .filter(film -> film.getGenres() != null &&
+                        film.getGenres().stream()
+                                .anyMatch(genre -> genre.getId().equals(genreId)))
+                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                .limit(count)
+                .collect(Collectors.toList());
+    }
+
+    public List<Film> getPopularFilmsByYear(int count, Integer year) {
+        return filmStorage.findAll().stream()
+                .filter(film -> film.getReleaseDate() != null &&
+                        film.getReleaseDate().getYear() == year)
+                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                .limit(count)
+                .collect(Collectors.toList());
+    }
+
+    public List<Film> getPopularFilmsByGenreAndYear(int count, Long genreId, Integer year) {
+        genreService.getGenreById(genreId);
+
+        return filmStorage.findAll().stream()
+                .filter(film -> film.getReleaseDate() != null &&
+                        film.getReleaseDate().getYear() == year)
+                .filter(film -> film.getGenres() != null &&
+                        film.getGenres().stream()
+                                .anyMatch(genre -> genre.getId().equals(genreId)))
+                .sorted((f1, f2) -> Integer.compare(f2.getLikes().size(), f1.getLikes().size()))
+                .limit(count)
+                .collect(Collectors.toList());
+    }
+
+    public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
+        List<Film> directorFilms;
+
     public List<Film> getFilmsByDirector(Long directorId, DirectorSortBy sortBy) {
         directorService.getDirectorById(directorId);
 
