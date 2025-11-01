@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS films (
     description VARCHAR(200),
     release_date DATE NOT NULL,
     duration INTEGER NOT NULL,
+    rate FLOAT NOT NULL,
     mpa_id BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (mpa_id) REFERENCES mpa_ratings(id) ON DELETE RESTRICT
@@ -55,7 +56,6 @@ CREATE TABLE IF NOT EXISTS film_genres (
     FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE CASCADE
 );
 
--- Film likes (many-to-many relationship)
 CREATE TABLE IF NOT EXISTS film_likes (
     film_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,

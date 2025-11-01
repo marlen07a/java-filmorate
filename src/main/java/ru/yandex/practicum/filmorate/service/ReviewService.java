@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewService {
     private final UserStorage userStorage;
-    private final FilmStorage filmStorage; // Нужно добавить зависимость
+    private final FilmStorage filmStorage;
     private final ReviewStorage reviewDbStorage;
     private final FeedService feedService;
 
@@ -27,11 +27,9 @@ public class ReviewService {
             throw new ValidationException("Film ID не может быть null");
         }
 
-        // Проверяем существование пользователя и фильма
         getUserOrThrow(review.getUserId());
         getFilmOrThrow(review.getFilmId());
 
-        // Гарантируем, что useful не null
         if (review.getUseful() == null) {
             review.setUseful(0);
         }
@@ -39,19 +37,23 @@ public class ReviewService {
         Review newReview = reviewDbStorage.create(review);
         feedService.create(review.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.ADD);
 
+
+        feedService.create(newReview.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.ADD);
         return newReview;
     }
 
     public Review update(Review review) {
         Review existingReview = findById(review.getReviewId());
 
-        // Сохраняем текущее значение useful, если в обновлении оно null
         if (review.getUseful() == null) {
             review.setUseful(existingReview.getUseful());
         }
         Review newReview = reviewDbStorage.update(review);
         feedService.create(review.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.UPDATE);
 
+        Review newReview = reviewDbStorage.update(review);
+
+        feedService.create(newReview.getUserId(), newReview.getReviewId(), EventTypes.REVIEW, Operations.UPDATE);
         return newReview;
     }
 
@@ -64,7 +66,10 @@ public class ReviewService {
         Review review = findById(reviewId);
 
         feedService.create(review.getUserId(), review.getReviewId(), EventTypes.REVIEW, Operations.REMOVE);
+        Review review = reviewDbStorage.findById(reviewId).orElseThrow();
+
         reviewDbStorage.delete(reviewId);
+        feedService.create(review.getUserId(), review.getReviewId(), EventTypes.REVIEW, Operations.REMOVE);
     }
 
     public List<Review> findByFilmId(Long filmId, int count) {
@@ -106,19 +111,19 @@ public class ReviewService {
         return reviewDbStorage.getUseful(reviewId);
     }
 
-    private User getUserOrThrow(Long userId) {
+    private void getUserOrThrow(Long userId) {
         if (userId == null) {
             throw new ValidationException("User ID не может быть null");
         }
-        return userStorage.findById(userId)
+        userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID " + userId + " не найден"));
     }
 
-    private Film getFilmOrThrow(Long filmId) {
+    private void getFilmOrThrow(Long filmId) {
         if (filmId == null) {
             throw new ValidationException("Film ID не может быть null");
         }
-        return filmStorage.findById(filmId)
+        filmStorage.findById(filmId)
                 .orElseThrow(() -> new NotFoundException("Фильм с ID " + filmId + " не найден"));
     }
 }

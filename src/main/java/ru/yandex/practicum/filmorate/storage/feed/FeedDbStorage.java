@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 @RequiredArgsConstructor
@@ -36,6 +37,7 @@ public class FeedDbStorage {
         }, keyHolder);
 
         feed.setEventId(keyHolder.getKey().longValue());
+        feed.setEventId(Objects.requireNonNull(keyHolder.getKey()).longValue());
 
         return feed;
     }

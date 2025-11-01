@@ -18,9 +18,10 @@ public class RecommendationService {
 
     public List<Film> getRecommendations(Long userId) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с ID " + userId + " не найден"));
-        Map<Long, Set<Long>> userLikes = filmStorage.getFilmLikesByUsers();
 
+        Map<Long, Set<Long>> userLikes = filmStorage.getFilmLikesByUsers();
         Set<Long> targetUserLikes = userLikes.getOrDefault(userId, Collections.emptySet());
+
         if (targetUserLikes.isEmpty()) {
             return Collections.emptyList();
         }
@@ -48,10 +49,6 @@ public class RecommendationService {
         Set<Long> similarUserLikes = new HashSet<>(userLikes.get(mostSimilarUserId));
         similarUserLikes.removeAll(targetUserLikes);
 
-        return similarUserLikes.stream()
-                .map(filmStorage::findById)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+        return filmStorage.findByIds(similarUserLikes);
     }
 }
